@@ -4,7 +4,7 @@
 afficher :-
 	findall(_, afficherPlateau(_), _).
 
-demandeCoup(Joueur, Coup) :- nl, write('['), write(Joueur), write('] '), saisirCoup(Coup).
+demandeCoup(Joueur, Message, Coup) :- nl, write(Message), nl, write('['), write(Joueur), write('] '), saisirCoup(Coup).
 
 afficherGagnant(Joueur) :-
 	write('Le joueur '), write(Joueur), write(' gagne.').
