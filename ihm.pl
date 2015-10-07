@@ -2,18 +2,17 @@
 %% Méthodes à appeler %%
 %%%%%%%%%%%%%%%%%%%%%%%%
 afficher :-
-	findall(_, afficherPlateau(Y), _).
+	findall(_, afficherPlateau(_), _).
 
-demandeCoup(Joueur, Message, Coup) :-
-    write(Message), nl, write(Joueur), saisirCoup(Coup).
+demandeCoup(Joueur, Coup) :- nl, write('['), write(Joueur), write('] '), saisirCoup(Coup).
 
 gagne(Joueur) :-
 	write('Le joueur '), write(Joueur), write(' gagne.').
 
 demandeTypeDeJeu(TypeDeJeu) :-
-    write('   --- Puissance 4 --- '), nl,
-    write('    1. Jouer au jeu avec un humain     '), nl,
-    write('                         '), nl,
+    write('   --- Puissance 4 ---'), nl,
+    write('    1. Jouer au jeu avec un humain'), nl,
+    nl, nl,
 	write(' ----------------------- '), nl,
     write('Saisissez votre choix :'), nl,
     read(TypeDeJeu), integer(TypeDeJeu).
@@ -25,20 +24,20 @@ demandeTypeDeJeu(TypeDeJeu) :-
 
 % principe : on parcourt la base de faits et pour chaque case on affiche une couleur (ou pas)
 afficherPlateau(Y) :-
-	between(1,6,Y1),
+	nbLignes(NbLignes),
+	between(1,NbLignes,Y1),
 	Y is 7-Y1,
-	findall(_, afficherLigne(X,Y), _),
+	findall(_, afficherLigne(_,Y), _),
 	nl.
 
 afficherLigne(X,Y) :-
-	between(1,6,X),
+	nbColonnes(NbColonnes),
+	between(1,NbColonnes,X),
 	afficherCase(X,Y).
 
-afficherCase(X,Y) :-
-	case(X,Y,A),
-	write(A), !. % si on trouve une case dans la base des faits, on ne veux pas afficher une case vide, donc on arrete la recherche pour ce X et Y, d'où le "!"
-afficherCase(_,_) :-
-	write(.).
+afficherCase(X,Y) :- case(X,Y,rouge), write(r), !.
+afficherCase(X,Y) :- case(X,Y,jaune), write(j), !.
+afficherCase(_,_) :- write(.).
 
 saisirCoup(Coup) :-
 	write('Veuillez saisir votre coup : '),

@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%% Constantes %%%%%%%%%%%%%%%%%
 
-nbLignes(5).
-nbColonnes(8).
+nbLignes(6).
+nbColonnes(7).
 
 %%%%%%%%%%%%%%%%% Fonctions utiles %%%%%%%%%%%%%%%%%
 
@@ -14,18 +14,16 @@ caseVide(X,Y) :- nonvar(X),nonvar(Y),not(case(X,Y,_)).
 
 %%%%%%%%%%%%%%%%% Initialisation du plateau %%%%%%%%%%%%%%%%%
 
-init:- initClear, assert(case(_,_,_) :- fail).
+init :- initClear, assert(case(_,_,_) :- fail).
 
-initClear :- retractall(case(X,Y,Z)).
+initClear :- retractall(case(_,_,_)).
 
 initTest :- assert(case(4,1,rouge)), assert(case(3,2,rouge)), assert(case(2,3,rouge)), assert(case(1,4,rouge)). %initInterface, play
 
 
-
 %%%%%%%%%%%%%%%% Play %%%%%%%%%%%%%%%%%
 
-play(X,Y,J).
-
+%play(_,_,_).
 
 %%%%%%%%%%%%%%%% Vérification de la victoire %%%%%%%%%%%%%
 
@@ -80,26 +78,23 @@ droiteHaut(X,Y,J,R,Rg) :- incr(Y,Y1), incr(X,X1), incr(R,R1), droiteHaut(X1,Y1,J
 
 %%%%%%%%%%%%%% Play %%%%%%%%%%%%%%%%%%%
 
-% placerJeton\3(-Colonne, +Ligne, -Couleur) 
+% placerJeton/3(-Colonne, +Ligne, -Couleur) 
 % insère si possible un jeton dans la colonne donnée
 % retourne la ligne d'insertion, ou no
 placerJeton(X,Y,C) :- coupValide(X), insererJeton(X, Y, C).
 
-% coupValide\1(-Colonne)
+% coupValide/1(-Colonne)
 % Vérifie si un jeton est jouable dans cette colonne
 % retourne yes ou no
-coupValide(X) :- nbLignes(NBLIGNES), caseVide(X,NBLIGNES).
+coupValide(X) :- nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1, nbLignes(NBLIGNES), caseVide(X,NBLIGNES).
 
-% insererJeton\3(-Colonne, +Ligne, -Couleur)
+% insererJeton/3(-Colonne, +Ligne, -Couleur)
 % Insere, sans vérification, un jeton de la couleur donnée, dans la colonne donnée
 % retourne la ligne d'insertion, 
 insererJeton(X,Y,C) :- calculPositionJeton(X, 1, Y), assert(case(X,Y,C)).
 
-% calculPositionJeton\3(+Colonne,+LigneToCheck,-Ligne)
+% calculPositionJeton/3(+Colonne,+LigneToCheck,-Ligne)
 % calcule la premiere ligne vide d'une colonne
 % retourne l'indice de cette ligne vide
 calculPositionJeton(X,YCheck,YCheck) :- caseVide(X,YCheck), !.
 calculPositionJeton(X,YCheck,Y) :- incr(YCheck, YCheck1), calculPositionJeton(X,YCheck1,Y).
-
-
-

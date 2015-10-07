@@ -8,21 +8,24 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Gestion du cycle de vie %%
-run :- typeJeu(T), 
-       init(T),
+run :- demandeTypeDeJeu(_), 
+       init, % à améliorer pour initialiser selon le type de jeu
+	   assert(joueurCourant(rouge)),
 	   jeu,
-	   afficherGagnant
-	   .
-	   
-	   
-	   
+	   afficherGagnant.
 	   
 jeu :- tour.
 
+tour :- afficher,
+	joueurCourant(Joueur),
+	demandeCoup(Joueur,Coup),
+	bouclePlacer(Coup,Joueur,Y),
+	not(gagne(Coup,Y,rouge)),
+	changerJoueur,
+	tour.
 
+bouclePlacer(Coup,Joueur,Y) :- placerJeton(Coup,Y,Joueur).
+bouclePlacer(_,Joueur,Y) :- demandeCoup(Joueur,Coup), bouclePlacer(Coup,Joueur,Y).
 
-tour :- affiche(), bouclePlacer, not(gagne), changerJoueur, tour.
-
-
-bouclePlacer :- placerJeton(Coup,Y,joueur).
-bouclePlacer :- demandeCoup(joueur, Coup), bouclePlacer.
+changerJoueur :- joueurCourant(rouge), retractall(joueurCourant(_)), assert(joueurCourant(jaune)), !.
+changerJoueur :- joueurCourant(jaune), retractall(joueurCourant(_)), assert(joueurCourant(rouge)).
