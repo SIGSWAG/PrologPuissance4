@@ -1,8 +1,27 @@
-﻿case(1,1,r).
-case(_,_,_) :- fail.
-
+﻿%%%%%%%%%%%%%%%%%%%%%%%%
+%% Méthodes à appeler %%
+%%%%%%%%%%%%%%%%%%%%%%%%
 afficher :-
 	findall(_, afficherPlateau(Y), _).
+
+demandeCoup(Joueur, Message, Coup) :-
+    write(Message), nl, write(Joueur), saisirCoup(Coup).
+
+gagne(Joueur) :-
+	write('Le joueur '), write(Joueur), write(' gagne.').
+
+demandeTypeDeJeu(TypeDeJeu) :-
+    write('   --- Puissance 4 --- '), nl,
+    write('    1. Jouer au jeu avec un humain     '), nl,
+    write('                         '), nl,
+	write(' ----------------------- '), nl,
+    write('Saisissez votre choix :'), nl,
+    read(TypeDeJeu), integer(TypeDeJeu).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% Méthodes "privées" %%
+%%%%%%%%%%%%%%%%%%%%%%%%
 
 % principe : on parcourt la base de faits et pour chaque case on affiche une couleur (ou pas)
 afficherPlateau(Y) :-
@@ -21,23 +40,6 @@ afficherCase(X,Y) :-
 afficherCase(_,_) :-
 	write(.).
 
-demandeCoup(C) :-
+saisirCoup(Coup) :-
 	write('Veuillez saisir votre coup : '),
-	read(C).
-	
-	
-%%%%% Menu %%%
-menu :- repeat,
-    write('   --- Puissance 4 --- '), nl,
-    write('    1. Jouer au jeu avec un humain     '), nl,
-    write('                         '), nl,
-	write(' ----------------------- '), nl,
-    write('Saisissez votre choix :'), nl,
-    read(Choix), integer(Choix), Choix >0, Choix =<1,
-    faireChoix(Choix), !.
-
-faireChoix(1):-
-    repeat, afficher, demandeCoup(C), play(Coup, ).
-	
-faireChoix(1):-
-    repeat, afficher, demandeCoup(C), not(play(Coup, )), write('Mauvais coup').
+	read(Coup).
