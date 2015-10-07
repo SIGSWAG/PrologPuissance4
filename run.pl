@@ -10,14 +10,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Gestion du cycle de vie %%
 run :- typeJeu(T), 
        init(T),
+	   jeu,
+	   afficherGagnant
 	   .
 	   
 	   
 	   
 	   
-jeu :- 
+jeu :- tour.
 
 
 
-tour :- affiche(), demandeCoup(joueur, C), placerJeton(C
+tour :- affiche(), bouclePlacer, not(gagne), changerJoueur, tour.
 
+
+bouclePlacer :- placerJeton(Coup,Y,joueur).
+bouclePlacer :- demandeCoup(joueur, Coup), bouclePlacer.
