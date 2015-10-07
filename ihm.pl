@@ -6,7 +6,7 @@ afficher :-
 
 demandeCoup(Joueur, Coup) :- nl, write('['), write(Joueur), write('] '), saisirCoup(Coup).
 
-gagne(Joueur) :-
+afficherGagnant(Joueur) :-
 	write('Le joueur '), write(Joueur), write(' gagne.').
 
 demandeTypeDeJeu(TypeDeJeu) :-
