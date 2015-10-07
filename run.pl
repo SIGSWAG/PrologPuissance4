@@ -21,12 +21,13 @@ tour :- 	afficher,
 		joueurCourant(Joueur),
 		demandeCoup(Joueur,Coup),
 		bouclePlacer(Coup,Joueur,Y),
-		not(gagne(Coup,Y,Joueur)),
-		changerJoueur,
-		tour.
+		testVictoire(Coup,Y,Joueur).
 
 bouclePlacer(Coup,Joueur,Y) :- placerJeton(Coup,Y,Joueur).
 bouclePlacer(_,Joueur,Y) :- demandeCoup(Joueur,Coup), bouclePlacer(Coup,Joueur,Y).
 
 changerJoueur :- joueurCourant(rouge), retractall(joueurCourant(_)), assert(joueurCourant(jaune)), !.
 changerJoueur :- joueurCourant(jaune), retractall(joueurCourant(_)), assert(joueurCourant(rouge)).
+
+testVictoire(Coup,Y,Joueur)	:-	gagne(Coup,Y,Joueur), afficher.
+testVictoire(_,_,_)	:- changerJoueur, tour.
