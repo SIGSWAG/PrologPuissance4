@@ -24,3 +24,20 @@ afficherCase(_,_) :-
 demandeCoup(C) :-
 	write('Veuillez saisir votre coup : '),
 	read(C).
+	
+	
+%%%%% Menu %%%
+menu :- repeat,
+    write('   --- Puissance 4 --- '), nl,
+    write('    1. Jouer au jeu avec un humain     '), nl,
+    write('                         '), nl,
+	write(' ----------------------- '), nl,
+    write('Saisissez votre choix :'), nl,
+    read(Choix), integer(Choix), Choix >0, Choix =<1,
+    faireChoix(Choix), !.
+
+faireChoix(1):-
+    repeat, afficher, demandeCoup(C), play(Coup, ).
+	
+faireChoix(1):-
+    repeat, afficher, demandeCoup(C), not(play(Coup, )), write('Mauvais coup').
