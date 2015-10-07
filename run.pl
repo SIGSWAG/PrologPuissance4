@@ -19,14 +19,14 @@ jeu 	:- 	tour.
 
 tour :- 	afficher,
 		joueurCourant(Joueur),
-		demandeCoup(Joueur,Coup),
+		demandeCoup(Joueur, '', Coup),
 		bouclePlacer(Coup,Joueur,Y),
 		not(gagne(Coup,Y,Joueur)),
 		changerJoueur,
 		tour.
 
 bouclePlacer(Coup,Joueur,Y) :- placerJeton(Coup,Y,Joueur).
-bouclePlacer(_,Joueur,Y) :- demandeCoup(Joueur,Coup), bouclePlacer(Coup,Joueur,Y).
+bouclePlacer(_,Joueur,Y) :- demandeCoup(Joueur, 'Votre coup n\'est pas valide. Veuillez reessayer.\n', Coup), bouclePlacer(Coup,Joueur,Y).
 
 changerJoueur :- joueurCourant(rouge), retractall(joueurCourant(_)), assert(joueurCourant(jaune)), !.
 changerJoueur :- joueurCourant(jaune), retractall(joueurCourant(_)), assert(joueurCourant(rouge)).
