@@ -1,10 +1,14 @@
 %%%%%%%%%%%%%%%%% Fichier jeu.pl %%%%%%%%%%%%%%%%%%%
 
 
-% Initialisation du plateau
+%%%%%%%%%%%%%%%%% Fonctions utiles %%%%%%%%%%%%%%%%%
 
 incr(X,X1):- X1 is X+1.
 decr(X,X1):- X1 is X-1.
+
+
+%%%%%%%%%%%%%%%%% Initialisation du plateau %%%%%%%%%%%%%%%%%
+
 
 
 init:- initClear, initConstantes, initLignes(0), initTest.
@@ -22,7 +26,8 @@ initColonne(X,Y) :- nbColonnes(X).
 initColonne(X,Y) :- assert(case(X,Y,vide)), incr(X,X1), initColonne(X1,Y).
 
 
-% Play
+
+%%%%%%%%%%%%%%%% Play %%%%%%%%%%%%%%%%%
 
 play(X,Y,J).
 
@@ -34,9 +39,10 @@ play(X,Y,J).
 
 gagneColonne(X,Y,J) :- case(X,Y,J), decr(Y,Y1), case(X,Y1,J), decr(Y1,Y2), case(X,Y2,J), decr(Y2,Y3), case(X,Y3,J). %ligne en bas
 
-gagneLigne(X,Y,J,[]).
-gagneLigne(X,Y,J,L) .
-gagneLigne(X,Y,J,L) . 
+gagneLigne(X,Y,J) :- gauche(X,Y,J,Rg), droite(X,Y,J,Rd), (Rg+Rd)>3.
+
+
+
 % coté, diagonaleS
 
 
