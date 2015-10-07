@@ -1,6 +1,5 @@
 %%%%%%%%%%%%%%%%% Fichier jeu.pl %%%%%%%%%%%%%%%%%%%
 
-
 %%%%%%%%%%%%%%%%% Constantes %%%%%%%%%%%%%%%%%
 
 nbLignes(5).
@@ -13,8 +12,6 @@ decr(X,X1):- X1 is X-1.
 
 
 %%%%%%%%%%%%%%%%% Initialisation du plateau %%%%%%%%%%%%%%%%%
-
-
 
 init:- initClear.
 
@@ -49,6 +46,29 @@ droite(X,Y,J,R,R) :- not(case(X,Y,J)). %Jusqu'à la case non J
 droite(X,Y,J,R,Rg) :- incr(X,X1), incr(R,R1), droite(X1,Y,J,R1,Rg).
 
 % coté, diagonaleS
+
+
+% placerJeton\3(-Colonne, +Ligne, -Couleur) 
+% insère si possible un jeton dans la colonne donnée
+% retourne la ligne d'insertion, ou no
+placerJeton(X,Y,C) :- coupValide(X), insererJeton(X, Y, C).
+
+% coupValide\1(-Colonne)
+% Vérifie si un jeton est jouable dans cette colonne
+% retourne yes ou no
+coupValide(X) :- nbLignes(NBLIGNES), not(case(X,NBLIGNES,Z)).
+
+% insererJeton\3(-Colonne, +Ligne, -Couleur)
+% Insere, sans vérification, un jeton de la couleur donnée, dans la colonne donnée
+% retourne la ligne d'insertion, 
+insererJeton(X,Y,C) :- calculPositionJeton(X, 0, Y), retract(case(X,Y,vide)), assert(case(X,Y,C)).
+
+% calculPositionJeton\3(+Colonne,+LigneToCheck,-Ligne)
+% calcule la premiere ligne vide d'une colonne
+% retourne l'indice de cette ligne vide
+calculPositionJeton(X,YCheck,YCheck) :- case(X,YCheck,vide), !.
+calculPositionJeton(X,YCheck,Y) :- incr(YCheck, YCheck1), calculPositionJeton(X,YCheck1,Y).
+
 
 
 
