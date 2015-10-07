@@ -1,4 +1,5 @@
-case(1,1,r).
+﻿case(1,1,r).
+case(_,_,_) :- fail.
 
 afficher :-
 	findall(_, afficherPlateau(Y), _).
@@ -19,3 +20,7 @@ afficherCase(X,Y) :-
 	write(A), !. % si on trouve une case dans la base des faits, on ne veux pas afficher une case vide, donc on arrete la recherche pour ce X et Y, d'où le "!"
 afficherCase(_,_) :-
 	write(.).
+
+demandeCoup(C) :-
+	write('Veuillez saisir votre coup : '),
+	read(C).
