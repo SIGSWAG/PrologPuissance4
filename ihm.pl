@@ -18,6 +18,10 @@ afficherGagnant(CouleurGagnante,CouleurPerdante,TypeJoueurGagnant,TypeJoueurPerd
 	write(TypeJoueurPerdant),
 	write(' ('),write(CouleurPerdante),write(')').
 
+afficherPartieNulle :-
+	nl,
+	write('Il y a egalite entre les 2 joueurs').
+
 demandeTypeDeJeu(TypeDeJeu) :-
     write('   --- Puissance 4 ---'), nl,
     write('    1. Jouer en tant qu\'humain'), nl,

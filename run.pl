@@ -15,22 +15,18 @@ run 	:-
      	random_select(TypeJoueurR,[TypeJoueur1,TypeJoueur2],[TypeJoueurJ|_]),
 	   	assert(joueurCourant(rouge,TypeJoueurR)),
 	   	assert(autreJoueur(jaune,TypeJoueurJ)),
-	   	jeu,
-		joueurCourant(CouleurGagnante,TypeJoueurGagnant),
-		autreJoueur(CouleurPerdante,TypeJoueurPerdant),
-		getTypeJoueurString(TypeJoueurGagnant,TypeJoueurGagnantString),
-		getTypeJoueurString(TypeJoueurPerdant,TypeJoueurPerdantString),
-	   	afficherGagnant(CouleurGagnante,CouleurPerdante,TypeJoueurGagnantString,TypeJoueurPerdantString).
+	   	jeu(PartieNulle),
+	   	afficherFin(PartieNulle).
 	   
-jeu 	:- 	
-		tour.
+jeu(PartieNulle) :- 	
+		tour(PartieNulle).
 
-tour 	:- 
+tour(PartieNulle) 	:- 
 		afficher,
 		joueurCourant(CouleurJCourant,TypeJoueur),
 		aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'',Coup),
 		bouclePlacer(Coup,TypeJoueur,CouleurJCourant,Y),
-		testVictoire(Coup,Y,CouleurJCourant).
+		testFin(Coup,Y,CouleurJCourant, PartieNulle).
 
 bouclePlacer(Coup,_,CouleurJCourant,Y) :-
 	placerJeton(Coup,Y,CouleurJCourant),!.
@@ -53,15 +49,27 @@ changerJoueur :-
 	assert(joueurCourant(rouge,TypeJoueurR)),
 	assert(autreJoueur(jaune,TypeJoueurJ)),!.
 
-testVictoire(Coup,Y,CouleurJCourant) :- gagne(Coup,Y,CouleurJCourant), afficher.
-testVictoire(_,_,_) :- changerJoueur, tour.
+testFin(Coup,Y,CouleurJCourant,PartieNulle) :- gagne(Coup,Y,CouleurJCourant), PartieNulle=false, afficher.
+testFin(_,_,_,PartieNulle) :- not(coupPossible), PartieNulle=true, afficher.
+testFin(_,_,_,PartieNulle) :- changerJoueur, tour(PartieNulle).
 
 % permet d'appeler l'ihm ou les IAs pour récupérer le coup suivant
 % 1==humain
 aQuiDemanderCoup(CouleurJCourant,1,Message,Coup) :- demandeCoup(CouleurJCourant,Message,Coup),!.
 % 2==IA aleatoire
-aQuiDemanderCoup(CouleurJCourant,2,Message,Coup) :- write('rouge?'),demandeCoup(CouleurJCourant,Message,Coup).
+aQuiDemanderCoup(CouleurJCourant,2,Message,Coup) :- demandeCoup(CouleurJCourant,Message,Coup).
 % etc ...
 
 getTypeJoueurString(1,TypeJoueurString) :- TypeJoueurString='Humain',!.
 getTypeJoueurString(2,TypeJoueurString) :- TypeJoueurString='IA Aleatoire'.
+
+% partie non nulle
+afficherFin(false) :-
+	joueurCourant(CouleurGagnante,TypeJoueurGagnant),
+	autreJoueur(CouleurPerdante,TypeJoueurPerdant),
+	getTypeJoueurString(TypeJoueurGagnant,TypeJoueurGagnantString),
+	getTypeJoueurString(TypeJoueurPerdant,TypeJoueurPerdantString),
+   	afficherGagnant(CouleurGagnante,CouleurPerdante,TypeJoueurGagnantString,TypeJoueurPerdantString).
+% partie nulle
+afficherFin(true) :-
+	afficherPartieNulle.

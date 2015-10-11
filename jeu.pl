@@ -98,3 +98,5 @@ insererJeton(X,Y,C) :- calculPositionJeton(X, 1, Y), assert(case(X,Y,C)).
 % retourne l'indice de cette ligne vide
 calculPositionJeton(X,YCheck,YCheck) :- caseVide(X,YCheck), !.
 calculPositionJeton(X,YCheck,Y) :- incr(YCheck, YCheck1), calculPositionJeton(X,YCheck1,Y).
+
+coupPossible :- nbColonnes(NBCOLLONNES), between(1,NBCOLLONNES,X), coupValide(X).
