@@ -8,26 +8,60 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Gestion du cycle de vie %%
-run 	:- 	demandeTypeDeJeu(_), 
-     	init, % à améliorer pour initialiser selon le type de jeu
-	   	assert(joueurCourant(rouge)),
+run 	:-
+		demandeTypeDeJeu(TypeJoueur1),
+		demandeTypeDeJeu(TypeJoueur2),
+     	init,
+     	random_select(TypeJoueurR,[TypeJoueur1,TypeJoueur2],[TypeJoueurJ|_]),
+	   	assert(joueurCourant(rouge,TypeJoueurR)),
+	   	assert(autreJoueur(jaune,TypeJoueurJ)),
 	   	jeu,
-		joueurCourant(Joueur),
-	   	afficherGagnant(Joueur).
+		joueurCourant(CouleurGagnante,TypeJoueurGagnant),
+		autreJoueur(CouleurPerdante,TypeJoueurPerdant),
+		getTypeJoueurString(TypeJoueurGagnant,TypeJoueurGagnantString),
+		getTypeJoueurString(TypeJoueurPerdant,TypeJoueurPerdantString),
+	   	afficherGagnant(CouleurGagnante,CouleurPerdante,TypeJoueurGagnantString,TypeJoueurPerdantString).
 	   
-jeu 	:- 	tour.
+jeu 	:- 	
+		tour.
 
-tour :- 	afficher,
-		joueurCourant(Joueur),
-		demandeCoup(Joueur, '', Coup),
-		bouclePlacer(Coup,Joueur,Y),
-		testVictoire(Coup,Y,Joueur).
+tour 	:- 
+		afficher,
+		joueurCourant(CouleurJCourant,TypeJoueur),
+		aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'',Coup),
+		bouclePlacer(Coup,TypeJoueur,CouleurJCourant,Y),
+		testVictoire(Coup,Y,CouleurJCourant).
 
-bouclePlacer(Coup,Joueur,Y) :- placerJeton(Coup,Y,Joueur).
-bouclePlacer(_,Joueur,Y) :- demandeCoup(Joueur, 'Votre coup n\'est pas valide. Veuillez reessayer.\n', Coup), bouclePlacer(Coup,Joueur,Y).
+bouclePlacer(Coup,_,CouleurJCourant,Y) :-
+	placerJeton(Coup,Y,CouleurJCourant),!.
+bouclePlacer(_,TypeJoueur,CouleurJCourant,Y) :-
+	aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'Votre coup n\'est pas valide. Veuillez reessayer.\n',Coup),
+	bouclePlacer(Coup,TypeJoueur,CouleurJCourant,Y).
 
-changerJoueur :- joueurCourant(rouge), retractall(joueurCourant(_)), assert(joueurCourant(jaune)), !.
-changerJoueur :- joueurCourant(jaune), retractall(joueurCourant(_)), assert(joueurCourant(rouge)).
+changerJoueur :-
+	joueurCourant(rouge,TypeJoueurR), 
+	autreJoueur(jaune,TypeJoueurJ),
+	retractall(joueurCourant(_,_)),
+	retractall(autreJoueur(_,_)),
+	assert(joueurCourant(jaune,TypeJoueurJ)),
+	assert(autreJoueur(rouge,TypeJoueurR)),!.
+changerJoueur :-
+	joueurCourant(jaune,TypeJoueurJ),
+	autreJoueur(rouge,TypeJoueurR),
+	retractall(joueurCourant(_,_)),
+	retractall(autreJoueur(_,_)),
+	assert(joueurCourant(rouge,TypeJoueurR)),
+	assert(autreJoueur(jaune,TypeJoueurJ)),!.
 
-testVictoire(Coup,Y,Joueur)	:-	gagne(Coup,Y,Joueur), afficher.
-testVictoire(_,_,_)	:- changerJoueur, tour.
+testVictoire(Coup,Y,CouleurJCourant) :- gagne(Coup,Y,CouleurJCourant), afficher.
+testVictoire(_,_,_) :- changerJoueur, tour.
+
+% permet d'appeler l'ihm ou les IAs pour récupérer le coup suivant
+% 1==humain
+aQuiDemanderCoup(CouleurJCourant,1,Message,Coup) :- demandeCoup(CouleurJCourant,Message,Coup),!.
+% 2==IA aleatoire
+aQuiDemanderCoup(CouleurJCourant,2,Message,Coup) :- write('rouge?'),demandeCoup(CouleurJCourant,Message,Coup).
+% etc ...
+
+getTypeJoueurString(1,TypeJoueurString) :- TypeJoueurString='Humain',!.
+getTypeJoueurString(2,TypeJoueurString) :- TypeJoueurString='IA Aleatoire'.

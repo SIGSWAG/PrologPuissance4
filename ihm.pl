@@ -4,14 +4,24 @@
 afficher :-
 	findall(_, afficherPlateau(_), _).
 
-demandeCoup(Joueur, Message, Coup) :- nl, write(Message), nl, write('['), write(Joueur), write('] '), saisirCoup(Coup).
+demandeCoup(CouleurJCourant, Message, Coup) :-
+	nl, write(Message), nl,
+	write('['), write(CouleurJCourant), write('] '),
+	saisirCoup(Coup).
 
-afficherGagnant(Joueur) :-
-	write('Le joueur '), write(Joueur), write(' gagne.').
+afficherGagnant(CouleurGagnante,CouleurPerdante,TypeJoueurGagnant,TypeJoueurPerdant) :-
+	nl,
+	write('Le joueur '),
+	write(TypeJoueurGagnant),
+	write(' ('), write(CouleurGagnante), write(')'),
+	write(' gagne contre le joueur '),
+	write(TypeJoueurPerdant),
+	write(' ('),write(CouleurPerdante),write(')').
 
 demandeTypeDeJeu(TypeDeJeu) :-
     write('   --- Puissance 4 ---'), nl,
-    write('    1. Jouer au jeu avec un humain'), nl,
+    write('    1. Jouer en tant qu\'humain'), nl,
+    write('    2. Jouer en tant qu\'IA aleatoire'), nl,
     nl, nl,
 	write(' ----------------------- '), nl,
     write('Saisissez votre choix :'), nl,
