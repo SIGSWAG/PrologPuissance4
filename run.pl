@@ -3,6 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% Includes %%%%%%%%%%%%
 :- [jeu].
 :- [ihm].
+:- [ia].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Constantes %%%%%%%%%%%%
 
@@ -22,7 +23,6 @@ jeu(PartieNulle) :-
 		tour(PartieNulle).
 
 tour(PartieNulle) 	:- 
-		afficher,
 		joueurCourant(CouleurJCourant,TypeJoueur),
 		aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'',Coup),
 		bouclePlacer(Coup,TypeJoueur,CouleurJCourant,Y),
@@ -55,9 +55,9 @@ testFin(_,_,_,PartieNulle) :- changerJoueur, tour(PartieNulle).
 
 % permet d'appeler l'ihm ou les IAs pour récupérer le coup suivant
 % 1==humain
-aQuiDemanderCoup(CouleurJCourant,1,Message,Coup) :- demandeCoup(CouleurJCourant,Message,Coup),!.
+aQuiDemanderCoup(CouleurJCourant,1,Message,Coup) :- afficher, demandeCoup(CouleurJCourant,Message,Coup),!.
 % 2==IA aleatoire
-aQuiDemanderCoup(CouleurJCourant,2,Message,Coup) :- demandeCoup(CouleurJCourant,Message,Coup).
+aQuiDemanderCoup(_,2,_,Coup) :- iaAleatoire(Coup).
 % etc ...
 
 getTypeJoueurString(1,TypeJoueurString) :- TypeJoueurString='Humain',!.
