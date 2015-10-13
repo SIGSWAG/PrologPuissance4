@@ -1,0 +1,32 @@
+.board{
+	display : table;
+	background-color: blue;
+	margin:  40px auto;
+	padding : 10px;
+}
+
+.board-column{
+	width:50px;
+	display: table-cell;
+}
+
+.board-row{
+	margin : 5px;
+	height : 40px;
+	border-radius: 100%;
+	background-color : white;
+}
+
+.board-token{
+	width : 40px;
+	height : 40px;
+	border-radius: 100%
+}
+
+.board-token.red{
+	background-color: red;
+}
+
+.board-token.yellow{
+	background-color: yellow;
+}
