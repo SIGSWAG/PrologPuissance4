@@ -3,10 +3,14 @@
 :- use_module(library(http/http_error)).
 :- use_module(library(http/html_write)).
 :- use_module(library(http/http_parameters)).
+:- use_module(library(http/http_cors)).
+:- use_module(library(http/http_json)).
+:- use_module(library(http/json_convert))
 :- [run].
 
 % les routes
-:- http_handler('/', getParam, []).
+% :- http_handler('/', getParam, []).
+:- http_handler('/init', initAction, []).
 
 
 server(Port) :-
@@ -16,6 +20,11 @@ server(Port) :-
 run_game(Request) :-
     run().
 
+initAction(Request) :-
+    init(),
+    cors_enable,
+    format('Content-type: text/plain~n~n'),
+    format('Jeu initialisé').
 
 
 getParam(Request) :-

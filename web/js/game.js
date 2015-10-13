@@ -37,11 +37,12 @@ var port = 8000;
 *
 * return the json response 
 */
-function ajaxGET(path, params){
+function ajaxGETjson(path, params){
 	$.ajax({
 		method: "GET",
 		url: "http://localhost:"+port+"/"+path,
 		data: $.param(params),
+		crossDomain: true,
 		//dataType: 'json',
 		success: function (json, statut) {
 			return json;
@@ -53,6 +54,7 @@ function ajaxGET(path, params){
 		}
 	});
 }
+
 /* addMsg --- add a message in the msg-box
 * msg : the message to be displayed
 */
@@ -64,5 +66,7 @@ function addMsg(msg){
 // document.ready
 $(function(){
 	addMsg("Jquery est chargé.");
-
+	var response;
+	response = ajaxGETjson('init', {});
+	addMsg(response);
 });
