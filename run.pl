@@ -1,32 +1,43 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%% Run %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% run.pl %%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%% Includes %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+%% Inclusions %%
+%%%%%%%%%%%%%%%%
+
 :- [jeu].
-:- [ihm].
 :- [ia].
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%% Constantes %%%%%%%%%%%%
+:- use_module(ihm).
+
+:- use_module(library(random)).
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Prédicats publics %%
+%%%%%%%%%%%%%%%%%%%%%%%
+
+run :-
+	demandeTypeDeJeu(TypeJoueur1),
+	demandeTypeDeJeu(TypeJoueur2),
+	init,
+	random_select(TypeJoueurR,[TypeJoueur1,TypeJoueur2],[TypeJoueurJ|_]),
+	assert(joueurCourant(rouge,TypeJoueurR)),
+	assert(autreJoueur(jaune,TypeJoueurJ)),
+	jeu(PartieNulle),
+	afficherFin(PartieNulle).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%% Gestion du cycle de vie %%
-run 	:-
-		demandeTypeDeJeu(TypeJoueur1),
-		demandeTypeDeJeu(TypeJoueur2),
-     	init,
-     	random_select(TypeJoueurR,[TypeJoueur1,TypeJoueur2],[TypeJoueurJ|_]),
-	   	assert(joueurCourant(rouge,TypeJoueurR)),
-	   	assert(autreJoueur(jaune,TypeJoueurJ)),
-	   	jeu(PartieNulle),
-	   	afficherFin(PartieNulle).
-	   
+%%%%%%%%%%%%%%%%%%%%%%
+%% Prédicats privés %%
+%%%%%%%%%%%%%%%%%%%%%%
+
 jeu(PartieNulle) :- 	
-		tour(PartieNulle).
+	tour(PartieNulle).
 
-tour(PartieNulle) 	:- 
-		joueurCourant(CouleurJCourant,TypeJoueur),
-		aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'',Coup),
-		bouclePlacer(Coup,TypeJoueur,CouleurJCourant,Y),
-		testFin(Coup,Y,CouleurJCourant, PartieNulle).
+tour(PartieNulle) :- 
+	joueurCourant(CouleurJCourant,TypeJoueur),
+	aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'',Coup),
+	bouclePlacer(Coup,TypeJoueur,CouleurJCourant,Y),
+	testFin(Coup,Y,CouleurJCourant, PartieNulle).
 
 bouclePlacer(Coup,_,CouleurJCourant,Y) :-
 	placerJeton(Coup,Y,CouleurJCourant),!.
@@ -61,7 +72,7 @@ aQuiDemanderCoup(_,2,_,Coup) :- iaAleatoire(Coup).
 % etc ...
 
 getTypeJoueurString(1,TypeJoueurString) :- TypeJoueurString='Humain',!.
-getTypeJoueurString(2,TypeJoueurString) :- TypeJoueurString='IA Aleatoire'.
+getTypeJoueurString(2,TypeJoueurString) :- TypeJoueurString='IA Aléatoire'.
 
 % partie non nulle
 afficherFin(false) :-

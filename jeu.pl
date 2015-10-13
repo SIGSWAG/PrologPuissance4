@@ -1,18 +1,25 @@
-%%%%%%%%%%%%%%%%% Fichier jeu.pl %%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% jeu.pl %%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%% Constantes %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+%% Constantes %%
+%%%%%%%%%%%%%%%%
 
 nbLignes(6).
 nbColonnes(7).
 
-%%%%%%%%%%%%%%%%% Fonctions utiles %%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Prédicats publics %%
+%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% Fonctions utiles
 
 incr(X,X1):- X1 is X+1.
 decr(X,X1):- X1 is X-1.
 caseVide(X,Y) :- nonvar(X),nonvar(Y),not(case(X,Y,_)).
 
 
-%%%%%%%%%%%%%%%%% Initialisation du plateau %%%%%%%%%%%%%%%%%
+%%% Initialisation du plateau
 
 init :- initClear, assert(case(_,_,_) :- fail).
 
@@ -20,21 +27,18 @@ initClear :- retractall(case(_,_,_)).
 
 initTest :- assert(case(4,1,rouge)), assert(case(3,2,rouge)), assert(case(2,3,rouge)), assert(case(1,4,rouge)). %initInterface, play
 
-
 %%%%%%%%%%%%%%%% Play %%%%%%%%%%%%%%%%%
 
 %play(_,_,_).
 
-%%%%%%%%%%%%%%%% Vérification de la victoire %%%%%%%%%%%%%
+%%% Vérification de la victoire %%%
 
 gagne(X,Y,J) :- gagneColonne(X,Y,J).
 gagne(X,Y,J) :- gagneLigne(X,Y,J).
 gagne(X,Y,J) :- gagneDiag1(X,Y,J).
 gagne(X,Y,J) :- gagneDiag2(X,Y,J).
 
-
 %%% En colonne %%%
-
 
 gagneColonne(X,Y,J) :- case(X,Y,J), decr(Y,Y1), case(X,Y1,J), decr(Y1,Y2), case(X,Y2,J), decr(Y2,Y3), case(X,Y3,J). %ligne en bas
 
@@ -75,7 +79,6 @@ droiteHaut(X,Y,J,R,R) :- not(case(X,Y,J)). %Jusqu'à la case non J
 droiteHaut(X,Y,J,R,Rg) :- incr(Y,Y1), incr(X,X1), incr(R,R1), droiteHaut(X1,Y1,J,R1,Rg).
 
 
-
 %%%%%%%%%%%%%% Play %%%%%%%%%%%%%%%%%%%
 
 % placerJeton/3(-Colonne, +Ligne, -Couleur) 
@@ -100,3 +103,7 @@ calculPositionJeton(X,YCheck,YCheck) :- caseVide(X,YCheck), !.
 calculPositionJeton(X,YCheck,Y) :- incr(YCheck, YCheck1), calculPositionJeton(X,YCheck1,Y).
 
 coupPossible :- nbColonnes(NBCOLLONNES), between(1,NBCOLLONNES,X), coupValide(X).
+
+%%%%%%%%%%%%%%%%%%%%%%
+%% Prédicats privés %%
+%%%%%%%%%%%%%%%%%%%%%%
