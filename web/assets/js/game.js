@@ -34,7 +34,7 @@ var Game = {
 		ajax = ajaxGETjson('init', {});
 		ajax.success(function(json, statut){
 			if(json.correct){
-				addMsg("Jeu initialisé.")
+				addMsg("Jeu initialisé.");
 			}
 			else{
 				this.error("Erreur lors de l'initialisation du jeu", 1)
@@ -47,7 +47,7 @@ var Game = {
 		console.log("ERROR MESSAGE : "+msg);
 	}
 
-}
+};
 
 
 // document.ready
