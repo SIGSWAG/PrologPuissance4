@@ -49,7 +49,9 @@ ponderationJ(_, _, _, -1).
 % Score s'unifie au score de la position.
 evalPuissances3(JoueurCourant,AutreJoueur,ScoreFinal) :-
 	findall(S,evalCasesVides(JoueurCourant,S),ScoresCourant), sum(ScoresCourant,ScoreCourant),
+	write(ScoreCourant),
 	findall(S,evalCasesVides(AutreJoueur,S),ScoresAutre), sum(ScoresAutre,ScoreAutre),
+	write(ScoreAutre),
 	ScoreFinal is ScoreCourant - ScoreAutre.
 
 evalCasesVides(Joueur,ScoreCase) :-
@@ -57,13 +59,13 @@ evalCasesVides(Joueur,ScoreCase) :-
 	between(1,NBCOLONNES,X), between(1,NBLIGNES,Y),
 	caseVide(X,Y),
 	assert(case(X,Y,Joueur)),
-	(gagne(X,Y,Joueur) -> ScoreCase = 1 ; ScoreCase = 0),
+	(gagne(X,Y,Joueur) -> write(chibre),ScoreCase = 1 ; ScoreCase = 0),
 	retract(case(X,Y,Joueur)).
 
 
 
 
-	
+
 
 sum([],0).
 sum([X|Xs],N) :- sum(Xs,N1), N is N1+X.

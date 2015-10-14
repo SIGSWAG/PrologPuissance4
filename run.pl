@@ -1,4 +1,4 @@
-%%%%%%%%%%%% run.pl %%%%%%%%%%%%
+Ôªø%%%%%%%%%%%% run.pl %%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%
 %% Inclusions %%
@@ -9,8 +9,11 @@
 :- use_module(ihm).
 :- use_module(eval).
 
+:- dynamic joueurCourant/2.
+:- dynamic autreJoueur/2.
+
 %%%%%%%%%%%%%%%%%%%%%%%
-%% PrÈdicats publics %%
+%% Pr√©dicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
 
 run :-
@@ -27,7 +30,7 @@ run :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%
-%% PrÈdicats privÈs %%
+%% Pr√©dicats priv√©s %%
 %%%%%%%%%%%%%%%%%%%%%%
 
 jeu(PartieNulle) :- 	
@@ -35,7 +38,7 @@ jeu(PartieNulle) :-
 
 tour(PartieNulle) :- 
 	joueurCourant(CouleurJCourant,TypeJoueur),
-	evalJeu(CouleurJCourant,Autre,Score), write(Score), nl, % TEMP
+	autreJoueur(Autre,_),evalJeu(CouleurJCourant,Autre,Score), write('Eval:'), write(Score), nl, % TEMP
 	aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'',Coup),
 	bouclePlacer(Coup,TypeJoueur,CouleurJCourant,Y),
 	testFin(Coup,Y,CouleurJCourant, PartieNulle).
@@ -43,7 +46,7 @@ tour(PartieNulle) :-
 bouclePlacer(Coup,_,CouleurJCourant,Y) :-
 	placerJeton(Coup,Y,CouleurJCourant),!.
 bouclePlacer(_,TypeJoueur,CouleurJCourant,Y) :-
-	aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'Votre coup n\'est pas valide. Veuillez reessayer.\n',Coup),
+	aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'Votre coup n\'est pas valide. Veuillez r√©essayer.\n',Coup),
 	bouclePlacer(Coup,TypeJoueur,CouleurJCourant,Y).
 
 changerJoueur :-
@@ -65,7 +68,7 @@ testFin(Coup,Y,CouleurJCourant,PartieNulle) :- gagne(Coup,Y,CouleurJCourant), Pa
 testFin(_,_,_,PartieNulle) :- not(coupPossible), PartieNulle=true, afficher.
 testFin(_,_,_,PartieNulle) :- changerJoueur, tour(PartieNulle).
 
-% permet d'appeler l'ihm ou les IAs pour rÈcupÈrer le coup suivant
+% permet d'appeler l'ihm ou les IAs pour r√©cup√©rer le coup suivant
 % 1==humain
 aQuiDemanderCoup(CouleurJCourant,1,Message,Coup) :- afficher, demandeCoup(CouleurJCourant,Message,Coup),!.
 % 2==IA aleatoire
@@ -73,7 +76,7 @@ aQuiDemanderCoup(_,2,_,Coup) :- iaAleatoire(Coup).
 % etc ...
 
 getTypeJoueurString(1,'Humain').
-getTypeJoueurString(2,'IA AlÈatoire').
+getTypeJoueurString(2,'IA Al√©atoire').
 
 % partie non nulle
 afficherFin(false) :-

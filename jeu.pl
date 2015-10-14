@@ -1,5 +1,8 @@
 %%%%%%%%%%%% jeu.pl %%%%%%%%%%%%
+
 :- module(jeu, [nbLignes/1, nbColonnes/1, init/0, gagne/3, placerJeton/3, coupPossible/0, case/3, caseVide/2]).
+
+:- dynamic case/3. % à tester
 
 %%%%%%%%%%%%%%%%
 %% Constantes %%

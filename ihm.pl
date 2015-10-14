@@ -1,4 +1,5 @@
 ﻿%%%%%%%%%%%% ihm.pl %%%%%%%%%%%%
+
 :- module(ihm, [afficher/0, demandeCoup/3, afficherGagnant/4, afficherPartieNulle/0, demandeTypeDeJeu/1]).
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -8,7 +9,9 @@
 % afficher/0
 % Affiche dans la console la partie actuelle.
 % Tout le temps vrai.
-afficher :-
+afficher :- 
+	findall(_, afficherColonne(_), _),
+	nl,
 	findall(_, afficherPlateau(_), _).
 
 % demandeCoup/3(+CouleurJCourant, +Message, -Coup)
@@ -54,6 +57,11 @@ demandeTypeDeJeu(TypeDeJeu) :-
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
 %%%%%%%%%%%%%%%%%%%%%%
+
+afficherColonne(X) :-
+	nbColonnes(NbColonnes),
+	between(1,NbColonnes,X),
+	write(X).
 
 % principe : on parcourt la base de faits et pour chaque case on affiche une couleur (ou pas)
 afficherPlateau(Y) :-
