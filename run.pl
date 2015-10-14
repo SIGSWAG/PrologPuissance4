@@ -7,6 +7,7 @@
 :- use_module(jeu).
 :- use_module(ia).
 :- use_module(ihm).
+:- use_module(eval).
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
@@ -36,6 +37,7 @@ tour(PartieNulle) :-
 	joueurCourant(CouleurJCourant,TypeJoueur),
 	aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'',Coup),
 	bouclePlacer(Coup,TypeJoueur,CouleurJCourant,Y),
+	evalJeu(CouleurJCourant,Score), write(Score),
 	testFin(Coup,Y,CouleurJCourant, PartieNulle).
 
 bouclePlacer(Coup,_,CouleurJCourant,Y) :-
