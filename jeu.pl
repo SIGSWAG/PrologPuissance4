@@ -7,17 +7,13 @@
 nbLignes(6).
 nbColonnes(7).
 
-
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Fonctions utiles
 
-incr(X,X1):- X1 is X+1.
-decr(X,X1):- X1 is X-1.
-caseVide(X,Y) :- nonvar(X),nonvar(Y),not(case(X,Y,_)).
-
+:- use_module(utils).
 
 %%% Initialisation du plateau
 
