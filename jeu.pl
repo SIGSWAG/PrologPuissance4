@@ -1,5 +1,5 @@
 %%%%%%%%%%%% jeu.pl %%%%%%%%%%%%
-:- module(jeu, [nbLignes/1, nbColonnes/1, init/0, gagne/3, placerJeton/3, coupPossible/0, case/3]).
+:- module(jeu, [nbLignes/1, nbColonnes/1, initJeu/0, gagne/3, placerJeton/3, coupPossible/0, case/3]).
 
 %%%%%%%%%%%%%%%%
 %% Constantes %%
@@ -32,7 +32,7 @@ caseVide(X,Y) :- nonvar(X),nonvar(Y),not(case(X,Y,_)).
 % init/0
 % vide le plateau, initialise un nouveau plateau vide
 % retourne yes
-init :- initClear, assert(case(_,_,_) :- fail).
+initJeu :- initClear, assert(case(_,_,_) :- fail).
 
 % coupPossible/0
 % verifie si l'on peut encore joueur

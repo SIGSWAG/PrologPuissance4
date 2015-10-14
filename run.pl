@@ -83,3 +83,5 @@ afficherFin(false) :-
 % partie nulle
 afficherFin(true) :-
 	afficherPartieNulle.
+
+init :- initJeu, retractall(joueurCourant(_,_)), retractall(autreJoueur(_,_)).
