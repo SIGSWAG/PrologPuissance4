@@ -1,6 +1,8 @@
 %%%%%%%%%%%% ia.pl %%%%%%%%%%%%
 :- use_module(utils).
 
+:- module(ia, [iaAleatoire/1]).
+
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
