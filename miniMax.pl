@@ -16,26 +16,19 @@ profondeur(3).
 
 donneCoup(J,R) :- init(Pmax,J) minMax(J,Pmax,C), clearCaseTest.
 
-minMax(J,P,C) :- changeJoueur(J), f(X,Y,J,0,P,R).
+minMax(J,P,C) :- changeJoueur(J), f(X,Y,J,0,P,R, []).
 
 
 
 %P commence à 0, J à l'adversaire
-f(X,Y,J,P,Pmax,R) :- gagneTest(X,Y,J), maximizer(J), R is 1000.
-f(X,Y,J,P,Pmax,R) :- gagneTest(X,Y,J), not(maximizer(J)), R is -1.
-f(X,Y,J,P,Pmax,R) :- P == Pmax, evalJeu(J,R).
+f(X,Y,J,P,Pmax,R, L) :- gagneTest(X,Y,J), maximizer(J), R is 1000.
+f(X,Y,J,P,Pmax,R, L) :- gagneTest(X,Y,J), not(maximizer(J)), R is -1.
+f(X,Y,J,P,Pmax,R, L) :- P == Pmax, evalJeu(J,R).
+f(X,Y,J,P,Pmax,R, L) :- incr(P,P1), changeJoueur(J1), placerJeton(X,Y1,J1), callf(Y1,J1,P1,Pmax,R,[], L), max_member(R,L1).
 
+callf(Y1,J1,P1,Pmax,R,L) :- L is [1|L] f(X,Y1,J1,P1,Pmax,R1, L1), L is [2|L], f(X,Y1,J1,P1,Pmax,R2, L1),f(X,Y1,J1,P1,Pmax,R3, L1),f(X,Y1,J1,P1,Pmax,R4, L1),f(X,Y1,J1,P1,Pmax,R5, L1),f(X,Y1,J1,P1,Pmax,R6, L1),f(X,Y1,J1,P1,Pmax,R7, L1),f(X,Y1,J1,P1,Pmax,R8, L1), max_member(R, [R1,R2,R3,R4,R5,R6,R7,R8]).
 
-
-
-f(X,Y,J,P,Pmax,R) :- incr(P,P1), changeJoueur(J1), placerJeton(X,Y1,J1), f(X,Y1,J1,P1,Pmax,R).
-
-
-
-
-
- 
-
+addToList(X, L, [X|L]). 
 
 
 
