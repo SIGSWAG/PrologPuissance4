@@ -4,17 +4,18 @@
 %% Inclusions %%
 %%%%%%%%%%%%%%%%
 
-:- module(eval, [evalJeu/2]).
+:- module(eval, [evalJeu/3]).
 
 :- use_module(library(random)).
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
-% evalJeu/2 (+Courant, -Score)
-% Evalue la situation Courante.
-% Tout le temps vrai.
-evalJeu(Courant,Score) :- evalPosition(Courant,Score).
+
+% evalJeu/3(+JoueurCourant, +AutreJoueur, -Score)
+% Evalue la situation courante.
+% Score s'unifie avec le score évalué pour la position courante.
+evalJeu(JoueurCourant,AutreJoueur,Score) :- evalPuissances3(JoueurCourant,AutreJoueur,Score).
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
@@ -40,24 +41,29 @@ evalCase(X,Y,Courant,ScoreCase) :-
 
 ponderationJ(X, Y, Courant, 1) :- case(X,Y,Courant), !.
 ponderationJ(_, _, _, -1).
-	
-sum([],0).
-sum([X|Xs],N) :- sum(Xs,N1), N is N1+X.
 
 %%%%%%%%%%%%%%%%%%%%
 
-% evalPuissances3/2(+JoueurCourant,-Score)
+% evalPuissances3/3(+JoueurCourant,+AutreJoueur,-Score)
 % Évalue en cherchant les positions faisant gagner.
 % Score s'unifie au score de la position.
-evalPuissances3(JoueurCourant,ScoreFinal) :- 
+evalPuissances3(JoueurCourant,AutreJoueur,ScoreFinal) :-
 	findall(S,evalCasesVides(JoueurCourant,S),ScoresCourant), sum(ScoresCourant,ScoreCourant),
 	findall(S,evalCasesVides(AutreJoueur,S),ScoresAutre), sum(ScoresAutre,ScoreAutre),
-	ScoreFinal is ScoreCourant + ScoreAutre.
+	ScoreFinal is ScoreCourant - ScoreAutre.
 
-evalCasesVides(JoueurCourant,ScoreCase) :-
+evalCasesVides(Joueur,ScoreCase) :-
 	nbColonnes(NBCOLONNES), nbLignes(NBLIGNES),
 	between(1,NBCOLONNES,X), between(1,NBLIGNES,Y),
 	caseVide(X,Y),
-	assert(case(X,Y,JoueurCourant)),
-	ScoreCase = (gagne(X,Y,JoueurCourant) -> 1 ; -1),
-	retract(case(X,Y,JoueurCourant).
+	assert(case(X,Y,Joueur)),
+	(gagne(X,Y,Joueur) -> ScoreCase = 1 ; ScoreCase = 0),
+	retract(case(X,Y,Joueur)).
+
+
+
+
+	
+
+sum([],0).
+sum([X|Xs],N) :- sum(Xs,N1), N is N1+X.

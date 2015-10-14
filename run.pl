@@ -35,9 +35,9 @@ jeu(PartieNulle) :-
 
 tour(PartieNulle) :- 
 	joueurCourant(CouleurJCourant,TypeJoueur),
+	evalJeu(CouleurJCourant,Autre,Score), write(Score), nl, % TEMP
 	aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'',Coup),
 	bouclePlacer(Coup,TypeJoueur,CouleurJCourant,Y),
-	evalJeu(CouleurJCourant,Score), write(Score),
 	testFin(Coup,Y,CouleurJCourant, PartieNulle).
 
 bouclePlacer(Coup,_,CouleurJCourant,Y) :-

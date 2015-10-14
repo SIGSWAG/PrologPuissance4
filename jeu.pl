@@ -1,5 +1,5 @@
 %%%%%%%%%%%% jeu.pl %%%%%%%%%%%%
-:- module(jeu, [nbLignes/1, nbColonnes/1, init/0, gagne/3, placerJeton/3, coupPossible/0, case/3]).
+:- module(jeu, [nbLignes/1, nbColonnes/1, init/0, gagne/3, placerJeton/3, coupPossible/0, case/3, caseVide/2]).
 
 %%%%%%%%%%%%%%%%
 %% Constantes %%
@@ -18,10 +18,12 @@ nbColonnes(7).
 % unifie X1 à X+1
 % vrai pour X1 = X+1
 incr(X,X1):- X1 is X+1.
+
 % decr/2(+X, -X1)
 % unifie X1 à X-1
 % vrai pour X1 = X-1
 decr(X,X1):- X1 is X-1.
+
 % caseVide/2(+X, +Y)
 % verifie si la case est vide
 % vrai si la case n'a pas été remplie
@@ -65,7 +67,7 @@ placerJeton(X,Y,C) :- coupValide(X), insererJeton(X, Y, C).
 %%%%% init %%%%%
 
 
-initClear :- retractall(case(_,_,_)).
+initClear :- retractall(case(_,_,_)). % pourrait fonctionner avec :- dynamic, à investiguer
 
 initTest :- assert(case(4,1,rouge)), assert(case(3,2,rouge)), assert(case(2,3,rouge)), assert(case(1,4,rouge)). %initInterface, play
 
