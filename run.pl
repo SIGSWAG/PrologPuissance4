@@ -19,9 +19,9 @@ run :-
 	demandeTypeDeJeu(TypeJoueur1),
 	demandeTypeDeJeu(TypeJoueur2),
 	init,
-	random_select(TypeJoueurR,[TypeJoueur1,TypeJoueur2],[TypeJoueurJ|_]),
-	assert(joueurCourant(rouge,TypeJoueurR)),
-	assert(autreJoueur(jaune,TypeJoueurJ)),
+	%random_select(TypeJoueurR,[TypeJoueur1,TypeJoueur2],[TypeJoueurJ|_]),
+	assert(joueurCourant(rouge,1)),
+	assert(autreJoueur(jaune,1)),
 	jeu(PartieNulle),
 	afficherFin(PartieNulle).
 
