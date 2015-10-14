@@ -4,8 +4,8 @@
 %% Inclusions %%
 %%%%%%%%%%%%%%%%
 
-:- [jeu].
-:- [ia].
+:- use_module(jeu).
+:- use_module(ia).
 
 :- use_module(ihm).
 
