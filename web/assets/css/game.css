@@ -1,8 +1,16 @@
-.board{
+#board{
 	display : table;
 	background-color: blue;
+	border-radius: 2px;
 	margin:  40px auto;
 	padding : 10px;
+	box-shadow: 5px 5px 0px 0px #3166ff;
+	transition: transform linear 1s;
+	transform: rotateX(20deg) rotateY(20deg);
+}
+
+#board:hover{
+	/*transform: rotateX(0deg) rotateY(0deg);*/
 }
 
 .board-column{
@@ -10,23 +18,82 @@
 	display: table-cell;
 }
 
+.board-column:hover{
+	background-color: rgba(1,1,1,0.2);
+}
+
+
+
 .board-row{
 	margin : 5px;
 	height : 40px;
 	border-radius: 100%;
+	box-shadow: inset 5px 5px 0px 0px #3166ff;
 	background-color : white;
 }
+
+.board-column:hover .empty-cell:last-child{
+	background-color: rgba(1,1,1,0.5);
+	box-shadow: none;
+}
+/*
+doesn't work :( 
+*/
 
 .board-token{
 	width : 40px;
 	height : 40px;
-	border-radius: 100%
+	border-radius: 100%;
 }
 
-.board-token.red{
+.board-token.rouge{
 	background-color: red;
 }
 
-.board-token.yellow{
+.board-token.jaune{
 	background-color: yellow;
+}
+
+.player{
+	padding : 5px;
+	background-color: #eee;
+}
+
+.player:hover{
+	background-color: #555;
+	color: white;
+}
+
+.player:active{
+	background-color: #222;
+	color: white;
+}
+
+.selectable{
+	cursor: pointer;
+}
+
+#msg-box{
+	height : 300px;
+	overflow: auto;
+	margin-top : 20px;
+	margin-bottom : 20px;
+	padding : 0;
+	background-color: #ccc;
+}
+
+.msg{
+	margin : 0;
+	padding : 5px;
+	border-bottom: #ccc solid 1px;
+}
+
+.msg.bg-jaune{
+	background-color: yellow;
+	color : black;	
+}
+
+.msg.bg-rouge{
+	background-color: red;
+	color : white;	
 }
