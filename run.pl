@@ -4,24 +4,24 @@
 %% Inclusions %%
 %%%%%%%%%%%%%%%%
 
-:- [jeu].
-:- [ia].
-
+:- use_module(jeu).
+:- use_module(ia).
 :- use_module(ihm).
-
-:- use_module(library(random)).
+:- use_module(eval).
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
 
 run :-
+	init,
 	demandeTypeDeJeu(TypeJoueur1),
 	demandeTypeDeJeu(TypeJoueur2),
-	init,
 	%random_select(TypeJoueurR,[TypeJoueur1,TypeJoueur2],[TypeJoueurJ|_]),
-	assert(joueurCourant(rouge,1)),
-	assert(autreJoueur(jaune,1)),
+	TypeJoueurR=TypeJoueur1,
+	TypeJoueurJ=TypeJoueur2,
+	assert(joueurCourant(rouge,TypeJoueurR)),
+	assert(autreJoueur(jaune,TypeJoueurJ)),
 	jeu(PartieNulle),
 	afficherFin(PartieNulle).
 
@@ -37,6 +37,7 @@ tour(PartieNulle) :-
 	joueurCourant(CouleurJCourant,TypeJoueur),
 	aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'',Coup),
 	bouclePlacer(Coup,TypeJoueur,CouleurJCourant,Y),
+	evalJeu(CouleurJCourant,Score), write(Score),
 	testFin(Coup,Y,CouleurJCourant, PartieNulle).
 
 bouclePlacer(Coup,_,CouleurJCourant,Y) :-
@@ -71,8 +72,8 @@ aQuiDemanderCoup(CouleurJCourant,1,Message,Coup) :- afficher, demandeCoup(Couleu
 aQuiDemanderCoup(_,2,_,Coup) :- iaAleatoire(Coup).
 % etc ...
 
-getTypeJoueurString(1,TypeJoueurString) :- TypeJoueurString='Humain',!.
-getTypeJoueurString(2,TypeJoueurString) :- TypeJoueurString='IA Aléatoire'.
+getTypeJoueurString(1,'Humain').
+getTypeJoueurString(2,'IA Aléatoire').
 
 % partie non nulle
 afficherFin(false) :-
