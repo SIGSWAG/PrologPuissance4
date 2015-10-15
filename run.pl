@@ -25,6 +25,13 @@ run :-
 	jeu(PartieNulle),
 	afficherFin(PartieNulle).
 
+% runTest/3
+% IA1 joue contre IA2 "NbIterations" fois le predicat affiche combien de fois qui a battu qui
+runTest(NbIterations,IA1,IA2) :-
+	NbIterationsParIA is NbIterations//2,
+	runTestIAXFirst(NbIterationsParIA,IA1,IA2,NbFoisIA1GagneEnCommencant),
+	runTestIAXFirst(NbIterationsParIA,IA2,IA1,NbFoisIA2GagneEnCommencant).
+
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
@@ -87,3 +94,16 @@ afficherFin(true) :-
 	afficherPartieNulle.
 
 init :- initJeu, retractall(joueurCourant(_,_)), retractall(autreJoueur(_,_)).
+
+
+% test de sortie de runTestIAXFirst
+runTestIAXFirst(0,_,_,_).
+runTestIAXFirst(NbIterations,IA1,IA2,NbIA1Gagne) :-
+	init,
+	assert(joueurCourant(rouge,IA1)),
+	assert(autreJoueur(jaune,IA2)),
+	jeu(PartieNulle),
+	joueurCourant(_,IAGagnante),
+
+	NbIterations2 is NbIterations-1,
+	runTestIAXFirst(NbIterations2,IA1,IA2,NbIA1Gagne).
