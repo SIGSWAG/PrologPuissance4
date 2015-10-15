@@ -6,6 +6,8 @@
 
 :- module(eval, [evalJeu/3]).
 
+:- use_module(util).
+
 :- use_module(library(random)).
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -14,7 +16,7 @@
 
 % evalJeu/3(+JoueurCourant, +AutreJoueur, -Score)
 % Evalue la situation courante.
-% Score sunifie avec le score évalué pour la position courante.
+% Score s'unifie avec le score évalué pour la position courante.
 evalJeu(JoueurCourant,AutreJoueur,Score) :- evalPuissances3(JoueurCourant,AutreJoueur,Score).
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -47,7 +49,7 @@ ponderationJ(_, _, _, -1).
 
 % evalPuissances3/3(+JoueurCourant,+AutreJoueur,-Score)
 % Évalue en cherchant les positions faisant gagner.
-% Score sunifie au score de la position.
+% Score s'unifie au score de la position.
 evalPuissances3(JoueurCourant,AutreJoueur,ScoreFinal) :-
 	findall(S,evalCasesVides(JoueurCourant,S),ScoresCourant), sum(ScoresCourant,ScoreCourant),
 	findall(S,evalCasesVides(AutreJoueur,S),ScoresAutre), sum(ScoresAutre,ScoreAutre),

@@ -1,6 +1,8 @@
 %%%%%%%%%%%% jeu.pl %%%%%%%%%%%%
 
-:- module(jeu, [nbLignes/1, nbColonnes/1, init/0, gagne/3, placerJeton/3, coupPossible/0, case/3, caseVide/2]).
+:- module(jeu, [nbLignes/1, nbColonnes/1, initJeu/0, gagne/3, placerJeton/3, coupPossible/0, case/3, caseVide/2]).
+
+:- use_module(util).
 
 :- dynamic case/3. % à tester
 
@@ -17,16 +19,6 @@ nbColonnes(7).
 
 %%% Fonctions utiles
 
-% incr/2(+X, -X1)
-% unifie X1 à X+1
-% vrai pour X1 = X+1
-incr(X,X1):- X1 is X+1.
-
-% decr/2(+X, -X1)
-% unifie X1 à X-1
-% vrai pour X1 = X-1
-decr(X,X1):- X1 is X-1.
-
 % caseVide/2(+X, +Y)
 % verifie si la case est vide
 % vrai si la case n'a pas été remplie
@@ -34,7 +26,7 @@ caseVide(X,Y) :- nonvar(X),nonvar(Y),not(case(X,Y,_)).
 
 %%% Initialisation du plateau
 
-% init/0
+% initJeu/0
 % vide le plateau, initialise un nouveau plateau vide
 % retourne yes
 initJeu :- initClear, assert(case(_,_,_) :- fail).
