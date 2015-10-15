@@ -1,0 +1,29 @@
+%%%%%%%%%%%% miniMax.pl %%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%
+%% Constantes %%
+%%%%%%%%%%%%%%%%
+
+profondeur(3).
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Prédicats publics %%
+%%%%%%%%%%%%%%%%%%%%%%%
+
+donneCoup :- profondeur(P), minMax(P,R), clearCaseTest.
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+%% Prédicats privés %%
+%%%%%%%%%%%%%%%%%%%%%%
+
+clearCaseTest :- retractall(caseTest(_,_,_)).
+

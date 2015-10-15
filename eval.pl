@@ -40,6 +40,7 @@ evalCase(X,Y,Courant,ScoreCase) :-
 	ScoreCase is ( 100/(AbsX+1) + 100/(AbsY+1) )*PonderationJoueur.
 
 ponderationJ(X, Y, Courant, 1) :- case(X,Y,Courant), !.
+ponderationJ(X, Y, _, 0) :- caseVide(X,Y), !.
 ponderationJ(_, _, _, -1).
 
 %%%%%%%%%%%%%%%%%%%%
@@ -66,3 +67,19 @@ evalCasesVides(Joueur,ScoreCase) :-
 
 sum([],0).
 sum([X|Xs],N) :- sum(Xs,N1), N is N1+X.
+
+% evalAdjacence/2 (+Courant,-Score)
+% Evalue en privilegiant les cases entourees par des positions amies
+% -
+evalAdjacence(Courant,Score) :- findall(S, evalCases(Courant,S), Scores), sum(Scores, Score).
+
+
+evalCasesAdjacentes(X,Y,Courant,ScoreCase) :- SC0 is 0, decr(X,X1), incr(Y,Y1), decr(X,X2), incr(Y,Y2),
+	ponderationJ(X1,Y,Courant, SC0), sum(SC0,SC1), 
+	ponderationJ(X1,Y1,Courant, SC1), sum(SC1,SC2),
+	ponderationJ(X,Y1,Courant, SC2), sum(SC2,SC3),
+	ponderationJ(X2,Y1,Courant, SC3), sum(SC3,SC4),
+	ponderationJ(X2,Y,Courant, SC4), sum(SC4,SC5),
+	ponderationJ(X2,Y2,Courant, SC5), sum(SC5,SC6),
+	ponderationJ(X,Y2,Courant, SC6), sum(SC6,SC7),
+	ponderationJ(X1,Y2,Courant, SC7), sum(SC7,ScoreCase).
