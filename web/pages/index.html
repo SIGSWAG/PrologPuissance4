@@ -10,14 +10,69 @@
 		<div class="container-fluid">
 			<div class="row">
 				<aside class="col-sm-4">
-					<div id="player-selection" class="hide">
-						<p>Selectionnez un type de joueur : </p>
+					<div class="panel panel-primary">
+					  	<div class="panel-heading">
+					    		<h3 class="panel-title">Contrôles</h3>
+					  	</div>
+					  	<div class="panel-body" id="control-box">
+							<div id="player-selection" class="hide">
+								<p>Selectionnez un type de joueur : </p>
+							</div>
+							<div id="control-reset" class="hide text-center">
+								<button type="button" class="btn btn-primary btn-lg">
+								  	<span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> Nouvelle partie !
+								</button>
+							</div>
+							<div id="control-play" class="hide text-center">
+								<button id="control-start" type="button" class="hide btn btn-primary btn-lg">
+								  	<span class="glyphicon glyphicon-play" aria-hidden="true"></span> C'est parti !
+								</button>
+								<button id="control-next" type="button" class="hide btn btn-primary btn-lg">
+								  	Prochain coup <span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+								</button>
+								<div class="checkbox">
+    									<label>
+							      		<input id="control-autoplay" type="checkbox" checked="checked"> Autoplay
+							    		</label>
+							  	</div>
+							</div>
+					  	</div>
 					</div>
-					<div id="msg-box">
-						<!-- message will be displayed here-->						
+						<!--
+						<div class="btn-group" data-toggle="buttons">
+						  <label class="btn btn-primary active">
+						    <input type="checkbox" autocomplete="off" checked> Checkbox 1 (pre-checked)
+						  </label>
+						  <label class="btn btn-primary">
+						    <input type="checkbox" autocomplete="off"> Checkbox 2
+						  </label>
+						  <label class="btn btn-primary">
+						    <input type="checkbox" autocomplete="off"> Checkbox 3
+						  </label>
+						</div>
+						-->
+					<div class="panel-group" role="tablist">
+					    	<div class="panel panel-primary">
+					     	<div class="panel-heading clearfix" role="tab" id="collapseListGroupHeading1">
+					        		<h4 class="panel-title pull-left">
+					            		Messages
+					        		</h4>
+					        		<h4 class="panel-title pull-right">
+					          		<a class="collapsed no-outline" role="button" data-toggle="collapse" href="#collapseListGroup1" aria-expanded="true" aria-controls="collapseListGroup1">
+					            			<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+					          		</a>
+					        		</h4>
+					      	</div>
+					     <div aria-expanded="true" id="collapseListGroup1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="collapseListGroupHeading1">
+					     	<ul class="list-group" id="msg-box">
+								<!-- message will be displayed here-->
+							</ul>
+					    	</div>
 					</div>
 				</aside>
 				<section id="game-container" class="col-sm-8">
+					<ul class="list-group" id="last-msg-box">
+					</ul>
 					<div id="board" class="">
 						<!-- 7 column and 6 row -->
 						<div class="board-column" id="col-1">

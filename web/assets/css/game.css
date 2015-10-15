@@ -1,3 +1,8 @@
+body{
+	background-color: #bdc3c7;
+	padding : 20px;
+}
+
 #board{
 	display : table;
 	background-color: blue;
@@ -6,15 +11,15 @@
 	padding : 10px;
 	box-shadow: 5px 5px 0px 0px #3166ff;
 	transition: transform linear 1s;
-	transform: rotateX(20deg) rotateY(20deg);
+	transform: rotateX(0deg) rotateY(0deg);
 }
 
 #board:hover{
-	/*transform: rotateX(0deg) rotateY(0deg);*/
+	/*transform: rotateX(30deg) rotateY(30deg);*/
 }
 
 .board-column{
-	width:50px;
+	width:70px;
 	display: table-cell;
 }
 
@@ -26,10 +31,10 @@
 
 .board-row{
 	margin : 5px;
-	height : 40px;
+	height : 60px;
 	border-radius: 100%;
 	box-shadow: inset 5px 5px 0px 0px #3166ff;
-	background-color : white;
+	background-color : #bdc3c7;
 }
 
 .board-column:hover .empty-cell:last-child{
@@ -41,17 +46,23 @@ doesn't work :(
 */
 
 .board-token{
-	width : 40px;
-	height : 40px;
+	width : 100%;
+	height : 100%;
 	border-radius: 100%;
 }
 
 .board-token.rouge{
 	background-color: red;
 }
+.board-token.rouge.active{
+	background-color: #800;
+}
 
 .board-token.jaune{
 	background-color: yellow;
+}
+.board-token.jaune.active{
+	background-color: #880;
 }
 
 .player{
@@ -72,14 +83,18 @@ doesn't work :(
 .selectable{
 	cursor: pointer;
 }
-
+#control-box{
+	min-height: 116px;
+}
 #msg-box{
 	height : 300px;
 	overflow: auto;
+	/*
 	margin-top : 20px;
 	margin-bottom : 20px;
 	padding : 0;
 	background-color: #ccc;
+	*/
 }
 
 .msg{
@@ -96,4 +111,23 @@ doesn't work :(
 .msg.bg-rouge{
 	background-color: red;
 	color : white;	
+}
+
+.list-group-item-jaune{
+	background-color: #f1c40f;
+	color: #2c3e50;
+}
+
+.list-group-item-rouge{
+	background-color: #e74c3c;
+	color: #2c3e50;
+}
+
+.list-group-item-primary{
+	background-color: #337ab7;
+	color: #fff;
+}
+
+.no-outline{
+	outline: none!important;
 }

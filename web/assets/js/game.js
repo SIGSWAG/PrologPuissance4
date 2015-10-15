@@ -25,11 +25,19 @@ function ajaxGETjson(path, params){
 /* addMsg --- add a message in the msg-box
 * msg : the message to be displayed
 */
-function addMsg(msg, type){
+function addMsg(msg, type, hoverInOut){
 	type = typeof type !== 'undefined' ? type : 'info';
 	var $msgbox = $("#msg-box");
-	$msgbox.prepend($("<p></p>").addClass("msg bg-"+type).text(msg));
+	var $lastMsgBox = $("#last-msg-box");
+	var $msg = $("<li></li>").addClass("list-group-item list-group-item-"+type).text(msg);
+	if(	(type === "jaune" || type === "rouge")
+		&& typeof hoverInOut !== 'undefined'){
+		$msg.hover(hoverInOut);
+	}
+	$msgbox.prepend($msg);
+	$lastMsgBox.html($msg.clone());
 }
+
 
 function Player(){
 	this.code = 0;
@@ -58,6 +66,16 @@ var Game = {
 			}
 		})
 	},
+	reset : function(){
+		var $reset = $("#control-reset");
+		var $resetButton = $reset.find("button");
+		$resetButton.one("click",function(){
+			$reset.addClass("hide");
+			$(".board-row").empty();
+			Game.init();
+		});
+		$reset.removeClass("hide");
+	},
 	playerSelection : function(playersList){
 		var $playerSelection =  $("#player-selection").removeClass("hide");
 		for (var i = 0; i < playersList.length; i++) {
@@ -72,14 +90,14 @@ var Game = {
 				if(Game.player1.code === 0){
 					Game.player1.code = $(this).attr("data-id");
 					Game.player1.name = $(this).attr("data-name");
-					addMsg(Game.player1.name+" a été séléctionné.","success");
+					addMsg(Game.player1.name+" a été séléctionné(e).","success");
 					addMsg("Sélectionnez le joueur 2.");
 				}
 				else if(Game.player2.code === 0){
 					Game.player2.code = $(this).attr("data-id");
 					Game.player2.name = $(this).attr("data-name");
-					addMsg(Game.player2.name+" a été séléctionné.","success");
-					$playerSelection.addClass("hide");
+					addMsg(Game.player2.name+" a été séléctionné(e).","success");
+					$playerSelection.addClass("hide").find(".player").remove();
 					addMsg("Confirmation de la selection des joueurs ...","primary");
 					var ajax = ajaxGETjson('selectPlayers', {joueur1:Game.player1.code, joueur2:Game.player2.code});
 					ajax.success(function(json, statut){
@@ -95,9 +113,8 @@ var Game = {
 								Game.player2.color = 'rouge';
 								Game.currentPlayer = Game.player2;
 							}
-							addMsg("Le joueur "+Game.player1.name+" est "+Game.player1.color,"success");
-							addMsg("Le joueur "+Game.player2.name+" est "+Game.player2.color,"success");
-							Game.playTurn();
+							addMsg(Game.player1.name+" est "+Game.player1.color+", "+Game.player2.name+" est "+Game.player2.color,"success");
+							Game.askReady();
 						}
 						else{
 							Game.error("Erreur lors de la confirmation des joueurs.", 3);
@@ -113,6 +130,28 @@ var Game = {
 		};
 		addMsg("Sélectionnez le joueur 1.");
 	},
+	askReady : function(){
+		$controlPlay = $("#control-play");
+		$controlStartButton = $("#control-start");
+		$controlStartButton.one("click",function(){
+			$controlPlay.addClass("hide");
+			$controlStartButton.addClass("hide");
+			Game.playTurn();
+		});
+		$controlPlay.removeClass("hide");
+		$controlStartButton.removeClass("hide");
+	},
+	askNext : function(){
+		$controlPlay = $("#control-play");
+		$controlNextButton = $("#control-next");
+		$controlNextButton.one("click",function(){
+			$controlPlay.addClass("hide");
+			$controlNextButton.addClass("hide");
+			Game.playTurn();
+		});
+		$controlPlay.removeClass("hide");
+		$controlNextButton.removeClass("hide");
+	},
 	playTurn : function(){
 		addMsg("C'est le tour de "+Game.currentPlayer.name+"("+Game.currentPlayer.color+")");
 		// is it human or IA ?
@@ -125,16 +164,27 @@ var Game = {
 			var ajax = ajaxGETjson('playFromIA', {});
 			ajax.success(function(json, statut){
 				if(json.correct){
-					addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") joue en [col,row] : ["+json.colPlayed+","+json.rowPlayed+"]", Game.currentPlayer.color);
+					addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") joue en [col,row] : ["+json.colPlayed+","+json.rowPlayed+"]", Game.currentPlayer.color,function(){
+						$("#cell-"+json.colPlayed+"-"+json.rowPlayed).find(".board-token").toggleClass("active");
+					});
 					Game.insertToken(json.colPlayed, json.rowPlayed);
 					switch(json.gameStatus){
 						case "continue" :
 							Game.switchPlayer();
-							Game.playTurn();
+							if($("#control-autoplay").is(":checked")){
+								Game.playTurn();
+							}
+							else{
+								Game.askNext();
+							}
 							break;
 						case "win" :
 							addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") a gagné la partie !", "success");
+							Game.reset();
 							break;
+						case "draw" : 
+							addMsg("Haa bah bravo ! Vous avez fait égalité ... C'est malin ...", "success");
+							Game.reset();
 						default :
 							Game.error("Erreur lors de la récupération du coup de "+Game.currentPlayer.name+". gameStatus : '"+json.gameStatus+"' est inconnu.", 5);
 					}
@@ -150,13 +200,6 @@ var Game = {
 		$cell.html('<div class="board-token '+Game.currentPlayer.color+'"></div>');
 	},
 	switchPlayer : function(){
-		/*
-		if (this.currentPlayer === this.player1){
-			this.currentPlayer = this.player2;
-		} else{
-			this.currentPlayer = this.player1;
-		};
-		*/
 		this.currentPlayer = (this.currentPlayer === this.player1)?this.player2:this.player1;
 	},
 	error : function(msg, code){
@@ -170,7 +213,16 @@ var Game = {
 
 // document.ready
 $(function(){
-	addMsg("Jquery est chargé.","success");
+	addMsg("jQuery est chargé.","success");
+	$(".glyphicon-minus, .glyphicon-plus").click(function(){
+		$this = $(this);
+		if($this.hasClass("glyphicon-minus")){
+			$this.removeClass("glyphicon-minus").addClass("glyphicon-plus");
+		}
+		else{
+			$this.removeClass("glyphicon-plus").addClass("glyphicon-minus");
+		}
+	});	
 	Game.init()
 });
 

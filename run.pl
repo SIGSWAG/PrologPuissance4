@@ -60,7 +60,7 @@ aQuiDemanderCoup(CouleurJCourant,1,Message,Coup) :- afficher, demandeCoup(Couleu
 aQuiDemanderCoup(_,2,_,Coup) :- iaAleatoire(Coup).
 % etc ...
 
-getTypeJoueurString(1,TypeJoueurString) :- TypeJoueurString='Humain',!.
+getTypeJoueurString(1,TypeJoueurString) :- TypeJoueurString='Humain'.
 getTypeJoueurString(2,TypeJoueurString) :- TypeJoueurString='IA Aleatoire'.
 
 % partie non nulle

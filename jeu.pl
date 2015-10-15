@@ -16,8 +16,11 @@ caseVide(X,Y) :- nonvar(X),nonvar(Y),not(case(X,Y,_)).
 
 init :- initClear, assert(case(_,_,_) :- fail).
 
-initClear :- retractall(case(_,_,_)).
-
+initClear :- 
+	retractall(autreJoueur(_,_)),
+	retractall(joueurCourant(_,_)),
+	retractall(case(_,_,_)).
+	
 initTest :- assert(case(4,1,rouge)), assert(case(3,2,rouge)), assert(case(2,3,rouge)), assert(case(1,4,rouge)). %initInterface, play
 
 
