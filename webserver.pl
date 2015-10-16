@@ -24,6 +24,7 @@ http:location(files, '/f', []).
 :- http_handler('/init', initAction, []).
 :- http_handler('/selectPlayers', selectPlayersAction, []).
 :- http_handler('/playFromIA', playFromIAAction, []).
+:- http_handler('/validHumanPlay', validHumanPlayAction, []).
 % this serves files from the directory assets
 % under the working directory
 :- http_handler(files(.), filesAction, [prefix]).
@@ -74,6 +75,25 @@ selectPlayersAction(Request) :-
     assert(autreJoueur(jaune,TypeJoueurJInteger)),
     reply_json(json{correct:true, rouge:TypeJoueurR, jaune:TypeJoueurJ}).
 
+validHumanPlayAction(Request) :-
+    http_parameters(Request,[ col(X, [])]),
+    atom_number(X, Coup),
+    joueurCourant(CouleurJCourant,TypeJoueur),
+    placerJeton(Coup, Y, CouleurJCourant),
+    isItTheEnd(Coup,Y,CouleurJCourant, Status),
+    reply_json(json{correct:true, gameStatus:Status, colPlayed:Coup, rowPlayed:Y}),
+    !.
+validHumanPlayAction(Request) :-
+    reply_json(json{correct:true, gameStatus:invalid}).
+
+test(Coup) :-
+    joueurCourant(CouleurJCourant,TypeJoueur),
+    (placerJeton(Coup,Y,CouleurJCourant) -> 
+        isItTheEnd(Coup,Y,CouleurJCourant, Status);
+        Status = 'invalid', Y = -1
+    ),
+    reply_json(json{correct:true, gameStatus:Status, colPlayed:X, rowPlayed:Y}).
+
 playFromIAAction(Request) :-
     joueurCourant(CouleurJCourant,TypeJoueur),
     aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'',X),
@@ -82,14 +102,11 @@ playFromIAAction(Request) :-
     reply_json(json{correct:true, gameStatus:Status, colPlayed:X, rowPlayed:Y}).
 
 % case : win
-isItTheEnd(Coup,Y,CouleurJCourant, Status) :-
-    gagne(Coup,Y,CouleurJCourant),
-    Status = 'win'.
+isItTheEnd(Coup,Y,CouleurJCourant, 'win') :-
+    gagne(Coup,Y,CouleurJCourant).
 % case : draw
-isItTheEnd(Coup,Y,CouleurJCourant, Status) :-
-    not(coupPossible),
-    Status = 'draw'.
+isItTheEnd(Coup,Y,CouleurJCourant, 'draw') :-
+    not(coupPossible).
 % case : continue
-isItTheEnd(Coup,Y,CouleurJCourant, Status) :-
-    changerJoueur,
-    Status = 'continue'.
+isItTheEnd(Coup,Y,CouleurJCourant, 'continue') :-
+    changerJoueur.

@@ -30,12 +30,18 @@ function addMsg(msg, type, hoverInOut){
 	var $msgbox = $("#msg-box");
 	var $lastMsgBox = $("#last-msg-box");
 	var $msg = $("<li></li>").addClass("list-group-item list-group-item-"+type).text(msg);
+	var $msgClone = $msg.clone();
 	if(	(type === "jaune" || type === "rouge")
 		&& typeof hoverInOut !== 'undefined'){
 		$msg.hover(hoverInOut);
+		$msgClone.hover(hoverInOut);
+		/*
+		$eye = $('<span class="glyphicon glyphicon-eye-open" aria-hidden="true"> ').hover(hoverInOut);
+		$msg.prepend($eye);
+		*/
 	}
 	$msgbox.prepend($msg);
-	$lastMsgBox.html($msg.clone());
+	$lastMsgBox.html($msgClone);
 }
 
 
@@ -44,6 +50,7 @@ function Player(){
 	this.Name = '';
 	this.color = '';
 }
+
 
 var Game = {
 	player1 : null,
@@ -124,7 +131,6 @@ var Game = {
 				else{
 					Game.error("Game.playerSelection a été appelé, mais les deux joueurs sont déjà définis.", 2)
 				}
-
 			});
 			$playerSelection.append($selectableElement);
 		};
@@ -152,12 +158,76 @@ var Game = {
 		$controlPlay.removeClass("hide");
 		$controlNextButton.removeClass("hide");
 	},
+	askColumn : function(){
+		addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") doit choisir une colonne.");
+		var clickHandler = function(event){
+			var $this = $(this);
+			$(".board-column").removeClass("selectable").unbind("click");
+			var col = $this.attr("data-num-col");
+			var ajax = ajaxGETjson('validHumanPlay', {"col":col});
+			ajax.success(function(json, statut){
+				if(json.correct){
+					if(json.gameStatus === "invalid"){
+						addMsg("La colonne "+col+" n'est pas un coup valide !", "danger");
+						Game.playTurn();
+					}
+					else{
+						addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") joue en [col,row] : ["+json.colPlayed+","+json.rowPlayed+"]", Game.currentPlayer.color,function(){
+							$("#cell-"+json.colPlayed+"-"+json.rowPlayed).find(".board-token").toggleClass("active");
+						});
+						Game.insertToken(json.colPlayed, json.rowPlayed);
+						switch(json.gameStatus){
+							case "continue" :
+								Game.switchPlayer();
+								Game.playTurn();
+								break;
+							case "win" :
+								addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") a gagné la partie !", "win");
+								Game.reset();
+								break;
+							case "draw" : 
+								addMsg("Haa bah bravo ! Vous avez fait égalité ... C'est malin ...", "win");
+								Game.reset();
+								break;
+							default :
+								Game.error("Erreur lors de la récupération du coup de "+Game.currentPlayer.name+". gameStatus : '"+json.gameStatus+"' est inconnu.", 7);
+						}
+					}					
+				}
+				else{
+					Game.error("Erreur lors de la récupération du coup de "+Game.currentPlayer.name+".", 6);
+				}
+			});
+		}
+		/*
+		var hoverInHandler = function(){
+			$this = $(this);
+			$cells = $this.find(".board-row");
+			for (var i = 0; i < $cells.length; i++) {
+				if ($cells[i].find(".board-token").length > 0) {
+
+					break;
+				};
+			};
+
+		};
+		var hoverOutHandler = function(){
+			
+		};
+		*/
+		$(".board-column").addClass("selectable")
+			.on("click",clickHandler);
+			/*
+			.on("mouseenter",hoverInHandler)
+			.on("mouseleave",hoverOutHandler);
+			*/
+	},
 	playTurn : function(){
 		addMsg("C'est le tour de "+Game.currentPlayer.name+"("+Game.currentPlayer.color+")");
 		// is it human or IA ?
 		if(Game.currentPlayer.code == 1){
 			// Human
-
+			Game.askColumn();
 		}
 		else{
 			// IA
@@ -179,12 +249,13 @@ var Game = {
 							}
 							break;
 						case "win" :
-							addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") a gagné la partie !", "success");
+							addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") a gagné la partie !", "win");
 							Game.reset();
 							break;
 						case "draw" : 
-							addMsg("Haa bah bravo ! Vous avez fait égalité ... C'est malin ...", "success");
+							addMsg("Haa bah bravo ! Vous avez fait égalité ... C'est malin ...", "win");
 							Game.reset();
+							break;
 						default :
 							Game.error("Erreur lors de la récupération du coup de "+Game.currentPlayer.name+". gameStatus : '"+json.gameStatus+"' est inconnu.", 5);
 					}
