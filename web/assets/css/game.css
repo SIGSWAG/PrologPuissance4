@@ -4,6 +4,7 @@ body{
 }
 
 #board{
+    user-select: none;
 	display : table;
 	background-color: blue;
 	border-radius: 2px;

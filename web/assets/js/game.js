@@ -62,6 +62,7 @@ var Game = {
 		Game.player1 = new Player();
 		Game.player2 = new Player();
 		currentPlayer = null;
+		$(".board-row").addClass("empty-cell");
 		var ajax = ajaxGETjson('init', {});
 		ajax.success(function(json, statut){
 			if(json.correct){
@@ -162,7 +163,10 @@ var Game = {
 		addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") doit choisir une colonne.");
 		var clickHandler = function(event){
 			var $this = $(this);
-			$(".board-column").removeClass("selectable").unbind("click");
+			$(".board-column").removeClass("selectable")
+				.unbind("click")
+				.unbind("mouseenter")
+				.unbind("mouseleave");
 			var col = $this.attr("data-num-col");
 			var ajax = ajaxGETjson('validHumanPlay', {"col":col});
 			ajax.success(function(json, statut){
@@ -199,28 +203,17 @@ var Game = {
 				}
 			});
 		}
-		/*
+		var $previewToken = $('<div class="board-token active '+Game.currentPlayer.color+'"></div>');
 		var hoverInHandler = function(){
-			$this = $(this);
-			$cells = $this.find(".board-row");
-			for (var i = 0; i < $cells.length; i++) {
-				if ($cells[i].find(".board-token").length > 0) {
-
-					break;
-				};
-			};
-
+			$(this).find(".board-row.empty-cell").last().append($previewToken);
 		};
 		var hoverOutHandler = function(){
-			
+			$previewToken.remove();
 		};
-		*/
 		$(".board-column").addClass("selectable")
-			.on("click",clickHandler);
-			/*
+			.on("click",clickHandler)
 			.on("mouseenter",hoverInHandler)
 			.on("mouseleave",hoverOutHandler);
-			*/
 	},
 	playTurn : function(){
 		addMsg("C'est le tour de "+Game.currentPlayer.name+"("+Game.currentPlayer.color+")");
@@ -269,6 +262,7 @@ var Game = {
 	insertToken : function(col,row){
 		var $cell = $("#cell-"+col+"-"+row);
 		$cell.html('<div class="board-token '+Game.currentPlayer.color+'"></div>');
+		$cell.removeClass("empty-cell");
 	},
 	switchPlayer : function(){
 		this.currentPlayer = (this.currentPlayer === this.player1)?this.player2:this.player1;

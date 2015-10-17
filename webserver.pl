@@ -41,13 +41,13 @@ indexAction(Request) :-
     http_404([], Request).    
 
 % say hello, to test if server is running
-helloAction(Request) :-
+helloAction(_) :-
     format('Content-type: text/plain~n~n'),
     format('Hello world ! Server is running').
 
 % initialyze the game
 % Response : a list of the available players
-initAction(Request) :-
+initAction(_) :-
     init,
     findall([X,Y],getTypeJoueurString(X,Y), Z),
     reply_json(json{correct:true, players:Z}).
@@ -61,7 +61,7 @@ filesAction(Request) :-
 % set the player selected
 % Response tell what clolor has the players
 selectPlayersAction(Request) :-
-    findall(X,getTypeJoueurString(X,Y), TypeJoueurs),
+    % findall(X,getTypeJoueurString(X,Y), TypeJoueurs),
     http_parameters(Request,
     % oneof(TypeJoueurs) ne marche pas ....atom_number('123', X)
     % on obtient une erreur bad request : Parameter "joueur1" must be one of "1" or "2".  Found "1"
@@ -78,23 +78,15 @@ selectPlayersAction(Request) :-
 validHumanPlayAction(Request) :-
     http_parameters(Request,[ col(X, [])]),
     atom_number(X, Coup),
-    joueurCourant(CouleurJCourant,TypeJoueur),
+    joueurCourant(CouleurJCourant,_),
     placerJeton(Coup, Y, CouleurJCourant),
     isItTheEnd(Coup,Y,CouleurJCourant, Status),
     reply_json(json{correct:true, gameStatus:Status, colPlayed:Coup, rowPlayed:Y}),
     !.
-validHumanPlayAction(Request) :-
+validHumanPlayAction(_) :-
     reply_json(json{correct:true, gameStatus:invalid}).
 
-test(Coup) :-
-    joueurCourant(CouleurJCourant,TypeJoueur),
-    (placerJeton(Coup,Y,CouleurJCourant) -> 
-        isItTheEnd(Coup,Y,CouleurJCourant, Status);
-        Status = 'invalid', Y = -1
-    ),
-    reply_json(json{correct:true, gameStatus:Status, colPlayed:X, rowPlayed:Y}).
-
-playFromIAAction(Request) :-
+playFromIAAction(_) :-
     joueurCourant(CouleurJCourant,TypeJoueur),
     aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'',X),
     placerJeton(X,Y,CouleurJCourant),
@@ -105,8 +97,8 @@ playFromIAAction(Request) :-
 isItTheEnd(Coup,Y,CouleurJCourant, 'win') :-
     gagne(Coup,Y,CouleurJCourant).
 % case : draw
-isItTheEnd(Coup,Y,CouleurJCourant, 'draw') :-
+isItTheEnd(_,_,_, 'draw') :-
     not(coupPossible).
 % case : continue
-isItTheEnd(Coup,Y,CouleurJCourant, 'continue') :-
+isItTheEnd(_,_,_, 'continue') :-
     changerJoueur.
