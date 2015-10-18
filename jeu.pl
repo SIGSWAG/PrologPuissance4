@@ -1,43 +1,75 @@
-%%%%%%%%%%%%%%%%% Fichier jeu.pl %%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% jeu.pl %%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%% Constantes %%%%%%%%%%%%%%%%%
+:- module(jeu, [nbLignes/1, nbColonnes/1, initJeu/0, gagne/3, placerJeton/3, coupPossible/0, case/3, caseVide/2, coupValide/1]).
+:- use_module(util).
+
+:- dynamic case/3. % à tester
+
+%%%%%%%%%%%%%%%%
+%% Constantes %%
+%%%%%%%%%%%%%%%%
 
 nbLignes(6).
 nbColonnes(7).
 
-%%%%%%%%%%%%%%%%% Fonctions utiles %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Prédicats publics %%
+%%%%%%%%%%%%%%%%%%%%%%%
 
-incr(X,X1):- X1 is X+1.
-decr(X,X1):- X1 is X-1.
+%%% Fonctions utiles
+
+% caseVide/2(+X, +Y)
+% verifie si la case est vide
+% vrai si la case n'a pas été remplie
 caseVide(X,Y) :- nonvar(X),nonvar(Y),not(case(X,Y,_)).
 
+%%% Initialisation du plateau
 
-%%%%%%%%%%%%%%%%% Initialisation du plateau %%%%%%%%%%%%%%%%%
+% initJeu/0
+% vide le plateau, initialise un nouveau plateau vide
+% retourne yes
+initJeu :- initClear, assert(case(_,_,_) :- fail).
 
-init :- initClear, assert(case(_,_,_) :- fail).
+% coupPossible/0
+% verifie si l'on peut encore joueur
+% vrai si il reste des coups valides, faux sinon
+coupPossible :- nbColonnes(NBCOLLONNES), between(1,NBCOLLONNES,X), coupValide(X).
 
-initClear :- 
-	retractall(autreJoueur(_,_)),
-	retractall(joueurCourant(_,_)),
-	retractall(case(_,_,_)).
-	
-initTest :- assert(case(4,1,rouge)), assert(case(3,2,rouge)), assert(case(2,3,rouge)), assert(case(1,4,rouge)). %initInterface, play
+%%% Vérification de la victoire 
 
-
-%%%%%%%%%%%%%%%% Play %%%%%%%%%%%%%%%%%
-
-%play(_,_,_).
-
-%%%%%%%%%%%%%%%% Vérification de la victoire %%%%%%%%%%%%%
-
+% gagne/3(+colonne, +ligne, +joueur)
+% vérifie si le coup est gagnant pour joueur
+% retourne yes si gagnant ou no sinon
 gagne(X,Y,J) :- gagneColonne(X,Y,J).
 gagne(X,Y,J) :- gagneLigne(X,Y,J).
 gagne(X,Y,J) :- gagneDiag1(X,Y,J).
 gagne(X,Y,J) :- gagneDiag2(X,Y,J).
 
 
-%%% En colonne %%%
+%%% Place un jeton
 
+% placerJeton/3(-Colonne, +Ligne, -Couleur) 
+% insère si possible un jeton dans la colonne donnée
+% retourne la ligne d'insertion, ou no
+placerJeton(X,Y,C) :- coupValide(X), insererJeton(X, Y, C).
+
+%%%%%%%%%%%%%%%%%%%%%%
+%% Prédicats privés %%
+%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%% init %%%%%
+
+
+initClear :- retractall(case(_,_,_)). % pourrait fonctionner avec :- dynamic, à investiguer
+
+initTest :- assert(case(4,1,rouge)), assert(case(3,2,rouge)), assert(case(2,3,rouge)), assert(case(1,4,rouge)). %initInterface, play
+
+
+%%%%% gagne %%%%%
+
+
+%%% En colonne %%%
 
 gagneColonne(X,Y,J) :- case(X,Y,J), decr(Y,Y1), case(X,Y1,J), decr(Y1,Y2), case(X,Y2,J), decr(Y2,Y3), case(X,Y3,J). %ligne en bas
 
@@ -78,13 +110,8 @@ droiteHaut(X,Y,J,R,R) :- not(case(X,Y,J)). %Jusqu'à la case non J
 droiteHaut(X,Y,J,R,Rg) :- incr(Y,Y1), incr(X,X1), incr(R,R1), droiteHaut(X1,Y1,J,R1,Rg).
 
 
+%%%%% placerJeton %%%%%
 
-%%%%%%%%%%%%%% Play %%%%%%%%%%%%%%%%%%%
-
-% placerJeton/3(-Colonne, +Ligne, -Couleur) 
-% insère si possible un jeton dans la colonne donnée
-% retourne la ligne d'insertion, ou no
-placerJeton(X,Y,C) :- coupValide(X), insererJeton(X, Y, C).
 
 % coupValide/1(-Colonne)
 % Vérifie si un jeton est jouable dans cette colonne
@@ -102,4 +129,3 @@ insererJeton(X,Y,C) :- calculPositionJeton(X, 1, Y), assert(case(X,Y,C)).
 calculPositionJeton(X,YCheck,YCheck) :- caseVide(X,YCheck), !.
 calculPositionJeton(X,YCheck,Y) :- incr(YCheck, YCheck1), calculPositionJeton(X,YCheck1,Y).
 
-coupPossible :- nbColonnes(NBCOLLONNES), between(1,NBCOLLONNES,X), coupValide(X).
