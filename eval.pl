@@ -17,7 +17,8 @@
 % evalJeu/3(+JoueurCourant, +AutreJoueur, -Score)
 % Evalue la situation courante.
 % Score s'unifie avec le score évalué pour la position courante.
-evalJeu(JoueurCourant,AutreJoueur,Score) :- evalPuissances3(JoueurCourant,AutreJoueur,Score).
+%evalJeu(JoueurCourant,AutreJoueur,Score) :- evalPuissances3(JoueurCourant,AutreJoueur,Score).
+evalJeu(_,_,1).
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%

@@ -8,6 +8,7 @@
 :- use_module(ia).
 :- use_module(ihm).
 :- use_module(eval).
+%:- use_module(miniMax).
 
 :- dynamic joueurCourant/2.
 :- dynamic autreJoueur/2.
@@ -82,23 +83,23 @@ testFin(_,_,_,PartieNulle) :- changerJoueur, tour(PartieNulle).
 aQuiDemanderCoup(CouleurJCourant,1,Message,Coup) :- afficher, demandeCoup(CouleurJCourant,Message,Coup),!.
 % 2==IA aleatoire
 aQuiDemanderCoup(_,2,_,Coup) :- iaAleatoire(Coup).
-% etc ...
+% 3==minimax
+aQuiDemanderCoup(J,3,_,Coup) :- donneCoup(Coup).
 
-getTypeJoueurString(1,'Humain').
-getTypeJoueurString(2,'IA Aléatoire').
+init :- initJeu, retractall(joueurCourant(_,_)), retractall(autreJoueur(_,_)).
 
 % partie non nulle
 afficherFin(false) :-
 	joueurCourant(CouleurGagnante,TypeJoueurGagnant),
 	autreJoueur(CouleurPerdante,TypeJoueurPerdant),
-	getTypeJoueurString(TypeJoueurGagnant,TypeJoueurGagnantString),
-	getTypeJoueurString(TypeJoueurPerdant,TypeJoueurPerdantString),
+	typeJoueur(TypeJoueurGagnant,TypeJoueurGagnantString),
+	typeJoueur(TypeJoueurPerdant,TypeJoueurPerdantString),
    	afficherGagnant(CouleurGagnante,CouleurPerdante,TypeJoueurGagnantString,TypeJoueurPerdantString).
+	
 % partie nulle
 afficherFin(true) :-
-	afficherPartieNulle.
-
-init :- initJeu, retractall(joueurCourant(_,_)), retractall(autreJoueur(_,_)).
+	write('Égalité !').
+	%afficherPartieNulle.
 
 
 % test de sortie de runTestIAXFirst
