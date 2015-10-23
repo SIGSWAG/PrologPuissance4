@@ -7,5 +7,9 @@
 %% Prédicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
 
-iaAleatoire(Coup) :- nbColonnes(NBCOLONNES), Coup is random(NBCOLONNES)+1, coupValide(Coup).
-iaAleatoire(Coup) :- iaAleatoire(Coup).
+iaAleatoire(Coup) :-
+	nbColonnes(NBCOLONNES),
+	Coup is random(NBCOLONNES)+1,
+	coupValide(Coup).
+iaAleatoire(Coup) :-
+	iaAleatoire(Coup).

@@ -114,6 +114,8 @@ statutJeu(_,_,_, 'continue') :-
 
 % permet d'appeler l'ihm ou les IAs pour récupérer le coup suivant
 % 2==IA aleatoire
-obtenirCoup(_,2,_,Coup) :- iaAleatoire(Coup).
+obtenirCoup(_,2,_,Coup) :-
+    iaAleatoire(Coup).
 % 3==minimax
-obtenirCoup(_,3,_,Coup) :- donneCoup(Coup).
+obtenirCoup(_,3,_,Coup) :-
+    donneCoup(Coup).

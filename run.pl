@@ -61,11 +61,22 @@ bouclePlacer(_,TypeJoueur,CouleurJCourant,Y) :-
 
 
 
-testFin(Coup,Y,CouleurJCourant,PartieNulle) :- gagne(Coup,Y,CouleurJCourant), PartieNulle=false, afficher.
-testFin(_,_,_,PartieNulle) :- not(coupPossible), PartieNulle=true, afficher.
-testFin(_,_,_,PartieNulle) :- changerJoueur, tour(PartieNulle).
+testFin(Coup,Y,CouleurJCourant,PartieNulle) :-
+	gagne(Coup,Y,CouleurJCourant),
+	PartieNulle=false,
+	afficher.
+testFin(_,_,_,PartieNulle) :-
+	not(coupPossible),
+	PartieNulle=true,
+	afficher.
+testFin(_,_,_,PartieNulle) :-
+	changerJoueur,
+	tour(PartieNulle).
 
-init :- initJeu, retractall(joueurCourant(_,_)), retractall(autreJoueur(_,_)).
+init :-
+	initJeu,
+	retractall(joueurCourant(_,_)),
+	retractall(autreJoueur(_,_)).
 
 
 % partie non nulle
