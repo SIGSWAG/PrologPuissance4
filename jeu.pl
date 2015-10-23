@@ -1,6 +1,19 @@
 %%%%%%%%%%%% jeu.pl %%%%%%%%%%%%
 
-:- module(jeu, [nbLignes/1, nbColonnes/1, initJeu/0, gagne/3, placerJeton/3, coupPossible/0, case/3, caseVide/2, coupValide/1]).
+:- module(jeu, [
+	nbLignes/1,
+	nbColonnes/1,
+	initJeu/0,
+	gagne/3,
+	placerJeton/3,
+	coupPossible/0,
+	case/3,
+	caseVide/2,
+	coupValide/1,
+	getTypeJoueurString/2,
+	changerJoueur/0
+]).
+
 :- use_module(util).
 
 :- dynamic case/3. % à tester
@@ -15,6 +28,28 @@ nbColonnes(7).
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
+
+%%% Gestion des joueurs %%%
+
+getTypeJoueurString(1,'Humain').
+getTypeJoueurString(2,'IA Aléatoire').
+
+changerJoueur :-
+	joueurCourant(rouge,TypeJoueurR), 
+	autreJoueur(jaune,TypeJoueurJ),
+	retractall(joueurCourant(_,_)),
+	retractall(autreJoueur(_,_)),
+	assert(joueurCourant(jaune,TypeJoueurJ)),
+	assert(autreJoueur(rouge,TypeJoueurR)),!.
+changerJoueur :-
+	joueurCourant(jaune,TypeJoueurJ),
+	autreJoueur(rouge,TypeJoueurR),
+	retractall(joueurCourant(_,_)),
+	retractall(autreJoueur(_,_)),
+	assert(joueurCourant(rouge,TypeJoueurR)),
+	assert(autreJoueur(jaune,TypeJoueurJ)),!.
+
+
 
 %%% Fonctions utiles
 

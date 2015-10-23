@@ -59,35 +59,11 @@ bouclePlacer(_,TypeJoueur,CouleurJCourant,Y) :-
 	aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'Votre coup n\'est pas valide. Veuillez réessayer.\n',Coup),
 	bouclePlacer(Coup,TypeJoueur,CouleurJCourant,Y).
 
-changerJoueur :-
-	joueurCourant(rouge,TypeJoueurR), 
-	autreJoueur(jaune,TypeJoueurJ),
-	retractall(joueurCourant(_,_)),
-	retractall(autreJoueur(_,_)),
-	assert(joueurCourant(jaune,TypeJoueurJ)),
-	assert(autreJoueur(rouge,TypeJoueurR)),!.
-changerJoueur :-
-	joueurCourant(jaune,TypeJoueurJ),
-	autreJoueur(rouge,TypeJoueurR),
-	retractall(joueurCourant(_,_)),
-	retractall(autreJoueur(_,_)),
-	assert(joueurCourant(rouge,TypeJoueurR)),
-	assert(autreJoueur(jaune,TypeJoueurJ)),!.
+
 
 testFin(Coup,Y,CouleurJCourant,PartieNulle) :- gagne(Coup,Y,CouleurJCourant), PartieNulle=false, afficher.
 testFin(_,_,_,PartieNulle) :- not(coupPossible), PartieNulle=true, afficher.
 testFin(_,_,_,PartieNulle) :- changerJoueur, tour(PartieNulle).
-
-% permet d'appeler l'ihm ou les IAs pour récupérer le coup suivant
-% 1==humain
-aQuiDemanderCoup(CouleurJCourant,1,Message,Coup) :- afficher, demandeCoup(CouleurJCourant,Message,Coup),!.
-% 2==IA aleatoire
-aQuiDemanderCoup(_,2,_,Coup) :- iaAleatoire(Coup).
-% 3==minimax
-aQuiDemanderCoup(J,3,_,Coup) :- donneCoup(Coup).
-
-getTypeJoueurString(1,'Humain').
-getTypeJoueurString(2,'IA Aléatoire').
 
 init :- initJeu, retractall(joueurCourant(_,_)), retractall(autreJoueur(_,_)).
 

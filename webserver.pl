@@ -1,33 +1,40 @@
+%%%%%%%%%%%% webserver.pl %%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%
+%% Inclusions %%
+%%%%%%%%%%%%%%%%
+
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_error)).
 :- use_module(library(http/html_write)).
-% to read Request parameters
-:- use_module(library(http/http_parameters)).
+:- use_module(library(http/http_parameters)).   % to read Request parameters
 :- use_module(library(http/http_cors)).
-% for json
-:- use_module(library(http/http_json)).
-:- use_module(library(http/json_convert)).
-% http_reply_from_files is here
 :- use_module(library(http/http_files)).
-:- [run].
+:- use_module(library(http/http_json)).         % for json
+:- use_module(library(http/json_convert)).      
+:- use_module(jeu).
+:- use_module(ia).
+:- use_module(ihm).
+:- use_module(eval).
 
 :- multifile http:location/3.
 :- dynamic   http:location/3.
 http:location(files, '/f', []).
 
 
+%%%%%%%%%%%%%%%%
+%%  Routing   %%
+%%%%%%%%%%%%%%%%
 
-
-% ROUTING
 :- http_handler('/', helloAction, []).
 :- http_handler('/init', initAction, []).
-:- http_handler('/selectPlayers', selectPlayersAction, []).
-:- http_handler('/playFromIA', playFromIAAction, []).
-:- http_handler('/validHumanPlay', validHumanPlayAction, []).
+:- http_handler('/selectPlayers', selectionnerJoueurAction, []).
+:- http_handler('/playFromIA', tourIAAction, []).
+:- http_handler('/validHumanPlay', validerTourHumain, []).
 % this serves files from the directory assets
 % under the working directory
-:- http_handler(files(.), filesAction, [prefix]).
+:- http_handler(files(.), fichierAction, [prefix]).
 :- http_handler('/game', indexAction, []).
 
 server(Port) :-
@@ -48,19 +55,21 @@ helloAction(_) :-
 % initialyze the game
 % Response : a list of the available players
 initAction(_) :-
-    init,
+    initJeu,
+    retractall(joueurCourant(_,_)),
+    retractall(autreJoueur(_,_)),
     findall([X,Y],getTypeJoueurString(X,Y), Z),
     reply_json(json{correct:true, players:Z}).
 
 % serve any file from assets
-filesAction(Request) :-
+fichierAction(Request) :-
     http_reply_from_files('web/assets', [], Request).
-filesAction(Request) :-
+fichierAction(Request) :-
     http_404([], Request).
 
 % set the player selected
 % Response tell what clolor has the players
-selectPlayersAction(Request) :-
+selectionnerJoueurAction(Request) :-
     % findall(X,getTypeJoueurString(X,Y), TypeJoueurs),
     http_parameters(Request,
     % oneof(TypeJoueurs) ne marche pas ....atom_number('123', X)
@@ -75,30 +84,36 @@ selectPlayersAction(Request) :-
     assert(autreJoueur(jaune,TypeJoueurJInteger)),
     reply_json(json{correct:true, rouge:TypeJoueurR, jaune:TypeJoueurJ}).
 
-validHumanPlayAction(Request) :-
-    http_parameters(Request,[ col(X, [])]),
-    atom_number(X, Coup),
+validerTourHumain(Request) :-
+    http_parameters(Request,[ col(Col, [])]),
+    atom_number(Col, Colonne),
     joueurCourant(CouleurJCourant,_),
-    placerJeton(Coup, Y, CouleurJCourant),
-    isItTheEnd(Coup,Y,CouleurJCourant, Status),
-    reply_json(json{correct:true, gameStatus:Status, colPlayed:Coup, rowPlayed:Y}),
+    placerJeton(Colonne, Ligne, CouleurJCourant),
+    statutJeu(Colonne,Ligne,CouleurJCourant, Statut),
+    reply_json(json{correct:true, gameStatus:Statut, colPlayed:Colonne, rowPlayed:Ligne}),
     !.
-validHumanPlayAction(_) :-
+validerTourHumain(_) :-
     reply_json(json{correct:true, gameStatus:invalid}).
 
-playFromIAAction(_) :-
+tourIAAction(_) :-
     joueurCourant(CouleurJCourant,TypeJoueur),
-    aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'',X),
-    placerJeton(X,Y,CouleurJCourant),
-    isItTheEnd(X,Y,CouleurJCourant, Status),
-    reply_json(json{correct:true, gameStatus:Status, colPlayed:X, rowPlayed:Y}).
+    obtenirCoup(CouleurJCourant,TypeJoueur,'',Colonne),
+    placerJeton(Colonne,Ligne,CouleurJCourant),
+    statutJeu(Colonne,Ligne,CouleurJCourant, Statut),
+    reply_json(json{correct:true, gameStatus:Statut, colPlayed:Colonne, rowPlayed:Ligne}).
 
 % case : win
-isItTheEnd(Coup,Y,CouleurJCourant, 'win') :-
-    gagne(Coup,Y,CouleurJCourant).
+statutJeu(Colonne,Ligne,CouleurJCourant, 'win') :-
+    gagne(Colonne,Ligne,CouleurJCourant).
 % case : draw
-isItTheEnd(_,_,_, 'draw') :-
+statutJeu(_,_,_, 'draw') :-
     not(coupPossible).
 % case : continue
-isItTheEnd(_,_,_, 'continue') :-
+statutJeu(_,_,_, 'continue') :-
     changerJoueur.
+
+% permet d'appeler l'ihm ou les IAs pour récupérer le coup suivant
+% 2==IA aleatoire
+obtenirCoup(_,2,_,Coup) :- iaAleatoire(Coup).
+% 3==minimax
+obtenirCoup(_,3,_,Coup) :- donneCoup(Coup).
