@@ -1,6 +1,6 @@
 ﻿%%%%%%%%%%%% ihm.pl %%%%%%%%%%%%
 
-:- module(ihm, [afficher/0, demandeCoup/3, afficherGagnant/4, afficherPartieNulle/0, demandeTypeDeJeu/1]).
+:- module(ihm, [afficher/0, demandeCoup/3, afficherGagnant/4, afficherPartieNulle/0, demandeTypeDeJeu/1, typeJoueur/2]).
 
 :- use_module(util).
 
@@ -48,13 +48,16 @@ afficherPartieNulle :-
 % TypeDeJeu s'unifie au type saisi par l'utilisateur.
 demandeTypeDeJeu(TypeDeJeu) :-
     write('   --- Puissance 4 ---'), nl,
-    write('    1. Jouer en tant qu\'humain'), nl,
-    write('    2. Jouer en tant qu\'IA aleatoire'), nl,
+	findall(_, afficherTypeJoueur(_,_), _),
     nl, nl,
 	write(' ----------------------- '), nl,
     write('Saisissez votre choix :'), nl,
     read(TypeDeJeu), integer(TypeDeJeu).
 
+typeJoueur(1,'Humain').
+typeJoueur(2,'IA Aléatoire').
+%typeJoueur(3,'Minimax Aléatoire').
+	
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
@@ -85,3 +88,7 @@ afficherCase(_,_) :- write(.).
 saisirCoup(Coup) :-
 	write('Veuillez saisir votre coup : '),
 	read(Coup).
+
+afficherTypeJoueur(I,J) :-
+	typeJoueur(I,J),
+	write('\t'), write(I), write('. '), write(J), nl.
