@@ -1,5 +1,9 @@
-%%%%%%%%%%%% miniMax.pl %%%%%%%%%%%%
-%:- module(minimax, [parcoursArbre/4]).
+%%%%%%%%%%%% miniMax-sample.pl %%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Example of minimax with just two branches, 				%%
+%% to understand the mecanism and avoid burning your brain  %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% For test purpose, this module contains duplicate code.%%
@@ -26,15 +30,7 @@ infiniteNeg(-10000).
 % +Pmax prof maximale
 % -R le coup a jouer
 % -Value évaluation du noeud courant
-parcoursArbre(J,Pmax,R,Value):- initTest,initCaseTest,infinitePos(InfP),infiniteNeg(InfN),assert(maximizer(J)), assert(joueurCourant(J)), 
-parcours(1,1,Pmax,[1,0],InfP,InfN), feuille([1,0],X1), 
-setJoueur(1), parcours(2,1,Pmax,[2,0],InfP,X1), feuille([2,0],X2),
-setJoueur(1), AlphaNext is max(X1,X2), parcours(3,1,Pmax,[3,0],InfP,AlphaNext), feuille([3,0],X3), 
-setJoueur(1), AlphaNext1 is max(AlphaNext,X3), parcours(4,1,Pmax,[4,0],InfP,AlphaNext1), feuille([4,0],X4), 
-setJoueur(1), AlphaNext2 is max(AlphaNext1,X4), parcours(5,1,Pmax,[5,0],InfP,AlphaNext2), feuille([5,0],X5), 
-setJoueur(1), AlphaNext3 is max(AlphaNext2,X5), parcours(6,1,Pmax,[6,0],InfP,AlphaNext3), feuille([6,0],X6), 
-setJoueur(1), AlphaNext4 is max(AlphaNext3,X6), parcours(7,1,Pmax,[7,0],InfP,AlphaNext4), feuille([7,0],X7), 
-coupAJouerMaximizer([X1,X2,X3,X3,X4,X5,X6,X7],R,Value), clearTest,!. %the second call and the next ones are called with the result of the preceding (we take the max of all of them) on reset le joueur entre chaque call
+parcoursArbre(J,Pmax,R,Value):- initTest,initCaseTest,infinitePos(InfP),infiniteNeg(InfN),assert(maximizer(J)), assert(joueurCourant(J)), parcours(1,1,Pmax,[1,0],InfP,InfN),setJoueur(1), feuille([1,0],X1), parcours(2,1,Pmax,[2,0],InfP,X1), feuille([2,0],X2), coupAJouerMaximizer([X1,X2],R,Value), clearTest,!. %the second call and the next ones are called with the result of the preceding (we take the max of all of them) on reset le joueur entre chaque call
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
@@ -60,30 +56,9 @@ setJoueur(P1), %on set le joueur
 attribueVal(ValeurPrec), % on initialise val
 parcours(1, P1,Pmax, [1|L], Beta, Alpha),  %on joue colonne 1
 feuille([1|L], Valeur1),%here is the value of first branch
-
 setJoueur(P1), % on reset le joueur (il a changé dans le premier parcours)
 choixVal(Valeur1,ValeurPrec,Val1),%choisit si min ou max, renvoie la valeur pour le prochain coup.
-
-joueCoupSuivant(Val1,2,P1,Pmax,L,Beta,Alpha,Val2,Beta2,Alpha2),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
-setJoueur(P1), % on reset le joueur (il a changé dans le premier parcours)
-
-joueCoupSuivant(Val2,3,P1,Pmax,L,Beta2,Alpha2,Val3,Beta3,Alpha3),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
-setJoueur(P1), %on change de joueur
-
-joueCoupSuivant(Val3,4,P1,Pmax,L,Beta3,Alpha3,Val4,Beta4,Alpha4),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
-setJoueur(P1), %on change de joueur
-
-joueCoupSuivant(Val4,5,P1,Pmax,L,Beta4,Alpha4,Val5,Beta5,Alpha5),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
-setJoueur(P1), %on change de joueur
-
-joueCoupSuivant(Val5,6,P1,Pmax,L,Beta5,Alpha5,Val6,Beta6,Alpha6),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
-setJoueur(P1), %on change de joueur
-
-joueCoupSuivant(Val6,7,P1,Pmax,L,Beta6,Alpha6,Valeur,Beta7,Alpha7),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
-setJoueur(P1), %on change de joueur
-
-
-
+joueCoupSuivant(Val1,2,P1,Pmax,L,Beta,Alpha,Valeur,Beta2,Alpha2),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
 retract(caseTest(X,Y,Joue)), %on annule le coup pour poursuivre dans l'arbre
 feuille([1|L], X1),feuille([2|L], X2), %on cherche les feuilles associées (elles ont été calculées plus bas dans l'arbre)
 setJoueur(P1), %on change de joueur
