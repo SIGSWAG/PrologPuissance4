@@ -20,7 +20,7 @@ nbColonnes(7).
 
 % caseVide/2(+X, +Y)
 % verifie si la case est vide
-% vrai si la case n'a pas été remplie
+% vrai si la case n a pas été remplie
 caseVide(X,Y) :- nonvar(X),nonvar(Y),not(case(X,Y,_)).
 
 %%% Initialisation du plateau
@@ -31,7 +31,7 @@ caseVide(X,Y) :- nonvar(X),nonvar(Y),not(case(X,Y,_)).
 initJeu :- initClear, assert(case(_,_,_) :- fail).
 
 % coupPossible/0
-% verifie si l'on peut encore joueur
+% verifie si l on peut encore joueur
 % vrai si il reste des coups valides, faux sinon
 coupPossible :- nbColonnes(NBCOLLONNES), between(1,NBCOLLONNES,X), coupValide(X).
 

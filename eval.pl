@@ -16,7 +16,7 @@
 
 % evalJeu/3(+JoueurCourant, +AutreJoueur, -Score)
 % Evalue la situation courante.
-% Score s'unifie avec le score évalué pour la position courante.
+% Score s unifie avec le score évalué pour la position courante.
 evalJeu(JoueurCourant,AutreJoueur,Score) :- evalPuissances3(JoueurCourant,AutreJoueur,Score).
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -49,7 +49,7 @@ ponderationJ(_, _, _, -1).
 
 % evalPuissances3/3(+JoueurCourant,+AutreJoueur,-Score)
 % Évalue en cherchant les positions faisant gagner.
-% Score s'unifie au score de la position.
+% Score s unifie au score de la position.
 evalPuissances3(JoueurCourant,AutreJoueur,ScoreFinal) :-
 	findall(S,evalCasesVides(JoueurCourant,S),ScoresCourant), sum(ScoresCourant,ScoreCourant),
 	findall(S,evalCasesVides(AutreJoueur,S),ScoresAutre), sum(ScoresAutre,ScoreAutre),
@@ -70,6 +70,7 @@ evalCasesVides(Joueur,ScoreCase) :-
 sum([],0).
 sum([X|Xs],N) :- sum(Xs,N1), N is N1+X.
 
+% --------- DEPRECATED ------------
 % evalAdjacence/2 (+Courant,-Score)
 % Evalue en privilegiant les cases entourees par des positions amies
 % -
@@ -85,3 +86,116 @@ evalCasesAdjacentes(X,Y,Courant,ScoreCase) :- SC0 is 0, decr(X,X1), incr(Y,Y1), 
 	ponderationJ(X2,Y2,Courant, SC5), sum(SC5,SC6),
 	ponderationJ(X,Y2,Courant, SC6), sum(SC6,SC7),
 	ponderationJ(X1,Y2,Courant, SC7), sum(SC7,ScoreCase).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			DETERMINATION COUP GAGNANT (BIS)
+%		  RECHERCHE D EXTREMITES DE SEQUENCES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% coupGagnant (+X,+Y,+joueur)
+% Determine si le coup joue immediatement avant est gagnant ou non en fonction du pion (X,Y) joue
+% Vrai pour un coup gagnant, faux sinon
+
+coupGagnant(X,Y,Joueur)	:- rechercheExtremite(X,Y,Xextr,Yextr,1,Joueur), pionsSuccessifs(Xextr,Yextr,Joueur,5, Npions), Npions > 3.
+coupGagnant(X,Y,Joueur) :- rechercheExtremite(X,Y,Xextr,Yextr,2,Joueur), pionsSuccessifs(Xextr,Yextr,Joueur,6, Npions), Npions > 3.
+coupGagnant(X,Y,Joueur)	:- rechercheExtremite(X,Y,Xextr,Yextr,3,Joueur), pionsSuccessifs(Xextr,Yextr,Joueur,7, Npions), Npions > 3.
+coupGagnant(X,Y,Joueur) :- rechercheExtremite(X,Y,Xextr,Yextr,4,Joueur), pionsSuccessifs(Xextr,Yextr,Joueur,8, Npions), Npions > 3.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% pionsSuccessifs (+X,+Y,+joueur,+direction,?nbPionsSuccessifs).
+% Donne le nombre de pions successifs trouves dans une direction donnee (de 1 a 8)
+% Toujours vrai
+
+pionsSuccessifs(X,Y,Joueur,Direction,1) :- nwCoord(X,Y,Direction,Xn,Yn),not(case(Xn,Yn,Joueur)).
+pionsSuccessifs(X,Y,Joueur,Direction,NbPionsTrouves) :- nwCoord(X,Y,Direction,Xn,Yn),case(Xn,Yn,Joueur),
+														pionsSuccessifs(Xn,Yn,Joueur,Direction,NbP),
+														incr(NbP,NbPionsTrouves).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% rechercheExtremite(+Xcourant,+Ycourant,-Xextremite,-Yextremite,+Direction,+Joueur)
+% Donne en fonction d un point de depart Xc,Yc, la position du dernier pion de la couleur du joueur dans une direction
+% Toujours vrai
+
+rechercheExtremite(Xextr,Yextr,Xextr,Yextr,Dir,Joueur) :- nwCoord(Xextr,Yextr,Dir,Xh,Yh),not(case(Xh,Yh,Joueur)).
+rechercheExtremite(Xcurr,Ycurr,Xextr,Yextr,Dir,Joueur) :- nwCoord(Xcurr,Ycurr,Dir,Xn,Yn),case(Xn,Yn,Joueur),rechercheExtremite(Xn,Yn,Xextr,Yextr,Dir,Joueur).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% nwCoord (+Xold,+Yold,+Direction,-Xnew,-Ynew)
+% Donne les nouvelles coordonnees en fonction de la Direction
+% Direction (avec l ancien au milieu)
+%	- - - - -
+%	- 4 3 2 -
+% 	- 5 X 1 -
+%	- 6 7 8 -
+%	- - - - -
+
+nwCoord(X,Y,1,Xn,Yn) :- Yn is Y, incr(X,Xn).
+nwCoord(X,Y,2,Xn,Yn) :- incr(X,Xn), incr(Y,Yn).
+nwCoord(X,Y,3,Xn,Yn) :- Xn is X, incr(Y,Yn).
+nwCoord(X,Y,4,Xn,Yn) :- decr(X,Xn), incr(Y,Yn).
+nwCoord(X,Y,5,Xn,Yn) :- Yn is Y, decr(X,Xn).
+nwCoord(X,Y,6,Xn,Yn) :- decr(X,Xn), decr(Y,Yn).
+nwCoord(X,Y,7,Xn,Yn) :- Xn is X, decr(Y,Yn).
+nwCoord(X,Y,8,Xn,Yn) :- incr(X,Xn), decr(Y,Yn).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% invertDirection(+oldDir,-newDir)
+% Inverse la direction en chargeant dans newDir la nouvelle direction
+% Toujours vrai
+%invertDirection(Od,Nd) :- Nd is Od+(4^(-Od/5)).
+
+invertDirection(Od,Nd) :- Od < 5, Nd is Od+4.
+invertDirection(Od,Nd) :- Od >=5, Nd is Od-4.
+
+%# case(1,1,jaune).
+%# case(1,2,rouge).
+%# case(1,3,rouge).
+%# case(1,4,rouge).
+
+%# case(2,1,rouge).
+%# case(2,2,jaune).
+%# case(2,3,rouge).
+%# case(2,4,jaune).
+
+%# case(3,1,jaune).
+%# case(3,2,rouge).
+%# case(3,3,jaune).
+%# case(3,4,rouge).
+
+%# case(4,1,rouge).
+%# case(4,2,rouge).
+%# case(4,3,jaune).
+%# case(4,4,jaune).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% caseAdjacente(+XcaseActuelle,+YcaseActuelle,
+%				?CouleurCaseAdjacente,
+%				-XcaseAdjacente,-YcaseAdjacente)
+% Donne toutes les cases adjacentes a la case envoyee en coordonnees
+% Vrai si il existe des cases adjacentes
+
+caseAdjacente(X,Y,J,Xn,Yn) :- nwCoord(X,Y,Z,Xn,Yn),case(Xn,Yn,J).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% caseAmie(+X,+Y,-Xn,-Yn)
+% Cases amies autour de la case envoyee en param
+% Vrai si il existe des cases amies
+
+caseAmie(X,Y,Xn,Yn) :- case(X,Y,J), caseAdjacente(X,Y,J,Xn,Yn).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% caseEnnemie(+X,+Y,-Xn,-Yn)
+% Cases amies autour de la case envoyee en param
+% Vrai si il existe des cases ennemies
+
+caseEnnemie(X,Y,Xn,Yn) :- case(X,Y,J), ennemi(J,E), caseAdjacente(X,Y,E,Xn,Yn).

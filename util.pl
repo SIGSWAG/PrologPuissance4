@@ -6,6 +6,9 @@
 %% Prédicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
 
+ennemi(jaune,rouge).
+ennemi(rouge,jaune).
+
 % incr/2(+X, -X1)
 % unifie X1 à X+1
 % vrai pour X1 = X+1
@@ -42,7 +45,7 @@ setJoueur(P1),
 choixValeurNoeud([X1,X2],R,Valeur),
 assert(feuille(L,Valeur)),nl,joueurCourant(Joueur),write(P1),write(Joueur), write('feuille'), print(L).
 
-setJoueur(P):- parite(P), maximizer(jaune), joueurCourant(jaune),retract(joueurCourant(X)), assert(joueurCourant(rouge)),!. % si P pair, alors c'est au minimizer de jouer
+setJoueur(P):- parite(P), maximizer(jaune), joueurCourant(jaune),retract(joueurCourant(X)), assert(joueurCourant(rouge)),!. % si P pair, alors c est au minimizer de jouer
 setJoueur(P):- parite(P), maximizer(rouge), joueurCourant(rouge),retract(joueurCourant(X)), assert(joueurCourant(jaune)),!.
 setJoueur(P):- not(parite(P)),maximizer(rouge), joueurCourant(jaune),retract(joueurCourant(X)), assert(joueurCourant(rouge)),!. % P impair, maximizer joue
 setJoueur(P):- not(parite(P)),maximizer(jaune), joueurCourant(rouge),retract(joueurCourant(X)), assert(joueurCourant(jaune)).
