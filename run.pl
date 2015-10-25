@@ -8,6 +8,7 @@
 :- use_module(ia).
 :- use_module(ihm).
 :- use_module(eval).
+%:- use_module(miniMax).
 
 :- dynamic joueurCourant/2.
 :- dynamic autreJoueur/2.
@@ -58,48 +59,38 @@ bouclePlacer(_,TypeJoueur,CouleurJCourant,Y) :-
 	aQuiDemanderCoup(CouleurJCourant,TypeJoueur,'Votre coup n\'est pas valide. Veuillez réessayer.\n',Coup),
 	bouclePlacer(Coup,TypeJoueur,CouleurJCourant,Y).
 
-changerJoueur :-
-	joueurCourant(rouge,TypeJoueurR), 
-	autreJoueur(jaune,TypeJoueurJ),
+
+
+testFin(Coup,Y,CouleurJCourant,PartieNulle) :-
+	gagne(Coup,Y,CouleurJCourant),
+	PartieNulle=false,
+	afficher.
+testFin(_,_,_,PartieNulle) :-
+	not(coupPossible),
+	PartieNulle=true,
+	afficher.
+testFin(_,_,_,PartieNulle) :-
+	changerJoueur,
+	tour(PartieNulle).
+
+init :-
+	initJeu,
 	retractall(joueurCourant(_,_)),
-	retractall(autreJoueur(_,_)),
-	assert(joueurCourant(jaune,TypeJoueurJ)),
-	assert(autreJoueur(rouge,TypeJoueurR)),!.
-changerJoueur :-
-	joueurCourant(jaune,TypeJoueurJ),
-	autreJoueur(rouge,TypeJoueurR),
-	retractall(joueurCourant(_,_)),
-	retractall(autreJoueur(_,_)),
-	assert(joueurCourant(rouge,TypeJoueurR)),
-	assert(autreJoueur(jaune,TypeJoueurJ)),!.
+	retractall(autreJoueur(_,_)).
 
-testFin(Coup,Y,CouleurJCourant,PartieNulle) :- gagne(Coup,Y,CouleurJCourant), PartieNulle=false, afficher.
-testFin(_,_,_,PartieNulle) :- not(coupPossible), PartieNulle=true, afficher.
-testFin(_,_,_,PartieNulle) :- changerJoueur, tour(PartieNulle).
-
-% permet d'appeler l'ihm ou les IAs pour récupérer le coup suivant
-% 1==humain
-aQuiDemanderCoup(CouleurJCourant,1,Message,Coup) :- afficher, demandeCoup(CouleurJCourant,Message,Coup),!.
-% 2==IA aleatoire
-aQuiDemanderCoup(_,2,_,Coup) :- iaAleatoire(Coup).
-% etc ...
-
-
-getTypeJoueurString(1,'Humain').
-getTypeJoueurString(2,'IA Aléatoire').
 
 % partie non nulle
 afficherFin(false) :-
 	joueurCourant(CouleurGagnante,TypeJoueurGagnant),
 	autreJoueur(CouleurPerdante,TypeJoueurPerdant),
-	getTypeJoueurString(TypeJoueurGagnant,TypeJoueurGagnantString),
-	getTypeJoueurString(TypeJoueurPerdant,TypeJoueurPerdantString),
+	typeJoueur(TypeJoueurGagnant,TypeJoueurGagnantString),
+	typeJoueur(TypeJoueurPerdant,TypeJoueurPerdantString),
    	afficherGagnant(CouleurGagnante,CouleurPerdante,TypeJoueurGagnantString,TypeJoueurPerdantString).
+	
 % partie nulle
 afficherFin(true) :-
-	afficherPartieNulle.
-
-init :- initJeu, retractall(joueurCourant(_,_)), retractall(autreJoueur(_,_)).
+	write('Égalité !').
+	%afficherPartieNulle.
 
 
 % test de sortie de runTestIAXFirst
