@@ -1,12 +1,20 @@
-%%%%%%%%%%%% miniMax.pl %%%%%%%%%%%%
+%%%%%%%%%%%% ihm.pl %%%%%%%%%%%%
+%:- module(minimax, [parcoursArbre/4]).
 
-:- use_module(util).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% For test purpose, this module contains duplicate code.%%
+%% do not remove it.									 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %%%%%%%%%%%%%%%%
 %% Constantes %%
 %%%%%%%%%%%%%%%%
 
-profondeur(3).
+nbLignes(6).
+nbColonnes(7).
+infinitePos(10000).
+infiniteNeg(-10000).
 
 
 
@@ -14,96 +22,111 @@ profondeur(3).
 %% Prédicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
 
-donneCoup(J,R) :- init(Pmax,J) minMax(J,Pmax,C), clearCaseTest.
-
-minMax(J,P,C) :- changeJoueur(J), f(X,Y,J,0,P,R, []).
-
-
-
-%P commence à 0, J à l'adversaire
-f(X,Y,J,P,Pmax,R, L) :- gagneTest(X,Y,J), maximizer(J), R is 1000.
-f(X,Y,J,P,Pmax,R, L) :- gagneTest(X,Y,J), not(maximizer(J)), R is -1.
-f(X,Y,J,P,Pmax,R, L) :- P == Pmax, evalJeu(J,R).
-f(X,Y,J,P,Pmax,R, L) :- incr(P,P1), changeJoueur(J1), placerJeton(X,Y1,J1), callf(Y1,J1,P1,Pmax,R,[], L), max_member(R,L1).
-
-callf(Y1,J1,P1,Pmax,R,L) :- L is [1|L] f(X,Y1,J1,P1,Pmax,R1, L1), L is [2|L], f(X,Y1,J1,P1,Pmax,R2, L1),f(X,Y1,J1,P1,Pmax,R3, L1),f(X,Y1,J1,P1,Pmax,R4, L1),f(X,Y1,J1,P1,Pmax,R5, L1),f(X,Y1,J1,P1,Pmax,R6, L1),f(X,Y1,J1,P1,Pmax,R7, L1),f(X,Y1,J1,P1,Pmax,R8, L1), max_member(R, [R1,R2,R3,R4,R5,R6,R7,R8]).
-
-addToList(X, L, [X|L]). 
-
-
-
-
-
-
-
-
+% +J player qui doit jouer
+% +Pmax prof maximale
+% -R le coup a jouer
+% -Value évaluation du noeud courant
+parcoursArbre(J,Pmax,R,Value):- initTest,initCaseTest,infinitePos(InfP),infiniteNeg(InfN),assert(maximizer(J)), assert(joueurCourant(J)), parcours(1,1,Pmax,[1,0],InfP,InfN),setJoueur(1), feuille([1,0],X1), parcours(2,1,Pmax,[2,0],InfP,X1), feuille([2,0],X2), coupAJouerMaximizer([X1,X2],R,Value), clearTest,!. %the second call and the next ones are called with the result of the preceding (we take the max of all of them) on reset le joueur entre chaque call
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
 %%%%%%%%%%%%%%%%%%%%%%
+initTest:-assert(case(-20,-20,jaune)). %juste pour definir case
 
-caseTest(X,Y,J) :- case(X,Y,J).
+initCaseTest:- case(X,Y,Z), assert(caseTest(X,Y,Z)),false. %on assert une caseTest pour toutes les cases.
+initCaseTest.
 
-init(Pmax,J) :- profondeur(Pmax), assert(maximizer(J)), assert(joueurCourant(J)),.
-
-clearCaseTest :- retractall(caseTest(_,_,_)), retract(maximizer(X)), retract(joueurCourant(X)).
-
-changeJoueur(rouge):-joueurCourant(jaune), retract(joueurCourant(jaune)), assert(joueurCourant(rouge)).
-changeJoueur(jaune):-joueurCourant(rouge), retract(joueurCourant(rouge)), assert(joueurCourant(jaune)).
-
-%%%%% gagneTest %%%%%
-
-% gagneTest/3(+colonne, +ligne, +joueur)
-% vérifie si le coup est gagnant pour joueur
-% retourne yes si gagnant ou no sinon
-gagneTest(X,Y,J) :- gagneTestColonne(X,Y,J).
-gagneTest(X,Y,J) :- gagneTestLigne(X,Y,J).
-gagneTest(X,Y,J) :- gagneTestDiag1(X,Y,J).
-gagneTest(X,Y,J) :- gagneTestDiag2(X,Y,J). 
-
-%%% En colonne %%%
-
-gagneTestColonne(X,Y,J) :- caseTest(X,Y,J), decr(Y,Y1), caseTest(X,Y1,J), decr(Y1,Y2), caseTest(X,Y2,J), decr(Y2,Y3), caseTest(X,Y3,J). %ligne en bas
-
-%%% En ligne %%%
-
-gagneTestLigne(X,Y,J) :- gaucheVerif(X,Y,J,Rg), droiteVerif(X,Y,J,Rd),!, Rf is Rg+Rd, Rf>4.
-
-gaucheVerif(X,Y,J,Rg):- gauche(X,Y,J,0,Rg).
-gauche(X,Y,J,R,R) :- not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
-gauche(X,Y,J,R,Rg) :- decr(X,X1), incr(R,R1), gauche(X1,Y,J,R1,Rg).
-
-droiteVerif(X,Y,J,Rg):- droite(X,Y,J,0,Rg).
-droite(X,Y,J,R,R) :- not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
-droite(X,Y,J,R,Rg) :- incr(X,X1), incr(R,R1), droite(X1,Y,J,R1,Rg).
-
-%%% En diagonale \ %%%
-
-gagneTestDiag1(X,Y,J) :- gaucheHautVerif(X,Y,J,Rg), droiteBasVerif(X,Y,J,Rd),!, Rf is Rg+Rd, Rf>4.
-
-gaucheHautVerif(X,Y,J,Rg):- gaucheHaut(X,Y,J,0,Rg).
-gaucheHaut(X,Y,J,R,R) :- not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
-gaucheHaut(X,Y,J,R,Rg) :- incr(Y,Y1), decr(X,X1), incr(R,R1), gaucheHaut(X1,Y1,J,R1,Rg).
-
-droiteBasVerif(X,Y,J,Rg):- droiteBas(X,Y,J,0,Rg).
-droiteBas(X,Y,J,R,R) :- not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
-droiteBas(X,Y,J,R,Rg) :- decr(Y,Y1), incr(X,X1), incr(R,R1), droiteBas(X1,Y1,J,R1,Rg).
-
-%%% En diagonale / %%%
-
-gagneTestDiag2(X,Y,J) :- gaucheBasVerif(X,Y,J,Rg), droiteHautVerif(X,Y,J,Rd),!, Rf is Rg+Rd, Rf>4.
-
-gaucheBasVerif(X,Y,J,Rg):- gaucheBas(X,Y,J,0,Rg).
-gaucheBas(X,Y,J,R,R) :- not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
-gaucheBas(X,Y,J,R,Rg) :- decr(Y,Y1), decr(X,X1), incr(R,R1), gaucheBas(X1,Y1,J,R1,Rg).
-
-droiteHautVerif(X,Y,J,Rg):- droiteHaut(X,Y,J,0,Rg).
-droiteHaut(X,Y,J,R,R) :- not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
-droiteHaut(X,Y,J,R,Rg) :- incr(Y,Y1), incr(X,X1), incr(R,R1), droiteHaut(X1,Y1,J,R1,Rg).
+clearTest:-retractall(caseTest(A,B,C)),retractall(feuille(D,E)),retract(maximizer(X)),retract(joueurCourant(J)),retract(case(-20,-20,jaune)). % on enleve tout ce que l'on a ajouté.
 
 
 
-%%%%% placerJeton %%%%%
+%Parcours
+%+X la colonne a jouer
+%+P la profondeur courante
+%+L la liste de coups courante
+%+Beta,+Alpha les valeurs courantes pour Alpha et Beta.
+parcours(X, P, Pmax, L, Beta, Alpha):- nbLignes(MaxLignes),not(caseVideTest(X,MaxLignes)),write('feuille colonne pleine'), print(L), evaluate(Value), assert(feuille(L, Value)) .% on ne peut plus jouer, on met une feuille (on évalue)
+parcours(X, P, Pmax, L, Beta, Alpha):- P==Pmax,joueurCourant(Joue), placerJeton(X,Y,Joue),nl, write('feuille'), print(L), evaluate(Value),assert(feuille(L, Value)),write(" Value of node "),print(Value),nl, afficher,retract(caseTest(X,Y,Joue)). % on est à la prof max, on evalue et on met une feuille
+parcours(X, P, Pmax, L, Beta, Alpha) :- incr(P, P1),joueurCourant(Joue), placerJeton(X,Y,Joue), %on incremente la profondeur, puis on joue un coup(qui réussit a tous les coups)
+setJoueur(P1), %on set le joueur
+attribueVal(ValeurPrec), % on initialise val
+parcours(1, P1,Pmax, [1|L], Beta, Alpha),  %on joue colonne 1
+feuille([1|L], Valeur1),%here is the value of first branch
+setJoueur(P1), % on reset le joueur (il a changé dans le premier parcours)
+choixVal(Valeur1,ValeurPrec,Val1),%choisit si min ou max, renvoie la valeur pour le prochain coup.
+joueCoupSuivant(Val1,2,P1,Pmax,L,Beta,Alpha,Valeur,Beta2,Alpha2),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
+retract(caseTest(X,Y,Joue)), %on annule le coup pour poursuivre dans l'arbre
+feuille([1|L], X1),feuille([2|L], X2), %on cherche les feuilles associées (elles ont été calculées plus bas dans l'arbre)
+setJoueur(P1), %on change de joueur
+assert(feuille(L,Valeur)),nl,joueurCourant(Joueur),write(Joueur), write(' feuille niv '),write(P),write( " "), print(L),write(" Value of Node "),print(Valeur),nl. %on met notre feuille calculée
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Elaguage alpha beta%  %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+choixVal(Valeur1,ValeurPrec,Val1):- joueurCourant(Joue), maximizer(Joue), Val1 is max(Valeur1, ValeurPrec),nl,write(" Maximizer between "),print(Valeur1), write(" and "),print(ValeurPrec),nl. % we choose after the first choice if we take max or min for val
+choixVal(Valeur1,ValeurPrec,Val1):- Val1 is min(Valeur1, ValeurPrec),nl,write(" Minimizer between "),print(Valeur1), write(" and "),print(ValeurPrec),nl .
+
+attribueVal(X):- infiniteNeg(InfN), joueurCourant(Joue), maximizer(Joue), X is InfN. % the initial value of a node (-inf if maximizer, +inf if minimizer)
+attribueVal(X):-infinitePos(InfP), X is InfP.
+
+
+%%%For the Minimizer
+joueCoupSuivant(ValeurPrec,ColonneAJouer,P1,Pmax,L,Beta,Alpha,Val,Beta,Alpha):-joueurCourant(Joue), not(maximizer(Joue)), ValeurPrec =< Alpha, Val is ValeurPrec, assert(feuille([ColonneAJouer|L], Val)),write("coupure alpha because "),print(ValeurPrec),write("<="),print(Alpha).%coupure alpha !!
+joueCoupSuivant(ValeurPrec,ColonneAJouer,P1,Pmax,L,Beta,Alpha,Val,BetaCalc,Alpha):-joueurCourant(Joue), not(maximizer(Joue)), BetaCalc is min(Beta, ValeurPrec),nl, parcours(ColonneAJouer, P1,Pmax,[ColonneAJouer|L],BetaCalc, Alpha), feuille([ColonneAJouer|L], ValeurFils), Val is min(ValeurFils, ValeurPrec), nl,write(" Minimizer between "),print(ValeurFils), write(" and "),print(ValeurPrec),nl . %pas de coupure!
+
+
+%%For the Maximizer
+joueCoupSuivant(ValeurPrec,ColonneAJouer,P1,Pmax,L, Beta, Alpha,Val,Beta,Alpha):-joueurCourant(Joue), maximizer(Joue), ValeurPrec >= Beta, Val is ValeurPrec,assert(feuille([ColonneAJouer|L], Val)),write("coupure beta because "),print(ValeurPrec),write(">="),print(Beta).%coupure beta !!
+joueCoupSuivant(ValeurPrec,ColonneAJouer,P1,Pmax,L, Beta, Alpha,Val,Beta,AlphaCalc):-joueurCourant(Joue), maximizer(Joue), AlphaCalc is max(Alpha, ValeurPrec), parcours(ColonneAJouer, P1,Pmax,[ColonneAJouer|L],Beta, AlphaCalc),feuille([ColonneAJouer|L], ValeurFils),Val is max(ValeurFils, ValeurPrec),nl,write(" Maximizer between "),print(ValeurFils), write(" and "),print(ValeurPrec),nl. %pas de coupure!
+
+
+
+
+
+%%%%%%%%%% Aide calcul. Redundant code, do not remove %%%%%%%%%%%%%
+setJoueur(P):- parite(P), maximizer(jaune), joueurCourant(jaune),retract(joueurCourant(X)), assert(joueurCourant(rouge)),!. % si P pair, alors c'est au minimizer de jouer
+setJoueur(P):- parite(P), maximizer(rouge), joueurCourant(rouge),retract(joueurCourant(X)), assert(joueurCourant(jaune)),!.
+setJoueur(P):- not(parite(P)),maximizer(rouge), joueurCourant(jaune),retract(joueurCourant(X)), assert(joueurCourant(rouge)),!. % P impair, maximizer joue
+setJoueur(P):- not(parite(P)),maximizer(jaune), joueurCourant(rouge),retract(joueurCourant(X)), assert(joueurCourant(jaune)).
+setJoueur(P).
+
+evaluate(X):- X is random(10). %fonction d'évaluation aléatoire
+
+choixValeurNoeud(L,R,Value):- joueurCourant(X), maximizer(X), nl,write('maximizer algo '), write(X), coupAJouerMaximizer(L,R,Value),!. %on choisit val min ou max
+choixValeurNoeud(L,R,Value):- nl,write('minimizer algo'),coupAJouerMinimizer(L,R,Value).
+
+
+coupAJouerMaximizer(L, R,X):- membreMaxRank(X,L,R).
+coupAJouerMinimizer(L, R,X):- membreMinRank(X,L,R).
+
+
+parite(X):- divmod(X ,2, Q, R), R==0.
+
+changerJoueur:- joueurCourant(jaune), retract(joueurCourant(X)), assert(joueurCourant(rouge)).
+changerJoueur:- joueurCourant(rouge), retract(joueurCourant(X)), assert(joueurCourant(jaune)).
+
+membreMaxRank(X, [Y|L], R):- membreMax(L, 1, 1, R, Y, X),!.
+membreMax([], R, Rm, Rm, Max, Max).		   
+membreMax([Y|L], R1, Rm, R, Max, X):- incr(R1,R2), maximum(Y, Max, Rm, R2, NewMax, NewRankMax), membreMax(L,R2,NewRankMax,R, NewMax, X).
+
+membreMinRank(X, [Y|L], R):- membreMin(L, 1, 1, R, Y, X),!.
+membreMin([], R, Rm, Rm, Max, Max).		   
+membreMin([Y|L], R1, Rm, R, Max, X):- incr(R1,R2), minimum(Y, Max, Rm, R2, NewMax, NewRankMax), membreMin(L,R2,NewRankMax,R, NewMax, X).
+
+minimum(Y, Max, OldRankMax, NewRankMax, Y, NewRankMax):- Y<Max.
+minimum(Y, Max,OldRankMax, NewRankMax, Max, OldRankMax).  
+
+maximum(Y, Max, OldRankMax, NewRankMax, Y, NewRankMax):- Y>Max.
+maximum(Y, Max,OldRankMax, NewRankMax, Max, OldRankMax).  
+
+
 
 %%% Place un jeton
 
@@ -111,7 +134,7 @@ droiteHaut(X,Y,J,R,Rg) :- incr(Y,Y1), incr(X,X1), incr(R,R1), droiteHaut(X1,Y1,J
 % insère si possible un jeton dans la colonne donnée
 % retourne la ligne d'insertion, ou no
 placerJeton(X,Y,C) :- coupValide(X), insererJeton(X, Y, C).
-
+%%%%% placerJeton %%%%%
 % coupValide/1(-Colonne)
 % Vérifie si un jeton est jouable dans cette colonne
 % retourne yes ou no
@@ -128,4 +151,44 @@ insererJeton(X,Y,C) :- calculPositionJeton(X, 1, Y), assert(caseTest(X,Y,C)).
 calculPositionJeton(X,YCheck,YCheck) :- caseVideTest(X,YCheck), !.
 calculPositionJeton(X,YCheck,Y) :- incr(YCheck, YCheck1), calculPositionJeton(X,YCheck1,Y).
 
-coupPossible :- nbColonnes(NBCOLLONNES), between(1,NBCOLLONNES,X), coupValide(X).
+%%%%%%%%%%%%%%%
+
+
+
+% incr/2(+X, -X1)
+% unifie X1 à X+1
+% vrai pour X1 = X+1
+incr(X,X1):- X1 is X+1.
+
+% decr/2(+X, -X1)
+% unifie X1 à X-1
+% vrai pour X1 = X-1
+decr(X,X1):- X1 is X-1.
+
+caseVideTest(X,Y) :- nonvar(X),nonvar(Y),not(caseTest(X,Y,_)).
+
+
+%%%%%%%%%%%%%%%%%ù ONLY for Testing%%%%
+
+% afficher/0
+% Affiche dans la console la partie actuelle.
+% Tout le temps vrai.
+afficher :-
+	findall(_, afficherPlateau(_), _).
+
+% principe : on parcourt la base de faits et pour chaque case on affiche une couleur (ou pas)
+afficherPlateau(Y) :-
+	nbLignes(NbLignes),
+	between(1,NbLignes,Y1),
+	Y is 7-Y1,
+	findall(_, afficherLigne(_,Y), _),
+	nl.
+
+afficherLigne(X,Y) :-
+	nbColonnes(NbColonnes),
+	between(1,NbColonnes,X),
+	afficherCase(X,Y).
+
+afficherCase(X,Y) :- caseTest(X,Y,rouge), write(r), !.
+afficherCase(X,Y) :- caseTest(X,Y,jaune), write(j), !.
+afficherCase(_,_) :- write(.).
