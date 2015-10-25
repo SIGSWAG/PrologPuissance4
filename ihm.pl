@@ -1,5 +1,8 @@
 ﻿%%%%%%%%%%%% ihm.pl %%%%%%%%%%%%
-:- module(ihm, [afficher/0, demandeCoup/3, afficherGagnant/4, afficherPartieNulle/0, demandeTypeDeJeu/1]).
+
+:- module(ihm, [afficher/0, demandeCoup/3, afficherGagnant/4, afficherPartieNulle/0, demandeTypeDeJeu/1, typeJoueur/2]).
+
+:- use_module(util).
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
@@ -8,7 +11,9 @@
 % afficher/0
 % Affiche dans la console la partie actuelle.
 % Tout le temps vrai.
-afficher :-
+afficher :- 
+	findall(_, afficherColonne(_), _),
+	nl,
 	findall(_, afficherPlateau(_), _).
 
 % demandeCoup/3(+CouleurJCourant, +Message, -Coup)
@@ -43,17 +48,25 @@ afficherPartieNulle :-
 % TypeDeJeu s'unifie au type saisi par l'utilisateur.
 demandeTypeDeJeu(TypeDeJeu) :-
     write('   --- Puissance 4 ---'), nl,
-    write('    1. Jouer en tant qu\'humain'), nl,
-    write('    2. Jouer en tant qu\'IA aleatoire'), nl,
+	findall(_, afficherTypeJoueur(_,_), _),
     nl, nl,
 	write(' ----------------------- '), nl,
     write('Saisissez votre choix :'), nl,
     read(TypeDeJeu), integer(TypeDeJeu).
 
+typeJoueur(1,'Humain').
+typeJoueur(2,'IA Aléatoire').
+%typeJoueur(3,'Minimax Aléatoire').
+	
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
 %%%%%%%%%%%%%%%%%%%%%%
+
+afficherColonne(X) :-
+	nbColonnes(NbColonnes),
+	between(1,NbColonnes,X),
+	write(X).
 
 % principe : on parcourt la base de faits et pour chaque case on affiche une couleur (ou pas)
 afficherPlateau(Y) :-
@@ -75,3 +88,7 @@ afficherCase(_,_) :- write(.).
 saisirCoup(Coup) :-
 	write('Veuillez saisir votre coup : '),
 	read(Coup).
+
+afficherTypeJoueur(I,J) :-
+	typeJoueur(I,J),
+	write('\t'), write(I), write('. '), write(J), nl.
