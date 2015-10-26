@@ -10,7 +10,7 @@
 	case/3,
 	caseVide/2,
 	coupValide/1,
-	getTypeJoueurString/2,
+	typeJoueur/2,
 	changerJoueur/0
 ]).
 
@@ -31,8 +31,9 @@ nbColonnes(7).
 
 %%% Gestion des joueurs %%%
 
-getTypeJoueurString(1,'Humain').
-getTypeJoueurString(2,'IA Aléatoire').
+typeJoueur(1,'Humain').
+typeJoueur(2,'IA Aléatoire').
+typeJoueur(3,'IA Minimax').
 
 changerJoueur :-
 	joueurCourant(rouge,TypeJoueurR), 

@@ -15,7 +15,7 @@
 :- use_module(library(http/json_convert)).      
 :- use_module(jeu).
 :- use_module(ia).
-:- use_module(ihm).
+%:- use_module(ihm).
 :- use_module(eval).
 
 :- multifile http:location/3.
@@ -40,6 +40,8 @@ http:location(files, '/f', []).
 server(Port) :-
         http_server(http_dispatch, [port(Port)]).
 
+start :- server(8000).
+
 % ACTIONS %
 % return the html page of the game
 indexAction(Request) :-
@@ -58,7 +60,7 @@ initAction(_) :-
     initJeu,
     retractall(joueurCourant(_,_)),
     retractall(autreJoueur(_,_)),
-    findall([X,Y],getTypeJoueurString(X,Y), Z),
+    findall([X,Y], typeJoueur(X,Y), Z),
     reply_json(json{correct:true, players:Z}).
 
 % serve any file from assets
@@ -70,7 +72,7 @@ fichierAction(Request) :-
 % set the player selected
 % Response tell what clolor has the players
 selectionnerJoueurAction(Request) :-
-    % findall(X,getTypeJoueurString(X,Y), TypeJoueurs),
+    % findall(X,typeJoueur(X,Y), TypeJoueurs),
     http_parameters(Request,
     % oneof(TypeJoueurs) ne marche pas ....atom_number('123', X)
     % on obtient une erreur bad request : Parameter "joueur1" must be one of "1" or "2".  Found "1"
@@ -97,7 +99,7 @@ validerTourHumain(_) :-
 
 tourIAAction(_) :-
     joueurCourant(CouleurJCourant,TypeJoueur),
-    obtenirCoup(CouleurJCourant,TypeJoueur,'',Colonne),
+    obtenirCoup(CouleurJCourant,TypeJoueur,Colonne),
     placerJeton(Colonne,Ligne,CouleurJCourant),
     statutJeu(Colonne,Ligne,CouleurJCourant, Statut),
     reply_json(json{correct:true, gameStatus:Statut, colPlayed:Colonne, rowPlayed:Ligne}).
@@ -114,8 +116,8 @@ statutJeu(_,_,_, 'continue') :-
 
 % permet d'appeler l'ihm ou les IAs pour récupérer le coup suivant
 % 2==IA aleatoire
-obtenirCoup(_,2,_,Coup) :-
+obtenirCoup(_,2,Coup) :-
     iaAleatoire(Coup).
 % 3==minimax
-obtenirCoup(_,3,_,Coup) :-
-    donneCoup(Coup).
+obtenirCoup(JoueurCourant,3,Coup) :-
+    iaMinimax(JoueurCourant,Coup).
