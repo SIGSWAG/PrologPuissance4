@@ -61,22 +61,22 @@ parcours(X, P, Pmax, L, Beta, Alpha) :- incr(P, P1),joueurCourant(Joue), placerJ
 	setJoueur(P1), % on reset le joueur (il a changé dans le premier parcours)
 	choixVal(Valeur1,ValeurPrec,Val1),%choisit si min ou max, renvoie la valeur pour le prochain coup.
 
-	joueCoupSuivant(Val1,2,P1,Pmax,L,Beta,Alpha,Val2,Beta2,Alpha2),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
+	joueCoupSuivant(Val1,2,P1,Pmax,L,Beta,Alpha,Val2,Beta2,Alpha2),%on tente le coup suivant (ou pas si élagage), avec la valeur retournée par le précédent
 	setJoueur(P1), % on reset le joueur (il a changé dans le premier parcours)
 
-	joueCoupSuivant(Val2,3,P1,Pmax,L,Beta2,Alpha2,Val3,Beta3,Alpha3),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
+	joueCoupSuivant(Val2,3,P1,Pmax,L,Beta2,Alpha2,Val3,Beta3,Alpha3),%on tente le coup suivant (ou pas si élagage), avec la valeur retournée par le précédent
 	setJoueur(P1), %on change de joueur
 
-	joueCoupSuivant(Val3,4,P1,Pmax,L,Beta3,Alpha3,Val4,Beta4,Alpha4),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
+	joueCoupSuivant(Val3,4,P1,Pmax,L,Beta3,Alpha3,Val4,Beta4,Alpha4),%on tente le coup suivant (ou pas si élagage), avec la valeur retournée par le précédent
 	setJoueur(P1), %on change de joueur
 
-	joueCoupSuivant(Val4,5,P1,Pmax,L,Beta4,Alpha4,Val5,Beta5,Alpha5),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
+	joueCoupSuivant(Val4,5,P1,Pmax,L,Beta4,Alpha4,Val5,Beta5,Alpha5),%on tente le coup suivant (ou pas si élagage), avec la valeur retournée par le précédent
 	setJoueur(P1), %on change de joueur
 
-	joueCoupSuivant(Val5,6,P1,Pmax,L,Beta5,Alpha5,Val6,Beta6,Alpha6),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
+	joueCoupSuivant(Val5,6,P1,Pmax,L,Beta5,Alpha5,Val6,Beta6,Alpha6),%on tente le coup suivant (ou pas si élagage), avec la valeur retournée par le précédent
 	setJoueur(P1), %on change de joueur
 
-	joueCoupSuivant(Val6,7,P1,Pmax,L,Beta6,Alpha6,Valeur,Beta7,Alpha7),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
+	joueCoupSuivant(Val6,7,P1,Pmax,L,Beta6,Alpha6,Valeur,Beta7,Alpha7),%on tente le coup suivant (ou pas si élagage), avec la valeur retournée par le précédent
 	setJoueur(P1), %on change de joueur
 
 	retract(caseTest(X,Y,Joue)), %on annule le coup pour poursuivre dans l'arbre
@@ -84,13 +84,12 @@ parcours(X, P, Pmax, L, Beta, Alpha) :- incr(P, P1),joueurCourant(Joue), placerJ
 	setJoueur(P1), %on change de joueur
 	assert(feuille(L,Valeur)),joueurCourant(Joueur). %on met notre feuille calculée
 
-
-
-
-
+evaluate(X,Y,Joueur,Score) :-
+	ennemi(Joueur,AutreJoueur),
+	evalJeu(Joueur,AutreJoueur,X,Y,Score).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Elaguage alpha beta% %%
+%%% élagage alpha beta% %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -121,8 +120,6 @@ setJoueur(P):- not(parite(P)),maximizer(rouge), joueurCourant(jaune),retract(jou
 setJoueur(P):- not(parite(P)),maximizer(jaune), joueurCourant(rouge),retract(joueurCourant(X)), assert(joueurCourant(jaune)).
 setJoueur(P).
 
-evaluate(X):- X is random(10). %fonction d'évaluation aléatoire
-
 choixValeurNoeud(L,R,Value):- joueurCourant(X), maximizer(X), coupAJouerMaximizer(L,R,Value),!. %on choisit val min ou max
 choixValeurNoeud(L,R,Value):- coupAJouerMinimizer(L,R,Value).
 
@@ -131,7 +128,7 @@ coupAJouerMaximizer(L, R,X):- membreMaxRank(X,L,R).
 coupAJouerMinimizer(L, R,X):- membreMinRank(X,L,R).
 
 
-parite(X):- divmod(X ,2, Q, R), R==0.
+parite(X):- divmod(X ,2, Q, 0).
 
 changerJoueur:- joueurCourant(jaune), retract(joueurCourant(X)), assert(joueurCourant(rouge)).
 changerJoueur:- joueurCourant(rouge), retract(joueurCourant(X)), assert(joueurCourant(jaune)).
@@ -174,3 +171,5 @@ insererJeton(X,Y,C) :- calculPositionJeton(X, 1, Y), assert(caseTest(X,Y,C)).
 % retourne l'indice de cette ligne vide
 calculPositionJeton(X,YCheck,YCheck) :- caseVideTest(X,YCheck), !.
 calculPositionJeton(X,YCheck,Y) :- incr(YCheck, YCheck1), calculPositionJeton(X,YCheck1,Y).
+
+caseVideTest(X,Y) :- nonvar(X),nonvar(Y),not(caseTest(X,Y,_)).

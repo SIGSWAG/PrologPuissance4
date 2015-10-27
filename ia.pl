@@ -2,6 +2,7 @@
 :- module(ia, [iaAleatoire/1, iaMinimax/2]).
 
 :- use_module(jeu).
+:- use_module(util).
 :- use_module(miniMax).
 
 %%%%%%%%%%%%%%%%%%%%%%%

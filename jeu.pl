@@ -6,7 +6,6 @@
 	placerJeton/3,
 	coupPossible/0,
 	case/3,
-	caseVide/2,
 	coupValide/1,
 	typeJoueur/2,
 	changerJoueur/0

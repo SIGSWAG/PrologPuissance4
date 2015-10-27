@@ -4,7 +4,7 @@
 %% Inclusions %%
 %%%%%%%%%%%%%%%%
 
-:- module(eval, [evalJeu/3]).
+:- module(eval, [evalJeu/5]).
 
 :- use_module(util).
 
@@ -17,14 +17,16 @@
 % evalJeu/5(+JoueurCourant, +AutreJoueur, +X, +Y, -Score)
 % Evalue la situation courante pour le joueur JoueurCourant étant donné que le dernier coup joué fut joué en (X,Y).
 % Score s'unifie avec le score évalué pour la position courante.
-evalJeu(Joueur,Score) :-
-	gagne(Joueur),
+evalJeu(JoueurCourant,_,X,Y,Score) :-
+	gagne(X,Y,JoueurCourant),
 	infinitePos(Score).
-evalJeu(Joueur,Score) :-
+evalJeu(_,AutreJoueur,X,Y,Score) :-
 	gagne(X,Y,AutreJoueur),
 	infiniteNeg(Score).
-evalJeu(Joueur,Score) :-
+evalJeu(JoueurCourant,AutreJoueur,_,_,Score) :-
 	evalPosition(JoueurCourant,Score).
+	%evalPuissances3(JoueurCourant,AutreJoueur,Score).
+	%evalAdjacence(JoueurCourant,Score).
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
