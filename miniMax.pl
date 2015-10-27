@@ -2,22 +2,15 @@
 
 :- module(minimax, [parcoursArbre/4]).
 
+:- use_module(util).
+:- use_module(eval).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% For test purpose, this module contains duplicate code.%%
 %% do not remove it.									 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-%%%%%%%%%%%%%%%%
-%% Constantes %%
-%%%%%%%%%%%%%%%%
-
-nbLignes(6).
-nbColonnes(7).
-infinitePos(10000).
-infiniteNeg(-10000).
-
-
+:- dynamic caseTest/3.
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
@@ -65,33 +58,31 @@ parcours(X, P, Pmax, L, Beta, Alpha) :- incr(P, P1),joueurCourant(Joue), placerJ
 	parcours(1, P1,Pmax, [1|L], Beta, Alpha), %on joue colonne 1
 	feuille([1|L], Valeur1),%here is the value of first branch
 
-setJoueur(P1), % on reset le joueur (il a changé dans le premier parcours)
-choixVal(Valeur1,ValeurPrec,Val1),%choisit si min ou max, renvoie la valeur pour le prochain coup.
+	setJoueur(P1), % on reset le joueur (il a changé dans le premier parcours)
+	choixVal(Valeur1,ValeurPrec,Val1),%choisit si min ou max, renvoie la valeur pour le prochain coup.
 
-joueCoupSuivant(Val1,2,P1,Pmax,L,Beta,Alpha,Val2,Beta2,Alpha2),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
-setJoueur(P1), % on reset le joueur (il a changé dans le premier parcours)
+	joueCoupSuivant(Val1,2,P1,Pmax,L,Beta,Alpha,Val2,Beta2,Alpha2),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
+	setJoueur(P1), % on reset le joueur (il a changé dans le premier parcours)
 
-joueCoupSuivant(Val2,3,P1,Pmax,L,Beta2,Alpha2,Val3,Beta3,Alpha3),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
-setJoueur(P1), %on change de joueur
+	joueCoupSuivant(Val2,3,P1,Pmax,L,Beta2,Alpha2,Val3,Beta3,Alpha3),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
+	setJoueur(P1), %on change de joueur
 
-joueCoupSuivant(Val3,4,P1,Pmax,L,Beta3,Alpha3,Val4,Beta4,Alpha4),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
-setJoueur(P1), %on change de joueur
+	joueCoupSuivant(Val3,4,P1,Pmax,L,Beta3,Alpha3,Val4,Beta4,Alpha4),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
+	setJoueur(P1), %on change de joueur
 
-joueCoupSuivant(Val4,5,P1,Pmax,L,Beta4,Alpha4,Val5,Beta5,Alpha5),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
-setJoueur(P1), %on change de joueur
+	joueCoupSuivant(Val4,5,P1,Pmax,L,Beta4,Alpha4,Val5,Beta5,Alpha5),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
+	setJoueur(P1), %on change de joueur
 
-joueCoupSuivant(Val5,6,P1,Pmax,L,Beta5,Alpha5,Val6,Beta6,Alpha6),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
-setJoueur(P1), %on change de joueur
+	joueCoupSuivant(Val5,6,P1,Pmax,L,Beta5,Alpha5,Val6,Beta6,Alpha6),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
+	setJoueur(P1), %on change de joueur
 
-joueCoupSuivant(Val6,7,P1,Pmax,L,Beta6,Alpha6,Valeur,Beta7,Alpha7),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
-setJoueur(P1), %on change de joueur
+	joueCoupSuivant(Val6,7,P1,Pmax,L,Beta6,Alpha6,Valeur,Beta7,Alpha7),%on tente le coup suivant (ou pas si elaguage), avec la valeur retournée par le précédent
+	setJoueur(P1), %on change de joueur
 
-
-
-retract(caseTest(X,Y,Joue)), %on annule le coup pour poursuivre dans l'arbre
-feuille([1|L], X1),feuille([2|L], X2), %on cherche les feuilles associées (elles ont été calculées plus bas dans l'arbre)
-setJoueur(P1), %on change de joueur
-assert(feuille(L,Valeur)),joueurCourant(Joueur). %on met notre feuille calculée
+	retract(caseTest(X,Y,Joue)), %on annule le coup pour poursuivre dans l'arbre
+	feuille([1|L], X1),feuille([2|L], X2), %on cherche les feuilles associées (elles ont été calculées plus bas dans l'arbre)
+	setJoueur(P1), %on change de joueur
+	assert(feuille(L,Valeur)),joueurCourant(Joueur). %on met notre feuille calculée
 
 
 
@@ -183,19 +174,3 @@ insererJeton(X,Y,C) :- calculPositionJeton(X, 1, Y), assert(caseTest(X,Y,C)).
 % retourne l'indice de cette ligne vide
 calculPositionJeton(X,YCheck,YCheck) :- caseVideTest(X,YCheck), !.
 calculPositionJeton(X,YCheck,Y) :- incr(YCheck, YCheck1), calculPositionJeton(X,YCheck1,Y).
-
-%%%%%%%%%%%%%%%
-
-
-
-% incr/2(+X, -X1)
-% unifie X1 à X+1
-% vrai pour X1 = X+1
-incr(X,X1):- X1 is X+1.
-
-% decr/2(+X, -X1)
-% unifie X1 à X-1
-% vrai pour X1 = X-1
-decr(X,X1):- X1 is X-1.
-
-caseVideTest(X,Y) :- nonvar(X),nonvar(Y),not(caseTest(X,Y,_)).

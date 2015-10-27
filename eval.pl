@@ -14,22 +14,25 @@
 %% Prédicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
 
-% evalJeu/3(+JoueurCourant, +AutreJoueur, -Score)
-% Evalue la situation courante.
-% Score s unifie avec le score évalué pour la position courante.
-%evalJeu(JoueurCourant,AutreJoueur,Score) :- evalPuissances3(JoueurCourant,AutreJoueur,Score).
-evalJeu(_,_,1).
+% evalJeu/5(+JoueurCourant, +AutreJoueur, +X, +Y, -Score)
+% Evalue la situation courante pour le joueur JoueurCourant étant donné que le dernier coup joué fut joué en (X,Y).
+% Score s'unifie avec le score évalué pour la position courante.
+evalJeu(Joueur,Score) :-
+	gagne(Joueur),
+	infinitePos(Score).
+evalJeu(Joueur,Score) :-
+	gagne(X,Y,AutreJoueur),
+	infiniteNeg(Score).
+evalJeu(Joueur,Score) :-
+	evalPosition(JoueurCourant,Score).
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
 %%%%%%%%%%%%%%%%%%%%%%
 
-% TODO TREEEES IMPORTANT :
-% TOUT BASCULER VERS CASETEST DES QUE MINMAX EST PRET !!!!!!!!!!!!
-
 % evalPosition/2 (+Courant,-Score)
-% Evalue en privilegiant les positions centrales
-% Toujours vrai
+% Evalue en privilégiant les positions centrales.
+% Toujours vrai.
 evalPosition(Courant,Score) :-
 	findall(S, evalCases(Courant,S), Scores),
 	sum(Scores, Score).
@@ -60,7 +63,7 @@ ponderationJ(_, _, _, -1).
 
 % evalPuissances3/3(+JoueurCourant,+AutreJoueur,-Score)
 % Évalue en cherchant les positions faisant gagner.
-% Score s unifie au score de la position.
+% ScoreFinal s'unifie au score de la position.
 evalPuissances3(JoueurCourant,AutreJoueur,ScoreFinal) :-
 	findall(S,evalCasesVides(JoueurCourant,S),ScoresCourant), sum(ScoresCourant,ScoreCourant),
 	findall(S,evalCasesVides(AutreJoueur,S),ScoresAutre), sum(ScoresAutre,ScoreAutre),
@@ -70,18 +73,9 @@ evalCasesVides(Joueur,ScoreCase) :-
 	nbColonnes(NBCOLONNES), nbLignes(NBLIGNES),
 	between(1,NBCOLONNES,X), between(1,NBLIGNES,Y),
 	caseVide(X,Y),
-	assert(jeu:case(X,Y,Joueur)),
+	assert(case(X,Y,Joueur)),
 	(gagne(X,Y,Joueur) -> ScoreCase = 1 ; ScoreCase = 0),
-	retract(jeu:case(X,Y,Joueur)).
-
-
-
-
-
-sum([],0).
-sum([X|Xs],N) :-
-	sum(Xs,N1),
-	N is N1+X.
+	retract(case(X,Y,Joueur)).
 
 % --------- DEPRECATED ------------
 % evalAdjacence/2 (+Courant,-Score)

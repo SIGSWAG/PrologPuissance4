@@ -1,8 +1,6 @@
 %%%%%%%%%%%% jeu.pl %%%%%%%%%%%%
 
 :- module(jeu, [
-	nbLignes/1,
-	nbColonnes/1,
 	initJeu/0,
 	gagne/3,
 	placerJeton/3,
@@ -16,14 +14,7 @@
 
 :- use_module(util).
 
-:- dynamic case/3. % à tester
-
-%%%%%%%%%%%%%%%%
-%% Constantes %%
-%%%%%%%%%%%%%%%%
-
-nbLignes(6).
-nbColonnes(7).
+:- dynamic case/3.
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
@@ -51,16 +42,7 @@ changerJoueur :-
 	assert(autreJoueur(jaune,TypeJoueurJ)),!.
 
 
-
-%%% Fonctions utiles
-
-% caseVide/2(+X, +Y)
-% verifie si la case est vide
-% vrai si la case n'a pas été remplie
-caseVide(X,Y) :-
-	nonvar(X),
-	nonvar(Y),
-	not(case(X,Y,_)).
+%%% Prédicats utiles
 
 %%% Initialisation du plateau
 
@@ -68,8 +50,7 @@ caseVide(X,Y) :-
 % vide le plateau, initialise un nouveau plateau vide
 % retourne yes
 initJeu :-
-	initClear,
-	assert(case(_,_,_) :- fail).
+	initClear.
 
 % coupPossible/0
 % verifie si l on peut encore joueur
