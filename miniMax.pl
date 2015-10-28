@@ -1,6 +1,6 @@
 %%%%%%%%%%%% miniMax.pl %%%%%%%%%%%%
 
-:- module(minimax, [parcoursArbre/4]).
+:- module(minimax, [parcoursArbre/4, caseTest/3]).
 
 :- use_module(util).
 :- use_module(eval).
@@ -21,7 +21,7 @@
 % -R le coup a jouer
 % -Value évaluation du noeud courant
 parcoursArbre(J,Pmax,R,Value):- 
-	initTest,initCaseTest,infinitePos(InfP),infiniteNeg(InfN),assert(maximizer(J)), assert(joueurCourant(J)), 
+	initCaseTest,infinitePos(InfP),infiniteNeg(InfN),assert(maximizer(J)), assert(joueurCourant(J)), 
 	parcours(1,1,Pmax,[1,0],InfP,InfN), feuille([1,0],X1), 
 	setJoueur(1), parcours(2,1,Pmax,[2,0],InfP,X1), feuille([2,0],X2),
 	setJoueur(1), AlphaNext is max(X1,X2), parcours(3,1,Pmax,[3,0],InfP,AlphaNext), feuille([3,0],X3), 
@@ -29,19 +29,17 @@ parcoursArbre(J,Pmax,R,Value):-
 	setJoueur(1), AlphaNext2 is max(AlphaNext1,X4), parcours(5,1,Pmax,[5,0],InfP,AlphaNext2), feuille([5,0],X5), 
 	setJoueur(1), AlphaNext3 is max(AlphaNext2,X5), parcours(6,1,Pmax,[6,0],InfP,AlphaNext3), feuille([6,0],X6), 
 	setJoueur(1), AlphaNext4 is max(AlphaNext3,X6), parcours(7,1,Pmax,[7,0],InfP,AlphaNext4), feuille([7,0],X7), 
-	coupAJouerMaximizer([X1,X2,X3,X3,X4,X5,X6,X7],R,Value), clearTest,!. %the second call and the next ones are called with the result of the preceding (we take the max of all of them) on reset le joueur entre chaque call
+	coupAJouerMaximizer([X1,X2,X3,X4,X5,X6,X7],R,Value), clearTest,!. %the second call and the next ones are called with the result of the preceding (we take the max of all of them) on reset le joueur entre chaque call
 
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
 %%%%%%%%%%%%%%%%%%%%%%
 
-initTest:-assert(case(-20,-20,jaune)). %juste pour definir case
-
 initCaseTest:- case(X,Y,Z), assert(caseTest(X,Y,Z)),false. %on assert une caseTest pour toutes les cases.
 initCaseTest.
 
-clearTest:-retractall(caseTest(A,B,C)),retractall(feuille(D,E)),retract(maximizer(X)),retract(joueurCourant(J)),retract(case(-20,-20,jaune)). % on eve tout ce que l'on a ajouté.
+clearTest:-retractall(caseTest(A,B,C)),retractall(feuille(D,E)),retract(maximizer(X)),retract(joueurCourant(J)). % on eve tout ce que l'on a ajouté.
 
 
 

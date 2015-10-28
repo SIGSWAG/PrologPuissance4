@@ -1,4 +1,4 @@
-﻿%%%%%%%%%%%% eval.pl %%%%%%%%%%%%
+%%%%%%%%%%%% eval.pl %%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%
 %% Inclusions %%
@@ -7,6 +7,8 @@
 :- module(eval, [evalJeu/5]).
 
 :- use_module(util).
+:- use_module(jeu).
+:- use_module(minimax). % pour caseTest, peut-être à changer
 
 :- use_module(library(random)).
 
@@ -18,11 +20,11 @@
 % Evalue la situation courante pour le joueur JoueurCourant étant donné que le dernier coup joué fut joué en (X,Y).
 % Score s'unifie avec le score évalué pour la position courante.
 evalJeu(JoueurCourant,_,X,Y,Score) :-
-	gagne(X,Y,JoueurCourant),
+	gagneTest(X,Y,JoueurCourant),
 	infinitePos(Score).
-evalJeu(_,AutreJoueur,X,Y,Score) :-
-	gagne(X,Y,AutreJoueur),
-	infiniteNeg(Score).
+%evalJeu(_,AutreJoueur,X,Y,Score) :-
+%	gagneTest(X,Y,AutreJoueur),
+%	infiniteNeg(Score).
 evalJeu(JoueurCourant,AutreJoueur,_,_,Score) :-
 	evalPosition(JoueurCourant,Score).
 	%evalPuissances3(JoueurCourant,AutreJoueur,Score).
@@ -40,7 +42,7 @@ evalPosition(Courant,Score) :-
 	sum(Scores, Score).
 
 evalCases(Courant,ScoreCase) :-
-	case(X,Y,_),
+	caseTest(X,Y,_),
 	evalCase(X,Y,Courant,ScoreCase).
 
 evalCase(X,Y,Courant,ScoreCase) :- 
@@ -56,7 +58,7 @@ evalCase(X,Y,Courant,ScoreCase) :-
 	ScoreCase is ( 100/(AbsX+1) + 100/(AbsY+1) )*PonderationJoueur.
 
 ponderationJ(X, Y, Courant, 1) :-
-	case(X,Y,Courant), !.
+	caseTest(X,Y,Courant), !.
 ponderationJ(X, Y, _, 0) :-
 	caseVide(X,Y), !.
 ponderationJ(_, _, _, -1).
@@ -75,9 +77,9 @@ evalCasesVides(Joueur,ScoreCase) :-
 	nbColonnes(NBCOLONNES), nbLignes(NBLIGNES),
 	between(1,NBCOLONNES,X), between(1,NBLIGNES,Y),
 	caseVide(X,Y),
-	assert(case(X,Y,Joueur)),
-	(gagne(X,Y,Joueur) -> ScoreCase = 1 ; ScoreCase = 0),
-	retract(case(X,Y,Joueur)).
+	assert(caseTest(X,Y,Joueur)),
+	(gagneTest(X,Y,Joueur) -> ScoreCase = 1 ; ScoreCase = 0),
+	retract(caseTest(X,Y,Joueur)).
 
 % --------- DEPRECATED ------------
 % evalAdjacence/2 (+Courant,-Score)
@@ -126,8 +128,8 @@ coupGagnant(X,Y,Joueur) :- rechercheExtremite(X,Y,Xextr,Yextr,4,Joueur), pionsSu
 % Donne le nombre de pions successifs trouves dans une direction donnee (de 1 a 8)
 % Toujours vrai
 
-pionsSuccessifs(X,Y,Joueur,Direction,1) :- nwCoord(X,Y,Direction,Xn,Yn),not(case(Xn,Yn,Joueur)).
-pionsSuccessifs(X,Y,Joueur,Direction,NbPionsTrouves) :- nwCoord(X,Y,Direction,Xn,Yn),case(Xn,Yn,Joueur),
+pionsSuccessifs(X,Y,Joueur,Direction,1) :- nwCoord(X,Y,Direction,Xn,Yn),not(caseTest(Xn,Yn,Joueur)).
+pionsSuccessifs(X,Y,Joueur,Direction,NbPionsTrouves) :- nwCoord(X,Y,Direction,Xn,Yn),caseTest(Xn,Yn,Joueur),
 														pionsSuccessifs(Xn,Yn,Joueur,Direction,NbP),
 														incr(NbP,NbPionsTrouves).
 
@@ -138,15 +140,15 @@ pionsSuccessifs(X,Y,Joueur,Direction,NbPionsTrouves) :- nwCoord(X,Y,Direction,Xn
 % Donne en fonction d un point de depart Xc,Yc, la position du dernier pion de la couleur du joueur dans une direction
 % Toujours vrai
 
-rechercheExtremite(Xextr,Yextr,Xextr,Yextr,Dir,Joueur) :- nwCoord(Xextr,Yextr,Dir,Xh,Yh),not(case(Xh,Yh,Joueur)).
-rechercheExtremite(Xcurr,Ycurr,Xextr,Yextr,Dir,Joueur) :- nwCoord(Xcurr,Ycurr,Dir,Xn,Yn),case(Xn,Yn,Joueur),rechercheExtremite(Xn,Yn,Xextr,Yextr,Dir,Joueur).
+rechercheExtremite(Xextr,Yextr,Xextr,Yextr,Dir,Joueur) :- nwCoord(Xextr,Yextr,Dir,Xh,Yh),not(caseTest(Xh,Yh,Joueur)).
+rechercheExtremite(Xcurr,Ycurr,Xextr,Yextr,Dir,Joueur) :- nwCoord(Xcurr,Ycurr,Dir,Xn,Yn),caseTest(Xn,Yn,Joueur),rechercheExtremite(Xn,Yn,Xextr,Yextr,Dir,Joueur).
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % nwCoord (+Xold,+Yold,+Direction,-Xnew,-Ynew)
 % Donne les nouvelles coordonnees en fonction de la Direction
-% Direction (avec l ancien au milieu)
+% Direction (avec l'ancien au milieu)
 %	- - - - -
 %	- 4 3 2 -
 % 	- 5 X 1 -
@@ -173,25 +175,25 @@ nwCoord(X,Y,8,Xn,Yn) :- incr(X,Xn), decr(Y,Yn).
 invertDirection(Od,Nd) :- Od < 5, Nd is Od+4.
 invertDirection(Od,Nd) :- Od >=5, Nd is Od-4.
 
-%# case(1,1,jaune).
-%# case(1,2,rouge).
-%# case(1,3,rouge).
-%# case(1,4,rouge).
+%# caseTest(1,1,jaune).
+%# caseTest(1,2,rouge).
+%# caseTest(1,3,rouge).
+%# caseTest(1,4,rouge).
 
-%# case(2,1,rouge).
-%# case(2,2,jaune).
-%# case(2,3,rouge).
-%# case(2,4,jaune).
+%# caseTest(2,1,rouge).
+%# caseTest(2,2,jaune).
+%# caseTest(2,3,rouge).
+%# caseTest(2,4,jaune).
 
-%# case(3,1,jaune).
-%# case(3,2,rouge).
-%# case(3,3,jaune).
-%# case(3,4,rouge).
+%# caseTest(3,1,jaune).
+%# caseTest(3,2,rouge).
+%# caseTest(3,3,jaune).
+%# caseTest(3,4,rouge).
 
-%# case(4,1,rouge).
-%# case(4,2,rouge).
-%# case(4,3,jaune).
-%# case(4,4,jaune).
+%# caseTest(4,1,rouge).
+%# caseTest(4,2,rouge).
+%# caseTest(4,3,jaune).
+%# caseTest(4,4,jaune).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % caseAdjacente(+XcaseActuelle,+YcaseActuelle,
@@ -200,18 +202,117 @@ invertDirection(Od,Nd) :- Od >=5, Nd is Od-4.
 % Donne toutes les cases adjacentes a la case envoyee en coordonnees
 % Vrai si il existe des cases adjacentes
 
-caseAdjacente(X,Y,J,Xn,Yn) :- nwCoord(X,Y,Z,Xn,Yn),case(Xn,Yn,J).
+caseAdjacente(X,Y,J,Xn,Yn) :- nwCoord(X,Y,Z,Xn,Yn),caseTest(Xn,Yn,J).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % caseAmie(+X,+Y,-Xn,-Yn)
 % Cases amies autour de la case envoyee en param
 % Vrai si il existe des cases amies
 
-caseAmie(X,Y,Xn,Yn) :- case(X,Y,J), caseAdjacente(X,Y,J,Xn,Yn).
+caseAmie(X,Y,Xn,Yn) :- caseTest(X,Y,J), caseAdjacente(X,Y,J,Xn,Yn).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % caseEnnemie(+X,+Y,-Xn,-Yn)
 % Cases amies autour de la case envoyee en param
 % Vrai si il existe des cases ennemies
 
-caseEnnemie(X,Y,Xn,Yn) :- case(X,Y,J), ennemi(J,E), caseAdjacente(X,Y,E,Xn,Yn).
+caseEnnemie(X,Y,Xn,Yn) :- caseTest(X,Y,J), ennemi(J,E), caseAdjacente(X,Y,E,Xn,Yn).
+
+
+%%%%% CODE DUPLIQUÉ EN ATTENDANT UNE MEILLEURE SOLUTION %%%%%
+
+gagneTest(X,Y,J) :-
+	gagneColonneTest(X,Y,J).
+gagneTest(X,Y,J) :-
+	gagneLigneTest(X,Y,J).
+gagneTest(X,Y,J) :-
+	gagneDiag1Test(X,Y,J).
+gagneTest(X,Y,J) :-
+	gagneDiag2Test(X,Y,J).
+
+gagneColonneTest(X,Y,J) :-
+	caseTest(X,Y,J),
+	decr(Y,Y1),
+	caseTest(X,Y1,J),
+	decr(Y1,Y2),
+	caseTest(X,Y2,J),
+	decr(Y2,Y3),
+	caseTest(X,Y3,J). %ligne en bas
+
+gagneLigneTest(X,Y,J) :-
+	gaucheVerifTest(X,Y,J,Rg),
+	droiteVerifTest(X,Y,J,Rd),
+	!,
+	Rf is Rg+Rd, Rf>4.
+
+gaucheVerifTest(X,Y,J,Rg):-
+	gaucheTest(X,Y,J,0,Rg).
+gaucheTest(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+gaucheTest(X,Y,J,R,Rg) :-
+	decr(X,X1),
+	incr(R,R1),
+	gaucheTest(X1,Y,J,R1,Rg).
+
+droiteVerifTest(X,Y,J,Rg):-
+	droiteTest(X,Y,J,0,Rg).
+droiteTest(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+droiteTest(X,Y,J,R,Rg) :-
+	incr(X,X1),
+	incr(R,R1),
+	droiteTest(X1,Y,J,R1,Rg).
+
+gagneDiag1Test(X,Y,J) :-
+	gaucheHautVerifTest(X,Y,J,Rg),
+	droiteBasVerifTest(X,Y,J,Rd),
+	!,
+	Rf is Rg+Rd,
+	Rf>4.
+
+gaucheHautVerifTest(X,Y,J,Rg):-
+	gaucheHautTest(X,Y,J,0,Rg).
+gaucheHautTest(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+gaucheHautTest(X,Y,J,R,Rg) :-
+	incr(Y,Y1),
+	decr(X,X1),
+	incr(R,R1),
+	gaucheHautTest(X1,Y1,J,R1,Rg).
+
+droiteBasVerifTest(X,Y,J,Rg):-
+	droiteBasTest(X,Y,J,0,Rg).
+droiteBasTest(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+droiteBasTest(X,Y,J,R,Rg) :-
+	decr(Y,Y1),
+	incr(X,X1),
+	incr(R,R1),
+	droiteBasTest(X1,Y1,J,R1,Rg).
+
+gagneDiag2Test(X,Y,J) :-
+	gaucheBasVerifTest(X,Y,J,Rg),
+	droiteHautVerifTest(X,Y,J,Rd),
+	!,
+	Rf is Rg+Rd,
+	Rf>4.
+
+gaucheBasVerifTest(X,Y,J,Rg) :-
+	gaucheBasTest(X,Y,J,0,Rg).
+gaucheBasTest(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+gaucheBasTest(X,Y,J,R,Rg) :-
+	decr(Y,Y1),
+	decr(X,X1),
+	incr(R,R1),
+	gaucheBasTest(X1,Y1,J,R1,Rg).
+
+droiteHautVerifTest(X,Y,J,Rg) :-
+	droiteHautTest(X,Y,J,0,Rg).
+droiteHautTest(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+droiteHautTest(X,Y,J,R,Rg) :-
+	incr(Y,Y1),
+	incr(X,X1),
+	incr(R,R1),
+	droiteHautTest(X1,Y1,J,R1,Rg).

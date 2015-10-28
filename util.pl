@@ -14,7 +14,8 @@
 
 % Pour évaluer le plateau de jeu et réutiliser les prédicats définis dans jeu, on suppose que les caseTest ont effectivement été jouées.
 % Cette astuce permet de traiter les cases de test (utilisées par minimax) comme des cases normales, tout en simplifiant leur suppression.
-:- assert(jeu:case(X,Y,J) :- minimax:caseTest(X,Y,J)).
+% NE FONCTIONNE PAS, DUPLICATION DE CODE EN ATTENDANT UNE MEILLEURE SOLUTION !!
+% :- assert(jeu:case(X,Y,J) :- minimax:caseTest(X,Y,J)).
 
 %%%%%%%%%%%%%%%%
 %% Constantes %%
