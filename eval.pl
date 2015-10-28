@@ -19,12 +19,14 @@
 % evalJeu/5(+JoueurCourant, +AutreJoueur, +X, +Y, -Score)
 % Evalue la situation courante pour le joueur JoueurCourant étant donné que le dernier coup joué fut joué en (X,Y).
 % Score s'unifie avec le score évalué pour la position courante.
-evalJeu(JoueurCourant,_,X,Y,Score) :-
-	gagneTest(X,Y,JoueurCourant),
-	infinitePos(Score).
+
+%evalJeu(JoueurCourant,_,X,Y,Score) :-
+%	gagneTest(X,Y,JoueurCourant),
+%	infinitePos(Score).
 %evalJeu(_,AutreJoueur,X,Y,Score) :-
 %	gagneTest(X,Y,AutreJoueur),
 %	infiniteNeg(Score).
+
 evalJeu(JoueurCourant,AutreJoueur,_,_,Score) :-
 	evalPosition(JoueurCourant,Score).
 	%evalPuissances3(JoueurCourant,AutreJoueur,Score).
