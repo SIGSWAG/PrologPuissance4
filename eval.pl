@@ -8,7 +8,7 @@
 
 :- use_module(util).
 :- use_module(jeu).
-:- use_module(minimax). % pour caseTest, peut-être à changer
+:- use_module(miniMax). % pour caseTest, peut-être à changer
 
 :- use_module(library(random)).
 

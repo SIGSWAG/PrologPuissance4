@@ -117,7 +117,7 @@ statutJeu(_,_,_, 'draw') :-
 statutJeu(_,_,_, 'continue') :-
     changerJoueur.
 
-% permet d'appeler l'ihm ou les IAs pour récupérer le coup suivant
+% permet d'appelerles IAs pour récupérer le coup suivant
 % 2==IA aleatoire
 obtenirCoup(_,2,Coup) :-
     iaAleatoire(Coup).

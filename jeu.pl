@@ -22,7 +22,7 @@
 %%% Gestion des joueurs %%%
 
 typeJoueur(1,'Humain').
-typeJoueur(2,'IA Aléatoire').
+typeJoueur(2,'IA Aleatoire').
 typeJoueur(3,'IA Minimax').
 
 changerJoueur :-
