@@ -176,3 +176,101 @@ calculPositionJeton(X,YCheck,YCheck) :- caseVideTest(X,YCheck), !.
 calculPositionJeton(X,YCheck,Y) :- incr(YCheck, YCheck1), calculPositionJeton(X,YCheck1,Y).
 
 caseVideTest(X,Y) :- nonvar(X),nonvar(Y),not(caseTest(X,Y,_)).
+
+%%%%% CODE DUPLIQUÉ EN ATTENDANT UNE MEILLEURE SOLUTION %%%%%
+
+gagneTest(X,Y,J) :-
+	gagneColonneTest(X,Y,J).
+gagneTest(X,Y,J) :-
+	gagneLigneTest(X,Y,J).
+gagneTest(X,Y,J) :-
+	gagneDiag1Test(X,Y,J).
+gagneTest(X,Y,J) :-
+	gagneDiag2Test(X,Y,J).
+
+gagneColonneTest(X,Y,J) :-
+	caseTest(X,Y,J),
+	decr(Y,Y1),
+	caseTest(X,Y1,J),
+	decr(Y1,Y2),
+	caseTest(X,Y2,J),
+	decr(Y2,Y3),
+	caseTest(X,Y3,J). %ligne en bas
+
+gagneLigneTest(X,Y,J) :-
+	gaucheVerifTest(X,Y,J,Rg),
+	droiteVerifTest(X,Y,J,Rd),
+	!,
+	Rf is Rg+Rd, Rf>4.
+
+gaucheVerifTest(X,Y,J,Rg):-
+	gaucheTest(X,Y,J,0,Rg).
+gaucheTest(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+gaucheTest(X,Y,J,R,Rg) :-
+	decr(X,X1),
+	incr(R,R1),
+	gaucheTest(X1,Y,J,R1,Rg).
+
+droiteVerifTest(X,Y,J,Rg):-
+	droiteTest(X,Y,J,0,Rg).
+droiteTest(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+droiteTest(X,Y,J,R,Rg) :-
+	incr(X,X1),
+	incr(R,R1),
+	droiteTest(X1,Y,J,R1,Rg).
+
+gagneDiag1Test(X,Y,J) :-
+	gaucheHautVerifTest(X,Y,J,Rg),
+	droiteBasVerifTest(X,Y,J,Rd),
+	!,
+	Rf is Rg+Rd,
+	Rf>4.
+
+gaucheHautVerifTest(X,Y,J,Rg):-
+	gaucheHautTest(X,Y,J,0,Rg).
+gaucheHautTest(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+gaucheHautTest(X,Y,J,R,Rg) :-
+	incr(Y,Y1),
+	decr(X,X1),
+	incr(R,R1),
+	gaucheHautTest(X1,Y1,J,R1,Rg).
+
+droiteBasVerifTest(X,Y,J,Rg):-
+	droiteBasTest(X,Y,J,0,Rg).
+droiteBasTest(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+droiteBasTest(X,Y,J,R,Rg) :-
+	decr(Y,Y1),
+	incr(X,X1),
+	incr(R,R1),
+	droiteBasTest(X1,Y1,J,R1,Rg).
+
+gagneDiag2Test(X,Y,J) :-
+	gaucheBasVerifTest(X,Y,J,Rg),
+	droiteHautVerifTest(X,Y,J,Rd),
+	!,
+	Rf is Rg+Rd,
+	Rf>4.
+
+gaucheBasVerifTest(X,Y,J,Rg) :-
+	gaucheBasTest(X,Y,J,0,Rg).
+gaucheBasTest(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+gaucheBasTest(X,Y,J,R,Rg) :-
+	decr(Y,Y1),
+	decr(X,X1),
+	incr(R,R1),
+	gaucheBasTest(X1,Y1,J,R1,Rg).
+
+droiteHautVerifTest(X,Y,J,Rg) :-
+	droiteHautTest(X,Y,J,0,Rg).
+droiteHautTest(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+droiteHautTest(X,Y,J,R,Rg) :-
+	incr(Y,Y1),
+	incr(X,X1),
+	incr(R,R1),
+	droiteHautTest(X1,Y1,J,R1,Rg).
