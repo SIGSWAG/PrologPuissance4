@@ -23,6 +23,9 @@
 http:location(files, '/f', []).
 
 
+test:- assert(jeu:case(2,1,rouge)),assert(jeu:case(2,2,rouge)),assert(jeu:case(2,3,rouge)),assert(jeu:case(2,4,jaune)),assert(jeu:case(2,5,jaune)),assert(jeu:case(2,6,jaune)).
+test2:- assert(minimax:caseTest(2,1,rouge)),assert(minimax:caseTest(2,2,rouge)),assert(minimax:caseTest(2,3,rouge)),assert(minimax:caseTest(2,4,jaune)),assert(minimax:caseTest(2,5,jaune)),assert(minimax:caseTest(2,6,jaune)).
+
 %%%%%%%%%%%%%%%%
 %%  Routing   %%
 %%%%%%%%%%%%%%%%
