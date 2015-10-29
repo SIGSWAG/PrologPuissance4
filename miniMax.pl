@@ -37,7 +37,7 @@ parcoursArbre(J,Pmax,R,Value):-
 %% Prédicats privés %%
 %%%%%%%%%%%%%%%%%%%%%%
 
-initCaseTest:- case(X,Y,Z), assert(caseTest(X,Y,Z)),false. %on assert une caseTest pour toutes les cases.
+initCaseTest:- case(X,Y,Z), assert(caseTest(X,Y,Z)), false. %on assert une caseTest pour toutes les cases.
 initCaseTest.
 
 clearTest:- retractall(caseTest(X,Y,Z)), retractall(feuille(X,Y)), retract(maximizer(X)), retract(joueurCourant(J)). % on eve tout ce que l'on a ajouté.
@@ -189,6 +189,13 @@ gagneTest(X,Y,J) :-
 	gagneDiag1Test(X,Y,J).
 gagneTest(X,Y,J) :-
 	gagneDiag2Test(X,Y,J).
+	
+testFinal(R,P):-
+	R > 2.
+testFinal(R,P):-
+	R==2,
+	P==2.
+	
 
 gagneColonneTest(X,Y,J) :-
 	decr(Y,Y1),
@@ -200,88 +207,190 @@ gagneColonneTest(X,Y,J) :-
 
 gagneLigneTest(X,Y,J) :-
 	decr(X,X1),
-	gaucheVerifTest(X1,Y,J,Rg),
+	gaucheVerifTest(X1,Y,J,R1,P1),
 	incr(X,X2),
-	droiteVerifTest(X2,Y,J,Rd),
+	droiteVerifTest(X2,Y,J,R2,P2),
 	!,
-	Rf is Rg+Rd, Rf>2.
+	Rfin is R1+R2, 
+	Pfin is P1+P2,
+	testFinal(Rfin,Pfin).
 
-gaucheVerifTest(X,Y,J,Rg):-
-	gaucheTest(X,Y,J,0,Rg).
-gaucheTest(X,Y,J,R,R) :-
-	not(caseTest(X,Y,J)). %Jusqu'à la case non J
-gaucheTest(X,Y,J,R,Rg) :-
+	%Rr + Rp = Rg
+gaucheVerifTest(X,Y,J,Rg,Pg):- %Rg cases réelles accumulées, Pg cases libres sur les côtés (2 max)
+	gaucheTest(X,Y,J,0,Rg,0,Pg).
+	
+gaucheTest(X,Y,J,R,Rg,P,Pg) :-
+	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
+	caseVideTest(X,Y), %Case vide à gauche
+	decr(Y,Y1),
+	caseTest(X,Y1,_),  %Et on peut la remplir
+	incr(P,P1),			%+1 pour le potentiel
+	decr(X,X1),
+	gaucheTest(X1,Y,J,R,Rg,P1,Pg).
+gaucheTest(X,Y,J,R,Rg,P,Pg) :-
+	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
+	caseVideTest(X,Y), %Case vide à gauche
+	Y==1,   			%Et on peut la remplir
+	incr(P,P1),			% +1 pour le potentiel
+	decr(X,X1),
+	gaucheTest(X1,Y,J,R,Rg,P1,Pg).
+gaucheTest(X,Y,J,R,R,P,P) :-
+	not(caseTest(X,Y,J)). %Case de l'autre couleur à gauche
+gaucheTest(X,Y,J,R,Rg,P,Pg) :-
 	decr(X,X1),
 	incr(R,R1),
-	gaucheTest(X1,Y,J,R1,Rg).
+	gaucheTest(X1,Y,J,R1,Rg,P,Pg).
 
-droiteVerifTest(X,Y,J,Rg):-
-	droiteTest(X,Y,J,0,Rg).
-droiteTest(X,Y,J,R,R) :-
-	not(caseTest(X,Y,J)). %Jusqu'à la case non J
-droiteTest(X,Y,J,R,Rg) :-
+droiteVerifTest(X,Y,J,Rg,Pg):-
+	droiteTest(X,Y,J,0,Rg,0,Pg).
+droiteTest(X,Y,J,R,Rg,P,Pg) :-
+	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
+	caseVideTest(X,Y), %Case vide à droite
+	decr(Y,Y1),
+	caseTest(X,Y1,_),	%Et on peut la remplir
+	incr(P,P1),
+	incr(X,X1),
+	droiteTest(X1,Y,J,R,Rg,P1,Pg).
+droiteTest(X,Y,J,R,Rg,P,Pg) :-
+	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
+	caseVideTest(X,Y), %Case vide à droite
+	Y==1,				%Et on peut la remplir
+	incr(P,P1),			%+1 pour le potentiel
+	incr(X,X1),
+	droiteTest(X1,Y,J,R,Rg,P1,Pg).
+droiteTest(X,Y,J,R,R,P,P) :-
+	not(caseTest(X,Y,J)). %Case de l'autre couleur à droite 
+droiteTest(X,Y,J,R,Rg,P,Pg) :-
 	incr(X,X1),
 	incr(R,R1),
-	droiteTest(X1,Y,J,R1,Rg).
+	droiteTest(X1,Y,J,R1,Rg,P,Pg).
 
 gagneDiag1Test(X,Y,J) :-
 	incr(Y,Y1),
 	decr(X,X1),
-	gaucheHautVerifTest(X1,Y1,J,Rg),
+	gaucheHautVerifTest(X1,Y1,J,R1,P1),
 	decr(Y,Y2),
 	incr(X,X2),
-	droiteBasVerifTest(X2,Y2,J,Rd),
+	droiteBasVerifTest(X2,Y2,J,R2,P2),
 	!,
-	Rf is Rg+Rd,
-	Rf>2.
+	Rfin is R1+R2, Pfin is P1+P2,
+	testFinal(Rfin,Pfin).
 
-gaucheHautVerifTest(X,Y,J,Rg):-
-	gaucheHautTest(X,Y,J,0,Rg).
-gaucheHautTest(X,Y,J,R,R) :-
-	not(caseTest(X,Y,J)). %Jusqu'à la case non J
-gaucheHautTest(X,Y,J,R,Rg) :-
+gaucheHautVerifTest(X,Y,J,Rg,Pg):-
+	gaucheHautTest(X,Y,J,0,Rg,0,Pg).
+gaucheHautTest(X,Y,J,R,Rg,P,Pg) :-
+	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
+	caseVideTest(X,Y), %Case vide en bas à gauche
+	decr(Y,Y1),
+	caseTest(X,Y1,_),  %Et on peut la remplir
+	incr(P,P1),			% +1 pour le potentiel
+	incr(Y,Y1),
+	decr(X,X1),
+	gaucheHautTest(X1,Y1,J,R,Rg,P1,Pg).
+gaucheHautTest(X,Y,J,R,Rg,P,Pg) :-
+	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
+	caseVideTest(X,Y), %Case vide en bas à gauche
+	Y==1,   			%Et on peut la remplir
+	incr(P,P1),			% +1 pour le potentiel
+	incr(Y,Y1),
+	decr(X,X1),
+	gaucheHautTest(X1,Y1,J,R,Rg,P1,Pg).
+gaucheHautTest(X,Y,J,R,R,P,P) :-
+	not(caseTest(X,Y,J)). %Case de l'autre couleur en bas à gauche
+gaucheHautTest(X,Y,J,R,Rg,P,Pg) :-
 	incr(Y,Y1),
 	decr(X,X1),
 	incr(R,R1),
-	gaucheHautTest(X1,Y1,J,R1,Rg).
+	gaucheHautTest(X1,Y1,J,R1,Rg,P,Pg).
 
-droiteBasVerifTest(X,Y,J,Rg):-
-	droiteBasTest(X,Y,J,0,Rg).
-droiteBasTest(X,Y,J,R,R) :-
-	not(caseTest(X,Y,J)). %Jusqu'à la case non J
-droiteBasTest(X,Y,J,R,Rg) :-
+droiteBasVerifTest(X,Y,J,Rg,Pg):-
+	droiteBasTest(X,Y,J,0,Rg,0,Pg).
+droiteBasTest(X,Y,J,R,Rg,P,Pg) :-
+	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
+	caseVideTest(X,Y), %Case vide en bas à droite
+	decr(Y,Y1),
+	caseTest(X,Y1,_),	%Et on peut la remplir
+	incr(P,P1),			%+1 pour le potentiel
+	decr(Y,Y1),
+	incr(X,X1),
+	droiteBasTest(X1,Y1,J,R,Rg,P1,Pg).
+droiteBasTest(X,Y,J,R,Rg,P,Pg) :-
+	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
+	caseVideTest(X,Y), %Case vide en bas à droite
+	Y==1,				%Et on peut la remplir
+	incr(P,P1),			%+1 pour le potentiel
+	decr(Y,Y1),
+	incr(X,X1),
+	droiteBasTest(X1,Y1,J,R,Rg,P1,Pg).
+droiteBasTest(X,Y,J,R,R,P,P) :-
+	not(caseTest(X,Y,J)). %Case de l'autre couleur en bas à droite 
+droiteBasTest(X,Y,J,R,Rg,P,Pg) :-
 	decr(Y,Y1),
 	incr(X,X1),
 	incr(R,R1),
-	droiteBasTest(X1,Y1,J,R1,Rg).
+	droiteBasTest(X1,Y1,J,R1,Rg,P,Pg).
 
 gagneDiag2Test(X,Y,J) :-
 	decr(Y,Y1),
 	decr(X,X1),
-	gaucheBasVerifTest(X1,Y1,J,Rg),
+	gaucheBasVerifTest(X1,Y1,J,R1,P1),
 	incr(Y,Y2),
 	incr(X,X2),
-	droiteHautVerifTest(X2,Y2,J,Rd),
+	droiteHautVerifTest(X2,Y2,J,R2,P2),
 	!,
-	Rf is Rg+Rd,
-	Rf>2.
+	Rfin is R1+R2, Pfin is P1+P2,
+	testFinal(Rfin,Pfin).
 
-gaucheBasVerifTest(X,Y,J,Rg) :-
-	gaucheBasTest(X,Y,J,0,Rg).
-gaucheBasTest(X,Y,J,R,R) :-
-	not(caseTest(X,Y,J)). %Jusqu'à la case non J
-gaucheBasTest(X,Y,J,R,Rg) :-
+gaucheBasVerifTest(X,Y,J,Rg,Pg) :-
+	gaucheBasTest(X,Y,J,0,Rg,0,Pg).
+gaucheBasTest(X,Y,J,R,Rg,P,Pg) :-
+	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
+	caseVideTest(X,Y), %Case vide en bas à gauche
+	decr(Y,Y1),
+	caseTest(X,Y1,_),  %Et on peut la remplir
+	incr(P,P1),			% +1 pour le potentiel
+	decr(Y,Y1),
+	decr(X,X1),
+	gaucheBasTest(X1,Y1,J,R,Rg,P1,Pg).
+gaucheBasTest(X,Y,J,R,Rg,P,Pg) :-
+	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
+	caseVideTest(X,Y), %Case vide en bas à gauche
+	Y==1,   			%Et on peut la remplir
+	incr(P,P1),			% +1 pour le potentiel
+	decr(Y,Y1),
+	decr(X,X1),
+	gaucheBasTest(X1,Y1,J,R,Rg,P1,Pg).
+gaucheBasTest(X,Y,J,R,R,P,P) :-
+	not(caseTest(X,Y,J)). %Case de l'autre couleur en bas à gauche
+gaucheBasTest(X,Y,J,R,Rg,P,Pg) :-
 	decr(Y,Y1),
 	decr(X,X1),
 	incr(R,R1),
-	gaucheBasTest(X1,Y1,J,R1,Rg).
+	gaucheBasTest(X1,Y1,J,R1,Rg,P,Pg).
 
-droiteHautVerifTest(X,Y,J,Rg) :-
-	droiteHautTest(X,Y,J,0,Rg).
-droiteHautTest(X,Y,J,R,R) :-
-	not(caseTest(X,Y,J)). %Jusqu'à la case non J
-droiteHautTest(X,Y,J,R,Rg) :-
+droiteHautVerifTest(X,Y,J,Rg,Pg) :-
+	droiteHautTest(X,Y,J,0,Rg,0,Pg).
+droiteHautTest(X,Y,J,R,Rg,P,Pg) :-
+	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
+	caseVideTest(X,Y), %Case vide en haut à droite
+	decr(Y,Y1),
+	caseTest(X,Y1,_),	%Et on peut la remplir
+	incr(P,P1),			%+1 pour le potentiel
+	incr(Y,Y1),
+	incr(X,X1),
+	droiteHautTest(X1,Y1,J,R,Rg,P1,Pg).
+droiteHautTest(X,Y,J,R,Rg,P,Pg) :-
+	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
+	caseVideTest(X,Y), %Case vide en haut à droite
+	Y==1,				%Et on peut la remplir
+	incr(P,P1),			%+1 pour le potentiel
+	incr(Y,Y1),
+	incr(X,X1),
+	droiteHautTest(X1,Y1,J,R,Rg,P1,Pg).
+droiteHautTest(X,Y,J,R,R,P,P) :-
+	not(caseTest(X,Y,J)). %Case de l'autre couleur en haut à droite 
+droiteHautTest(X,Y,J,R,Rg,P,Pg) :-
 	incr(Y,Y1),
 	incr(X,X1),
 	incr(R,R1),
-	droiteHautTest(X1,Y1,J,R1,Rg).
+	droiteHautTest(X1,Y1,J,R1,Rg,P,Pg).
