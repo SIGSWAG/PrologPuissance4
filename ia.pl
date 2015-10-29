@@ -13,6 +13,9 @@ iaAleatoire(Coup) :-
 	nbColonnes(NBCOLONNES),
 	Coup is random(NBCOLONNES)+1,
 	coupValide(Coup).
+% ia aleatoire a choisi une colonne pleine, donc on la fait recommencer
+iaAleatoire(Coup) :-
+	iaAleatoire(Coup).
 
 iaMinimax(JoueurCourant,Coup) :-
 	parcoursArbre(JoueurCourant,3,Coup,_).

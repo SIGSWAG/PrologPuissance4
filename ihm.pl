@@ -53,10 +53,6 @@ demandeTypeDeJeu(TypeDeJeu) :-
 	write(' ----------------------- '), nl,
     write('Saisissez votre choix :'), nl,
     read(TypeDeJeu), integer(TypeDeJeu).
-
-typeJoueur(1,'Humain').
-typeJoueur(2,'IA Aléatoire').
-%typeJoueur(3,'Minimax Aléatoire').
 	
 
 %%%%%%%%%%%%%%%%%%%%%%
