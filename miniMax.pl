@@ -48,8 +48,8 @@ clearTest:- retractall(caseTest(X,Y,Z)), retractall(feuille(X,Y)), retract(maxim
 %+L la liste de coups courante
 %+Beta,+Alpha les valeurs courantes pour Alpha et Beta.
 
-parcours(X, P, Pmax, L, Beta, Alpha):- cestMort(X), joueurCourant(Joue), maximizer(Joue), infiniteNeg(Value), assert(feuille(L, Value)). .% on ne peut PAS jouer, on met -infini
-parcours(X, P, Pmax, L, Beta, Alpha):- cestMort(X), joueurCourant(Joue), not(maximizer(Joue)), infinitePos(Value), assert(feuille(L, Value)). .% on ne peut PAS jouer, on met -infini
+parcours(X, P, Pmax, L, Beta, Alpha):- cestMort(X), joueurCourant(Joue), maximizer(Joue), infiniteNeg(Value), assert(feuille(L, Value)). % on ne peut PAS jouer, on met -infini
+parcours(X, P, Pmax, L, Beta, Alpha):- cestMort(X), joueurCourant(Joue), not(maximizer(Joue)), infinitePos(Value), assert(feuille(L, Value)). % on ne peut PAS jouer, on met -infini
 
 
 parcours(X, P, Pmax, L, Beta, Alpha):- nbLignes(MaxLignes),not(caseVideTest(X,MaxLignes)), joueurCourant(Joue), evaluate(X,MaxLignes,Joue,Value), assert(feuille(L, Value)) .% on ne peut plus jouer, on met une feuille (on évalue)
