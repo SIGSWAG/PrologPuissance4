@@ -18,7 +18,7 @@
 
 % evalJeu/5(+JoueurCourant, +AutreJoueur, +X, +Y, -Score)
 % Evalue la situation courante pour le joueur JoueurCourant étant donné que le dernier coup joué fut joué en (X,Y).
-% Score s'unifie avec le score évalué pour la position courante.
+% Score s unifie avec le score évalué pour la position courante.
 
 %evalJeu(JoueurCourant,_,X,Y,Score) :-
 %	gagneTest(X,Y,JoueurCourant),
@@ -69,7 +69,7 @@ ponderationJ(_, _, _, -1).
 
 % evalPuissances3/3(+JoueurCourant,+AutreJoueur,-Score)
 % Évalue en cherchant les positions faisant gagner.
-% ScoreFinal s'unifie au score de la position.
+% ScoreFinal s unifie au score de la position.
 evalPuissances3(JoueurCourant,AutreJoueur,ScoreFinal) :-
 	findall(S,evalCasesVides(JoueurCourant,S),ScoresCourant), sum(ScoresCourant,ScoreCourant),
 	findall(S,evalCasesVides(AutreJoueur,S),ScoresAutre), sum(ScoresAutre,ScoreAutre),
@@ -107,6 +107,33 @@ evalCasesAdjacentes(X,Y,Courant,ScoreCase) :-
 	ponderationJ(X,Y2,Courant, SC6), sum(SC6,SC7),
 	ponderationJ(X1,Y2,Courant, SC7), sum(SC7,ScoreCase).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			HEURISTIQUE PAR DENSITE DE PION ~
+%		  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% densite (+Joueur,-Note)
+% Donne une note d autant plus elevee que les pions sont groupes
+% Toujours vrai
+densite(J,Note) :- Z is 1, calculNbPoints(J,Z,Note).
+calculNbPoints(J,Z,Note) :- Z>6, Note is 0.
+calculNbPoints(J,Z,Note) :- nbPointsZone(J,Z,N), incr(Z,ZP), calculNbPoints(J,ZP,NP), Note is N+NP.
+nbPointsZone(J,Z,NbPoints) :- nbPionsZone(J,Z,N), pow(N,2,NbPoints).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% nbPionsZone (+joueur,+zone,-nbPions)
+% Donne le nombre de pions contenu dans une zone
+% Toujours vrai
+nbPionsZone(J,Z,NbPions) :- aggregate_all(count,caseTestZone(Z,J,X,Y),NbPions).
+
+caseTestZone(Zone,Joueur,X,Y) :- caseTest(X,Y,Joueur), zone(Zone,X,Y).
+zone(1,X,Y) :- X =<3, Y =< 3.
+zone(2,X,Y) :- X = 4, Y =< 3.
+zone(3,X,Y) :- X > 4, Y =< 3.
+zone(4,X,Y) :- X > 4, Y > 3.
+zone(5,X,Y) :- X = 4, Y > 3.
+zone(6,X,Y) :- X =<3, Y > 3.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %			DETERMINATION COUP GAGNANT (BIS)
@@ -150,7 +177,7 @@ rechercheExtremite(Xcurr,Ycurr,Xextr,Yextr,Dir,Joueur) :- nwCoord(Xcurr,Ycurr,Di
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % nwCoord (+Xold,+Yold,+Direction,-Xnew,-Ynew)
 % Donne les nouvelles coordonnees en fonction de la Direction
-% Direction (avec l'ancien au milieu)
+% Direction (avec l ancien au milieu)
 %	- - - - -
 %	- 4 3 2 -
 % 	- 5 X 1 -
@@ -177,25 +204,25 @@ nwCoord(X,Y,8,Xn,Yn) :- incr(X,Xn), decr(Y,Yn).
 invertDirection(Od,Nd) :- Od < 5, Nd is Od+4.
 invertDirection(Od,Nd) :- Od >=5, Nd is Od-4.
 
-%# caseTest(1,1,jaune).
-%# caseTest(1,2,rouge).
-%# caseTest(1,3,rouge).
-%# caseTest(1,4,rouge).
+ caseTest(1,1,jaune).
+ caseTest(1,2,rouge).
+ caseTest(1,3,rouge).
+ caseTest(1,4,rouge).
 
-%# caseTest(2,1,rouge).
-%# caseTest(2,2,jaune).
-%# caseTest(2,3,rouge).
-%# caseTest(2,4,jaune).
+ caseTest(2,1,rouge).
+ caseTest(2,2,jaune).
+ caseTest(2,3,rouge).
+ caseTest(2,4,jaune).
 
-%# caseTest(3,1,jaune).
-%# caseTest(3,2,rouge).
-%# caseTest(3,3,jaune).
-%# caseTest(3,4,rouge).
+ caseTest(3,1,jaune).
+ caseTest(3,2,rouge).
+ caseTest(3,3,jaune).
+ caseTest(3,4,rouge).
 
-%# caseTest(4,1,rouge).
-%# caseTest(4,2,rouge).
-%# caseTest(4,3,jaune).
-%# caseTest(4,4,jaune).
+ caseTest(4,1,rouge).
+ caseTest(4,2,rouge).
+ caseTest(4,3,jaune).
+ caseTest(4,4,jaune).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % caseAdjacente(+XcaseActuelle,+YcaseActuelle,
