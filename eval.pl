@@ -27,7 +27,7 @@
 %	gagneTest(X,Y,AutreJoueur),
 %	infiniteNeg(Score).
 
-evalJeu(JoueurCourant,AutreJoueur,_,_,Score) :-
+evalJeu(JoueurCourant,_,_,_,Score) :-
 	evalPosition(JoueurCourant,Score).
 	%evalPuissances3(JoueurCourant,AutreJoueur,Score).
 	%evalAdjacence(JoueurCourant,Score).
@@ -204,7 +204,7 @@ invertDirection(Od,Nd) :- Od >=5, Nd is Od-4.
 % Donne toutes les cases adjacentes a la case envoyee en coordonnees
 % Vrai si il existe des cases adjacentes
 
-caseAdjacente(X,Y,J,Xn,Yn) :- nwCoord(X,Y,Z,Xn,Yn),caseTest(Xn,Yn,J).
+caseAdjacente(X,Y,J,Xn,Yn) :- nwCoord(X,Y,_,Xn,Yn),caseTest(Xn,Yn,J).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % caseAmie(+X,+Y,-Xn,-Yn)
