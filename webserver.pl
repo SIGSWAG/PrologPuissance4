@@ -79,10 +79,10 @@ selectionnerJoueurAction(Request) :-
     http_parameters(Request,
     % oneof(TypeJoueurs) ne marche pas ....atom_number('123', X)
     % on obtient une erreur bad request : Parameter "joueur1" must be one of "1" or "2".  Found "1"
-        [ joueur1(TypeJoueur1, []),
-          joueur2(TypeJoueur2, [])
+        [ joueur1(TypeJoueurR, []),
+          joueur2(TypeJoueurJ, [])
         ]),
-    random_select(TypeJoueurR,[TypeJoueur1,TypeJoueur2],[TypeJoueurJ|_]),
+    % random_select(TypeJoueurR,[TypeJoueur1,TypeJoueur2],[TypeJoueurJ|_]),
     atom_number(TypeJoueurR, TypeJoueurRInteger),
     atom_number(TypeJoueurJ, TypeJoueurJInteger),
     assert(joueurCourant(rouge,TypeJoueurRInteger)),
@@ -117,7 +117,7 @@ statutJeu(_,_,_, 'draw') :-
 statutJeu(_,_,_, 'continue') :-
     changerJoueur.
 
-% permet d'appeler l'ihm ou les IAs pour récupérer le coup suivant
+% permet d'appelerles IAs pour récupérer le coup suivant
 % 2==IA aleatoire
 obtenirCoup(_,2,Coup) :-
     iaAleatoire(Coup).
