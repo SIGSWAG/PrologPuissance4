@@ -40,7 +40,7 @@ parcoursArbre(J,Pmax,R,Value):-
 initCaseTest:- case(X,Y,Z), assert(caseTest(X,Y,Z)),false. %on assert une caseTest pour toutes les cases.
 initCaseTest.
 
-clearTest:- retractall(caseTest(X,Y,Z)), retract(maximizer(X)), retract(joueurCourant(J)). % on eve tout ce que l'on a ajouté.
+clearTest:- retractall(caseTest(X,Y,Z)), retractall(feuille(X,Y)), retract(maximizer(X)), retract(joueurCourant(J)). % on eve tout ce que l'on a ajouté.
 
 %Parcours
 %+X la colonne a jouer
