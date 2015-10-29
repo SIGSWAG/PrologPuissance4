@@ -39,7 +39,7 @@ parcoursArbre(J,Pmax,R,Value):-
 initCaseTest:- case(X,Y,Z), assert(caseTest(X,Y,Z)),false. %on assert une caseTest pour toutes les cases.
 initCaseTest.
 
-clearTest:-retractall(caseTest(A,B,C)),retractall(feuille(D,E)),retract(maximizer(X)),retract(joueurCourant(J)). % on eve tout ce que l'on a ajouté.
+clearTest:-retract(maximizer(X)), retractall(caseTest(X,Y,Z)), retractall(feuille(X,Y)), retract(joueurCourant(J)). % on eve tout ce que l'on a ajouté.
 
 
 
@@ -51,8 +51,8 @@ clearTest:-retractall(caseTest(A,B,C)),retractall(feuille(D,E)),retract(maximize
 
 parcours(X, P, Pmax, L, Beta, Alpha):- nbLignes(MaxLignes),not(caseVideTest(X,MaxLignes)), joueurCourant(Joue), evaluate(X,MaxLignes,Joue,Value), assert(feuille(L, Value)) .% on ne peut plus jouer, on met une feuille (on évalue)
 
-parcours(X, P, Pmax, L, Beta, Alpha):- joueurCourant(Joue), calculPositionJeton(X, 1, Y), gagne(X,Y,Joue), maximizer(Joue), infinitePos(Value), assert(feuille(L, Value)).
-parcours(X, P, Pmax, L, Beta, Alpha):- joueurCourant(Joue), calculPositionJeton(X, 1, Y), gagne(X,Y,Joue), not(maximizer(Joue)), infiniteNeg(Value), assert(feuille(L, Value)).
+parcours(X, P, Pmax, L, Beta, Alpha):-  joueurCourant(Joue), calculPositionJeton(X, 1, Y), print(Y), gagneTest(X,Y,Joue), maximizer(Joue), infinitePos(Value), assert(feuille(L, Value)).
+parcours(X, P, Pmax, L, Beta, Alpha):-  joueurCourant(Joue), calculPositionJeton(X, 1, Y),  gagneTest(X,Y,Joue), not(maximizer(Joue)), infiniteNeg(Value), assert(feuille(L, Value)).
 
 parcours(X, P, Pmax, L, Beta, Alpha):- P==Pmax,joueurCourant(Joue), placerJeton(X,Y,Joue), evaluate(X, Y, Joue, Value),assert(feuille(L, Value)),retract(caseTest(X,Y,Joue)). % on est à la prof max, on evalue et on met une feuille
 parcours(X, P, Pmax, L, Beta, Alpha) :- incr(P, P1),joueurCourant(Joue), placerJeton(X,Y,Joue), %on incremente la profondeur, puis on joue un coup(qui réussit a tous les coups)
@@ -189,7 +189,6 @@ gagneTest(X,Y,J) :-
 	gagneDiag2Test(X,Y,J).
 
 gagneColonneTest(X,Y,J) :-
-	caseTest(X,Y,J),
 	decr(Y,Y1),
 	caseTest(X,Y1,J),
 	decr(Y1,Y2),
@@ -198,10 +197,12 @@ gagneColonneTest(X,Y,J) :-
 	caseTest(X,Y3,J). %ligne en bas
 
 gagneLigneTest(X,Y,J) :-
-	gaucheVerifTest(X,Y,J,Rg),
-	droiteVerifTest(X,Y,J,Rd),
+	decr(X,X1),
+	gaucheVerifTest(X1,Y,J,Rg),
+	incr(X,X2),
+	droiteVerifTest(X2,Y,J,Rd),
 	!,
-	Rf is Rg+Rd, Rf>4.
+	Rf is Rg+Rd, Rf>2.
 
 gaucheVerifTest(X,Y,J,Rg):-
 	gaucheTest(X,Y,J,0,Rg).
@@ -222,11 +223,15 @@ droiteTest(X,Y,J,R,Rg) :-
 	droiteTest(X1,Y,J,R1,Rg).
 
 gagneDiag1Test(X,Y,J) :-
-	gaucheHautVerifTest(X,Y,J,Rg),
-	droiteBasVerifTest(X,Y,J,Rd),
+	incr(Y,Y1),
+	decr(X,X1),
+	gaucheHautVerifTest(X1,Y1,J,Rg),
+	decr(Y,Y2),
+	incr(X,X2),
+	droiteBasVerifTest(X2,Y2,J,Rd),
 	!,
 	Rf is Rg+Rd,
-	Rf>4.
+	Rf>2.
 
 gaucheHautVerifTest(X,Y,J,Rg):-
 	gaucheHautTest(X,Y,J,0,Rg).
@@ -249,11 +254,15 @@ droiteBasTest(X,Y,J,R,Rg) :-
 	droiteBasTest(X1,Y1,J,R1,Rg).
 
 gagneDiag2Test(X,Y,J) :-
-	gaucheBasVerifTest(X,Y,J,Rg),
-	droiteHautVerifTest(X,Y,J,Rd),
+	decr(Y,Y1),
+	decr(X,X1),
+	gaucheBasVerifTest(X1,Y1,J,Rg),
+	incr(Y,Y2),
+	incr(X,X2),
+	droiteHautVerifTest(X2,Y2,J,Rd),
 	!,
 	Rf is Rg+Rd,
-	Rf>4.
+	Rf>2.
 
 gaucheBasVerifTest(X,Y,J,Rg) :-
 	gaucheBasTest(X,Y,J,0,Rg).
