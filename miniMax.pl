@@ -48,11 +48,9 @@ clearTest:- retractall(caseTest(X,Y,Z)), retractall(feuille(X,Y)), retract(maxim
 %+L la liste de coups courante
 %+Beta,+Alpha les valeurs courantes pour Alpha et Beta.
 
-parcours(X, P, Pmax, L, Beta, Alpha):- cestMort(X), joueurCourant(Joue), maximizer(Joue), infiniteNeg(Value), assert(feuille(L, Value)). % on ne peut PAS jouer, on met -infini
-parcours(X, P, Pmax, L, Beta, Alpha):- cestMort(X), joueurCourant(Joue), not(maximizer(Joue)), infinitePos(Value), assert(feuille(L, Value)). % on ne peut PAS jouer, on met -infini
-
-
-parcours(X, P, Pmax, L, Beta, Alpha):- nbLignes(MaxLignes),not(caseVideTest(X,MaxLignes)), joueurCourant(Joue), evaluate(X,MaxLignes,Joue,Value), assert(feuille(L, Value)) .% on ne peut plus jouer, on met une feuille (on évalue)
+parcours(X, P, Pmax, L, Beta, Alpha):- nbLignes(MaxLignes),case(X,MaxLignes,_), joueurCourant(Joue), maximizer(Joue), infiniteNeg(Value), assert(feuille(L, Value)). % on ne peut PAS jouer, on met -infini
+parcours(X, P, Pmax, L, Beta, Alpha):- nbLignes(MaxLignes),case(X,MaxLignes,_), joueurCourant(Joue), not(maximizer(Joue)), infinitePos(Value), assert(feuille(L, Value)). % on ne peut PAS jouer, on met -infini
+parcours(X, P, Pmax, L, Beta, Alpha):- nbLignes(MaxLignes),caseTest(X,MaxLignes,_), joueurCourant(Joue), evaluate(X,MaxLignes,Joue,Value), assert(feuille(L, Value)) .% on ne peut plus jouer, on met une feuille (on évalue)
 
 parcours(X, P, Pmax, L, Beta, Alpha):-  joueurCourant(Joue), calculPositionJeton(X, 1, Y), gagneTest(X,Y,Joue), maximizer(Joue), infinitePos(Value), assert(feuille(L, Value)),retract(caseTest(X,Y,Joue)). %Victoire du max
 parcours(X, P, Pmax, L, Beta, Alpha):-  joueurCourant(Joue), calculPositionJeton(X, 1, Y), gagneTest(X,Y,Joue), not(maximizer(Joue)), infiniteNeg(Value), assert(feuille(L, Value)),retract(caseTest(X,Y,Joue)). %Victoire du min
@@ -161,7 +159,7 @@ maximum(Y, Max,OldRankMax, NewRankMax, Max, OldRankMax).
 % insère si possible un jeton dans la colonne donnée
 % retourne la ligne d'insertion, ou no
 placerJeton(X,Y,C) :- coupValide(X), insererJeton(X, Y, C).
-placerJeton(X,Y,C) :- not(coupValide(X)), assert(cestMort(X)).
+
 %%%%% placerJeton %%%%%
 % coupValide/1(-Colonne)
 % Vérifie si un jeton est jouable dans cette colonne
