@@ -5,6 +5,8 @@
 	nbColonnes/1,
 	infinitePos/1,
 	infiniteNeg/1,
+	infinitePos/2,
+	infiniteNeg/2,
 	ennemi/2,
 	incr/2,
 	decr/2,
@@ -26,6 +28,9 @@ nbColonnes(7).
 
 infinitePos(10000).
 infiniteNeg(-10000).
+
+infinitePos(X,10000+X).
+infiniteNeg(X,-10000-X).
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
