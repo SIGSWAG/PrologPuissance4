@@ -192,7 +192,7 @@ gagneTest(X,Y,J,V) :-
 	gagneLigneTest(X,Y,J,V).
 gagneTest(X,Y,J,V) :-
 	gagneDiag1Test(X,Y,J,V).
-gagneTest(X,Y,J) :-
+gagneTest(X,Y,J,V) :-
 	gagneDiag2Test(X,Y,J,V).
 	
 testFinal(R,P,1):-
