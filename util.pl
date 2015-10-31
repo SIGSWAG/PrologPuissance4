@@ -29,8 +29,8 @@ nbColonnes(7).
 infinitePos(10000).
 infiniteNeg(-10000).
 
-infinitePos(X,10000+X).
-infiniteNeg(X,-10000-X).
+infinitePos(X,Rep):- Rep is X+10000.
+infiniteNeg(X,Rep):- Rep is -10000-X.
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%

@@ -52,8 +52,8 @@ clearTest:-
 %+Beta,+Alpha les valeurs courantes pour Alpha et Beta.
 
 
-parcours(X, _, _, L, _, _):- nbLignes(MaxLignes),jeu:case(X,MaxLignes,_), joueurCourant(Joue), maximizer(Joue), infiniteNeg(Value,2), assert(feuille(L, Value)). % on ne peut PAS jouer, on met -infini
-parcours(X, _, _, L, _, _):- nbLignes(MaxLignes),jeu:case(X,MaxLignes,_), joueurCourant(Joue), not(maximizer(Joue)), infinitePos(Value,2), assert(feuille(L, Value)). % on ne peut PAS jouer, on met -infini
+parcours(X, _, _, L, _, _):- nbLignes(MaxLignes),jeu:case(X,MaxLignes,_), joueurCourant(Joue), maximizer(Joue), infiniteNeg(2,Value), assert(feuille(L, Value)). % on ne peut PAS jouer, on met -infini
+parcours(X, _, _, L, _, _):- nbLignes(MaxLignes),jeu:case(X,MaxLignes,_), joueurCourant(Joue), not(maximizer(Joue)), infinitePos(2,Value), assert(feuille(L, Value)). % on ne peut PAS jouer, on met +infini
 parcours(X, _, _, L, _, _):- nbLignes(MaxLignes),caseTest(X,MaxLignes,_), joueurCourant(Joue), evaluate(X,MaxLignes,Joue,Value), assert(feuille(L, Value)) .% on ne peut plus jouer, on met une feuille (on évalue)
 
 
