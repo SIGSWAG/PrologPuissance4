@@ -1,5 +1,6 @@
 %%%%%%%%%%%% webserver.pl %%%%%%%%%%%%
 
+
 %%%%%%%%%%%%%%%%
 %% Inclusions %%
 %%%%%%%%%%%%%%%%
@@ -8,57 +9,75 @@
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_error)).
 :- use_module(library(http/html_write)).
-:- use_module(library(http/http_parameters)).   % to read Request parameters
-:- use_module(library(http/http_cors)).
+:- use_module(library(http/http_parameters)).
 :- use_module(library(http/http_files)).
-:- use_module(library(http/http_json)).         % for json
+:- use_module(library(http/http_json)).
 :- use_module(library(http/json_convert)).      
 :- use_module(jeu).
 :- use_module(ia).
-%:- use_module(ihm).
 :- use_module(eval).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Prédicats publics %%
+%%%%%%%%%%%%%%%%%%%%%%%
+
+% start/0
+% start lance le serveur sur le port 8000.
+% Est vrai lorsque le webserver est correctement démarré
+start :- serveur(8000).
+
+% serveur/1(+Port)
+% Démarre le serveur, rendant accessible l'interface web à http://localhost:"Port"
+% Est vrai lorsque le webserver est correctement démarré
+serveur(Port) :- http_server(http_dispatch, [port(Port)]).
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+%% Prédicats privés %%
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Déclarations dynamiques, multifiles et constantes de location
 :- multifile http:location/3.
 :- dynamic   http:location/3.
 http:location(files, '/f', []).
 
 
-test:- assert(jeu:case(2,1,rouge)),assert(jeu:case(2,2,rouge)),assert(jeu:case(2,3,rouge)),assert(jeu:case(2,4,jaune)),assert(jeu:case(2,5,jaune)),assert(jeu:case(2,6,jaune)).
-test2:- assert(minimax:caseTest(2,1,rouge)),assert(minimax:caseTest(2,2,rouge)),assert(minimax:caseTest(2,3,rouge)),assert(minimax:caseTest(2,4,jaune)),assert(minimax:caseTest(2,5,jaune)),assert(minimax:caseTest(2,6,jaune)).
+%%%%%%%%%%%
+%%  Routage
 
-%%%%%%%%%%%%%%%%
-%%  Routing   %%
-%%%%%%%%%%%%%%%%
-
+% Affiliation d'un prédicat/1(+Request) à une route
+% Lorsqu'une requête est récupérée sur l'une des route suivante, le prédicat correspondant est appelé.
 :- http_handler('/', helloAction, []).
 :- http_handler('/init', initAction, []).
 :- http_handler('/selectPlayers', selectionnerJoueurAction, []).
 :- http_handler('/playFromIA', tourIAAction, []).
 :- http_handler('/validHumanPlay', validerTourHumain, []).
-% this serves files from the directory assets
-% under the working directory
 :- http_handler(files(.), fichierAction, [prefix]).
 :- http_handler('/game', indexAction, []).
 
-server(Port) :-
-        http_server(http_dispatch, [port(Port)]).
 
-start :- server(8000).
+%%%%%%%%%%%
+%%  Actions
 
-% ACTIONS %
-% return the html page of the game
+% indexAction/1(+Request)
+% Affiche la page d'accueil du jeu.
+% Répond la page index.html située dans le dossier web/pages
 indexAction(Request) :-
     http_reply_from_files('web/pages', [], Request).
 indexAction(Request) :-
     http_404([], Request).    
 
-% say hello, to test if server is running
+% helloAction/1(+Request)
+% Affiche le message "Hello world".
+% Répond un message attestant du fonctionnement du serveur
 helloAction(_) :-
     format('Content-type: text/plain~n~n'),
     format('Hello world ! Server is running').
 
-% initialyze the game
-% Response : a list of the available players
+% initAction/1(+Request)
+% Initialise le jeu, son plateau et ses joueurs.
+% Répond une liste des joueurs disponibles ainsi que leur code correspondant
 initAction(_) :-
     initJeu,
     retractall(joueurCourant(_,_)),
@@ -66,19 +85,20 @@ initAction(_) :-
     findall([X,Y], typeJoueur(X,Y), Z),
     reply_json(json{correct:true, players:Z}).
 
-% serve any file from assets
+% fichierAction/1(+Request)
+% Sert les fichiers publics demandé sous l'url /f/fichier.extension.
+% Répond le fichier demandé situé dans le dossier web/assets
 fichierAction(Request) :-
     http_reply_from_files('web/assets', [], Request).
 fichierAction(Request) :-
     http_404([], Request).
 
-% set the player selected
-% Response tell what clolor has the players
+% selectionnerJoueurAction/1(+Request)
+% Récupère des parametres GET les joueurs sélectionnés les unifie les unifie à leur couleurs
+% Le joueur rouge étant le joueurCourant, c'est lui qui commencera à jouer. 
+% Répond les couleurs et le code de chaqun des joueurs
 selectionnerJoueurAction(Request) :-
-    % findall(X,typeJoueur(X,Y), TypeJoueurs),
     http_parameters(Request,
-    % oneof(TypeJoueurs) ne marche pas ....atom_number('123', X)
-    % on obtient une erreur bad request : Parameter "joueur1" must be one of "1" or "2".  Found "1"
         [ joueur1(TypeJoueurR, []),
           joueur2(TypeJoueurJ, [])
         ]),
@@ -89,6 +109,14 @@ selectionnerJoueurAction(Request) :-
     assert(autreJoueur(jaune,TypeJoueurJInteger)),
     reply_json(json{correct:true, rouge:TypeJoueurR, jaune:TypeJoueurJ}).
 
+% validerTourHumain/1(+Request)
+% Récupère des parametres GET la colonne jouées par un Humain, Vérifie la validité du coup, et le joue
+% Répond un gameStatus à "invalid" si le coup joué n'est pas valide (colonne pleine, ou hors limite), ou
+% Répond la colonne et la ligne où le jeton a pu être inséré,
+% ainsi qu'un gameStatus à
+%   "draw" si la partie se termine sur une égalité,
+%   "continue" si la partie n'est pas terminée (dans ce cas le joueur courant est changé),
+%   "win" si le coup a amené à une victoire.
 validerTourHumain(Request) :-
     http_parameters(Request,[ col(Col, [])]),
     atom_number(Col, Colonne),
@@ -100,6 +128,14 @@ validerTourHumain(Request) :-
 validerTourHumain(_) :-
     reply_json(json{correct:true, gameStatus:invalid}).
 
+% tourIAAction/1(+Request)
+% ! Le joueurCourant doit être une IA donc la manière de jouée est renseignée par le prédicat 'obtenirCoup'
+% Demande à l'IA courante de jouer un coup valide, puis place ce jeton.
+% Répond la colonne et la ligne où le jeton a pu être inséré,
+% ainsi qu'un gameStatus à
+%   "draw" si la partie se termine sur une égalité,
+%   "continue" si la partie n'est pas terminée (dans ce cas le joueur courant est changé),
+%   "win" si le coup a amené à une victoire.
 tourIAAction(_) :-
     joueurCourant(CouleurJCourant,TypeJoueur),
     obtenirCoup(CouleurJCourant,TypeJoueur,Colonne),
@@ -107,20 +143,28 @@ tourIAAction(_) :-
     statutJeu(Colonne,Ligne,CouleurJCourant, Statut),
     reply_json(json{correct:true, gameStatus:Statut, colPlayed:Colonne, rowPlayed:Ligne}).
 
-% case : win
+
+%%%%%%%%%%%%%%%
+%%  Utilitaires
+
+% statutJeu/1(+Colonne,+Ligne,+CouleurJCourant,-Statut)
+% Unifie à Statut l'état du jeu,
+% avec comme dernier coup joué : un jeton en Colonne Ligne par CouleurJCourant
+% Status s'unifie à "win" si le coup a amené à une victoire.
 statutJeu(Colonne,Ligne,CouleurJCourant, 'win') :-
     gagne(Colonne,Ligne,CouleurJCourant).
-% case : draw
+% Status s'unifie à "draw" si la partie se termine sur une égalité,
 statutJeu(_,_,_, 'draw') :-
     not(coupPossible).
-% case : continue
+% Status s'unifie à "continue" si la partie n'est pas terminée (dans ce cas le joueur courant est changé),
 statutJeu(_,_,_, 'continue') :-
     changerJoueur.
 
-% permet d'appelerles IAs pour récupérer le coup suivant
-% 2==IA aleatoire
+% obtenirCoup/1(+CouleurJCourant,+CodeIA,-Coup)
+% Unifie à Colonne le coup joué par l'IA dont le code est CodeIA
+% CodeIA == 2 :- IA aleatoire
 obtenirCoup(_,2,Coup) :-
     iaAleatoire(Coup).
-% 3==minimax
-obtenirCoup(JoueurCourant,3,Coup) :-
-    iaMinimax(JoueurCourant,Coup).
+% CodeIA == 3 :- IA Minimax
+obtenirCoup(CouleurJCourant,3,Coup) :-
+    iaMinimax(CouleurJCourant,Coup).
