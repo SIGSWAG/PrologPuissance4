@@ -203,7 +203,6 @@ gagneTest(X,Y,J,1) :-
 %%% En colonne %%%
 
 gagneColonneTest(X,Y,J) :-
-	caseTest(X,Y,J),
 	decr(Y,Y1),
 	caseTest(X,Y1,J),
 	decr(Y1,Y2),
