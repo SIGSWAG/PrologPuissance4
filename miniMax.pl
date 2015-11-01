@@ -42,7 +42,7 @@ initCaseTest.
 
 clearTest:- 
 	retractall(caseTest(X,Y,_)), 
-	retractall(feuille(X,Y)), 
+	%retractall(feuille(X,Y)), 
 	retract(maximizer(X)), retract(joueurCourant(_)). % on eve tout ce que l'on a ajouté.
 
 %Parcours
@@ -187,6 +187,7 @@ caseVideTest(X,Y) :- nonvar(X),nonvar(Y),not(caseTest(X,Y,_)).
 %%%%% CODE DUPLIQUÉ EN ATTENDANT UNE MEILLEURE SOLUTION %%%%%
 
 gagneTest(X,Y,J,V) :- %V=1 si victoire direct, 0 si indirect
+	%assert(caseTest(X,Y,J)),
 	gagneColonneTest(X,Y,J,V).
 gagneTest(X,Y,J,V) :-
 	gagneLigneTest(X,Y,J,V).
@@ -195,11 +196,32 @@ gagneTest(X,Y,J,V) :-
 gagneTest(X,Y,J,V) :-
 	gagneDiag2Test(X,Y,J,V).
 	
-testFinal(R,P,1):-
+	
+testPotentielAccumulation(X,Y,J,P,A):-
+	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
+	caseVideTest(X,Y), %Case vide
+	testPotentiel(X,Y,J,P), %Peut on la remplir au prochain coup?
+	testAccumulation(X,Y,J,A). %As-t-on accumulation?
+
+testPotentiel(X,1,J,1).	%case au niveau 1
+testPotentiel(X,Y,J,1):-
+	decr(Y,Y1),
+	caseTest(X,Y1,_).  %On peut la remplir
+testPotentiel(X,Y,J,0). %On ne peut pas la remplir
+
+
+testAccumulation(X,Y,J,1) :- gagneTestDirect(X,Y,J), sousTestAccumulation(X,Y,J). %La case est gagnante
+testAccumulation(X,Y,J,0). %Pas d'accumulation.
+
+sousTestAccumulation(X,Y,J) :- decr(Y,Y1), caseVideTest(X,Y1), gagneTestDirect(X,Y1,J). %Celle en dessous aussi
+sousTestAccumulation(X,Y,J) :- incr(Y,Y1), caseVideTest(X,Y1), gagneTestDirect(X,Y1,J). %Celle au dessus aussi
+	
+	
+testFinal(R,P,A,1):-
 	R > 2.
-testFinal(R,P,0):-
-	R==2,
-	P==2.
+testFinal(2,2,A,0):-
+testFinal(R,P,A,-1):-
+	A > 0.
 	
 
 gagneColonneTest(X,Y,J,1) :-
@@ -212,149 +234,224 @@ gagneColonneTest(X,Y,J,1) :-
 
 gagneLigneTest(X,Y,J,V) :-
 	decr(X,X1),
-	gaucheVerifTest(X1,Y,J,R1,P1),
+	gaucheVerifTest(X1,Y,J,R1,P1,A1),
 	incr(X,X2),
-	droiteVerifTest(X2,Y,J,R2,P2),
+	droiteVerifTest(X2,Y,J,R2,P2,A2),
 	!,
 	Rfin is R1+R2, 
 	Pfin is P1+P2, 
-	testFinal(Rfin,Pfin,V).
+	Afin is A1+A2,
+	testFinal(Rfin,Pfin,Afin,V).
 
 
-gaucheVerifTest(X,Y,J,Rg,Pg):- %Rg cases r�elles accumul�es, Pg cases libres sur les c�t�s (2 max)
-	gaucheTest(X,Y,J,0,Rg,0,Pg).
+gaucheVerifTest(X,Y,J,Rg,Pg,A):- %Rg cases r�elles accumul�es, Pg cases libres sur les c�t�s (2 max)
+	gaucheTest(X,Y,J,0,Rg,Pg,A).
 	
-gaucheTest(X,Y,J,R,R,P,1) :-
-	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	caseVideTest(X,Y), %Case vide � gauche
-	decr(Y,Y1),
-	caseTest(X,Y1,_).  %Et on peut la remplir
-gaucheTest(X,Y,J,R,R,P,1) :-
-	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	caseVideTest(X,Y), %Case vide � gauche
-	Y==1.   			%Et on peut la remplir
-gaucheTest(X,Y,J,R,R,P,P) :-
+gaucheTest(X,Y,J,R,R,P,A) :-
+	testPotentielAccumulation(X,Y,J,P,A). %Faux seulement si case de l'autre couleur ou si coup dépasse du tableau
+gaucheTest(X,Y,J,R,R,0,0) :-
 	not(caseTest(X,Y,J)). %Case de l'autre couleur � gauche ou fin du tableau
-gaucheTest(X,Y,J,R,Rg,P,Pg) :-
+gaucheTest(X,Y,J,R,Rg,P,A) :-
 	decr(X,X1),
 	incr(R,R1),
-	gaucheTest(X1,Y,J,R1,Rg,P,Pg).
+	gaucheTest(X1,Y,J,R1,Rg,P,A).
 
-droiteVerifTest(X,Y,J,Rg,Pg):-
-	droiteTest(X,Y,J,0,Rg,0,Pg).
+droiteVerifTest(X,Y,J,Rg,Pg,A):-
+	droiteTest(X,Y,J,0,Rg,Pg,A).
 	
-droiteTest(X,Y,J,R,R,P,1) :-
-	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	caseVideTest(X,Y), %Case vide � droite
-	decr(Y,Y1),
-	caseTest(X,Y1,_).	%Et on peut la remplir
-droiteTest(X,Y,J,R,R,P,1) :-
-	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	caseVideTest(X,Y), %Case vide � droite
-	Y==1.				%Et on peut la remplir
-droiteTest(X,Y,J,R,R,P,P) :-
+droiteTest(X,Y,J,R,R,P,A) :-
+	testPotentielAccumulation(X,Y,J,P,A). %Faux seulement si case de l'autre couleur ou si coup dépasse du tableau
+droiteTest(X,Y,J,R,R,0,0) :-
 	not(caseTest(X,Y,J)). %Case de l'autre couleur � droite 
-droiteTest(X,Y,J,R,Rg,P,Pg) :-
+droiteTest(X,Y,J,R,Rg,P,A) :-
 	incr(X,X1),
 	incr(R,R1),
-	droiteTest(X1,Y,J,R1,Rg,P,Pg).
+	droiteTest(X1,Y,J,R1,Rg,P,A).
 
 gagneDiag1Test(X,Y,J,V) :-
 	incr(Y,Y1),
 	decr(X,X1),
-	gaucheHautVerifTest(X1,Y1,J,R1,P1),
+	gaucheHautVerifTest(X1,Y1,J,R1,P1,A1),
 	decr(Y,Y2),
 	incr(X,X2),
-	droiteBasVerifTest(X2,Y2,J,R2,P2),
+	droiteBasVerifTest(X2,Y2,J,R2,P2,A2),
 	!,
-	Rfin is R1+R2, Pfin is P1+P2,
-	testFinal(Rfin,Pfin,V).
+	Rfin is R1+R2, Pfin is P1+P2, Afin is A1+A2,
+	testFinal(Rfin,Pfin,Afin,V).
 
-gaucheHautVerifTest(X,Y,J,Rg,Pg):-
-	gaucheHautTest(X,Y,J,0,Rg,0,Pg).
-gaucheHautTest(X,Y,J,R,R,P,1) :-
-	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	caseVideTest(X,Y), %Case vide en bas � gauche
-	decr(Y,Y1),
-	caseTest(X,Y1,_).  %Et on peut la remplir
-gaucheHautTest(X,Y,J,R,R,P,1) :-
-	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	caseVideTest(X,Y), %Case vide en bas � gauche
-	Y==1.   			%Et on peut la remplir
-gaucheHautTest(X,Y,J,R,R,P,P) :-
+gaucheHautVerifTest(X,Y,J,Rg,Pg,A):-
+	gaucheHautTest(X,Y,J,0,Rg,Pg,A).
+gaucheHautTest(X,Y,J,R,R,P,A) :-
+	testPotentielAccumulation(X,Y,J,P,A).  
+gaucheHautTest(X,Y,J,R,R,0,0) :-
 	not(caseTest(X,Y,J)). %Case de l'autre couleur en bas � gauche
-gaucheHautTest(X,Y,J,R,Rg,P,Pg) :-
+gaucheHautTest(X,Y,J,R,Rg,P,A) :-
 	incr(Y,Y1),
 	decr(X,X1),
 	incr(R,R1),
-	gaucheHautTest(X1,Y1,J,R1,Rg,P,Pg).
+	gaucheHautTest(X1,Y1,J,R1,Rg,P,A).
 
 
-droiteBasVerifTest(X,Y,J,Rg,Pg):-
-	droiteBasTest(X,Y,J,0,Rg,0,Pg).
-droiteBasTest(X,Y,J,R,R,P,1) :-
-	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	caseVideTest(X,Y), %Case vide en bas � droite
-	decr(Y,Y1),
-	caseTest(X,Y1,_).	%Et on peut la remplir
-droiteBasTest(X,Y,J,R,R,P,1) :-
-	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	caseVideTest(X,Y), %Case vide en bas � droite
-	Y==1.				%Et on peut la remplir
-droiteBasTest(X,Y,J,R,R,P,P) :-
+droiteBasVerifTest(X,Y,J,Rg,Pg,A):-
+	droiteBasTest(X,Y,J,0,Rg,Pg,A).
+droiteBasTest(X,Y,J,R,R,P,A) :-
+	testPotentielAccumulation(X,Y,J,P,A). 
+droiteBasTest(X,Y,J,R,R,0,0) :-
 	not(caseTest(X,Y,J)). %Case de l'autre couleur en bas � droite 
-droiteBasTest(X,Y,J,R,Rg,P,Pg) :-
+droiteBasTest(X,Y,J,R,Rg,P,A) :-
 	decr(Y,Y1),
 	incr(X,X1),
 	incr(R,R1),
-	droiteBasTest(X1,Y1,J,R1,Rg,P,Pg).
+	droiteBasTest(X1,Y1,J,R1,Rg,P,A).
 
 gagneDiag2Test(X,Y,J,V) :-
 	decr(Y,Y1),
 	decr(X,X1),
-	gaucheBasVerifTest(X1,Y1,J,R1,P1),
+	gaucheBasVerifTest(X1,Y1,J,R1,P1,A1),
 	incr(Y,Y2),
 	incr(X,X2),
-	droiteHautVerifTest(X2,Y2,J,R2,P2),
+	droiteHautVerifTest(X2,Y2,J,R2,P2,A2),
 	!,
-	Rfin is R1+R2, Pfin is P1+P2,
-	testFinal(Rfin,Pfin,V).
+	Rfin is R1+R2, Pfin is P1+P2, Afin is A1+A2,
+	testFinal(Rfin,Pfin,Afin,V).
 
-gaucheBasVerifTest(X,Y,J,Rg,Pg) :-
-	gaucheBasTest(X,Y,J,0,Rg,0,Pg).
-gaucheBasTest(X,Y,J,R,R,P,1) :-
-	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	caseVideTest(X,Y), %Case vide en bas � gauche
-	decr(Y,Y1),
-	caseTest(X,Y1,_).  %Et on peut la remplir
-gaucheBasTest(X,Y,J,R,R,P,1) :-
-	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	caseVideTest(X,Y), %Case vide en bas � gauche
-	Y==1.   			%Et on peut la remplir
-gaucheBasTest(X,Y,J,R,R,P,P) :-
+gaucheBasVerifTest(X,Y,J,Rg,Pg,A) :-
+	gaucheBasTest(X,Y,J,0,Rg,Pg,A).
+gaucheBasTest(X,Y,J,R,R,P,A) :-
+	testPotentielAccumulation(X,Y,J,P,A).
+gaucheBasTest(X,Y,J,R,R,0,0) :-
 	not(caseTest(X,Y,J)). %Case de l'autre couleur en bas � gauche
-gaucheBasTest(X,Y,J,R,Rg,P,Pg) :-
+gaucheBasTest(X,Y,J,R,Rg,P,A) :-
 	decr(Y,Y1),
 	decr(X,X1),
 	incr(R,R1),
-	gaucheBasTest(X1,Y1,J,R1,Rg,P,Pg).
+	gaucheBasTest(X1,Y1,J,R1,Rg,P,A).
 
 
-droiteHautVerifTest(X,Y,J,Rg,Pg) :-
-	droiteHautTest(X,Y,J,0,Rg,0,Pg).
-droiteHautTest(X,Y,J,R,R,P,1) :-
-	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	caseVideTest(X,Y), %Case vide en haut � droite
-	decr(Y,Y1),
-	caseTest(X,Y1,_).	%Et on peut la remplir
-droiteHautTest(X,Y,J,R,R,P,1) :-
-	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	caseVideTest(X,Y), %Case vide en haut � droite
-	Y==1.				%Et on peut la remplir
-droiteHautTest(X,Y,J,R,R,P,P) :-
+droiteHautVerifTest(X,Y,J,Rg,Pg,A) :-
+	droiteHautTest(X,Y,J,0,Rg,Pg,A).
+droiteHautTest(X,Y,J,R,R,P,A) :-
+	testPotentielAccumulation(X,Y,J,P,A). 
+droiteHautTest(X,Y,J,R,R,0,0) :-
 	not(caseTest(X,Y,J)). %Case de l'autre couleur en haut � droite 
-droiteHautTest(X,Y,J,R,Rg,P,Pg) :-
+droiteHautTest(X,Y,J,R,Rg,P,A) :-
 	incr(Y,Y1),
 	incr(X,X1),
 	incr(R,R1),
-	droiteHautTest(X1,Y1,J,R1,Rg,P,Pg).
+	droiteHautTest(X1,Y1,J,R1,Rg,P,A).
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+%%%%% gagneTestDirect %%%%%
+
+
+
+
+gagneTestDirect(X,Y,J) :-
+	gagneTestDirectLigne(X,Y,J).
+gagneTestDirect(X,Y,J) :-
+	gagneTestDirectDiag1(X,Y,J).
+gagneTestDirect(X,Y,J) :-
+	gagneTestDirectDiag2(X,Y,J).
+	
+
+%%% En ligne %%%
+
+gagneTestDirectLigne(X,Y,J) :-
+	decr(X,X1),
+	gaucheVerif(X1,Y,J,Rg),
+	incr(X,X2),
+	droiteVerif(X,Y2,J,Rd),
+	!,
+	Rf is Rg+Rd, Rf>2.
+
+gaucheVerif(X,Y,J,Rg):-
+	gauche(X,Y,J,0,Rg).
+gauche(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+gauche(X,Y,J,R,Rg) :-
+	decr(X,X1),
+	incr(R,R1),
+	gauche(X1,Y,J,R1,Rg).
+
+droiteVerif(X,Y,J,Rg):-
+	droite(X,Y,J,0,Rg).
+droite(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+droite(X,Y,J,R,Rg) :-
+	incr(X,X1),
+	incr(R,R1),
+	droite(X1,Y,J,R1,Rg).
+
+%%% En diagonale \ %%%
+
+gagneTestDirectDiag1(X,Y,J) :-
+	decr(X,X1),
+	incr(Y,Y1),
+	gaucheHautVerif(X1,Y1,J,Rg),
+	incr(X,X2),
+	decr(Y,Y2),
+	droiteBasVerif(X2,Y2,J,Rd),
+	!,
+	Rf is Rg+Rd,
+	Rf>2.
+
+gaucheHautVerif(X,Y,J,Rg):-
+	gaucheHaut(X,Y,J,0,Rg).
+gaucheHaut(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+gaucheHaut(X,Y,J,R,Rg) :-
+	incr(Y,Y1),
+	decr(X,X1),
+	incr(R,R1),
+	gaucheHaut(X1,Y1,J,R1,Rg).
+
+droiteBasVerif(X,Y,J,Rg):-
+	droiteBas(X,Y,J,0,Rg).
+droiteBas(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+droiteBas(X,Y,J,R,Rg) :-
+	decr(Y,Y1),
+	incr(X,X1),
+	incr(R,R1),
+	droiteBas(X1,Y1,J,R1,Rg).
+
+%%% En diagonale / %%%
+
+gagneTestDirectDiag2(X,Y,J) :-
+	decr(X,X1),
+	decr(Y,Y1),
+	gaucheBasVerif(X1,Y1,J,Rg),
+	incr(X,X2),
+	incr(Y,Y2),
+	droiteHautVerif(X2,Y2,J,Rd),
+	!,
+	Rf is Rg+Rd,
+	Rf>2.
+
+gaucheBasVerif(X,Y,J,Rg) :-
+	gaucheBas(X,Y,J,0,Rg).
+gaucheBas(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+gaucheBas(X,Y,J,R,Rg) :-
+	decr(Y,Y1),
+	decr(X,X1),
+	incr(R,R1),
+	gaucheBas(X1,Y1,J,R1,Rg).
+
+droiteHautVerif(X,Y,J,Rg) :-
+	droiteHaut(X,Y,J,0,Rg).
+droiteHaut(X,Y,J,R,R) :-
+	not(caseTest(X,Y,J)). %Jusqu'à la case non J
+droiteHaut(X,Y,J,R,Rg) :-
+	incr(Y,Y1),
+	incr(X,X1),
+	incr(R,R1),
+	droiteHaut(X1,Y1,J,R1,Rg).
