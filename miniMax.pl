@@ -186,175 +186,121 @@ caseVideTest(X,Y) :- nonvar(X),nonvar(Y),not(caseTest(X,Y,_)).
 
 %%%%% CODE DUPLIQUÉ EN ATTENDANT UNE MEILLEURE SOLUTION %%%%%
 
-gagneTest(X,Y,J,V) :- %V=1 si victoire direct, 0 si indirect
-	gagneColonneTest(X,Y,J,V).
-gagneTest(X,Y,J,V) :-
-	gagneLigneTest(X,Y,J,V).
-gagneTest(X,Y,J,V) :-
-	gagneDiag1Test(X,Y,J,V).
-gagneTest(X,Y,J,V) :-
-	gagneDiag2Test(X,Y,J,V).
+gagneTest(X,Y,J,1) :- %V=1 si victoire direct, 0 si indirect
+	gagneColonneTest(X,Y,J).
+gagneTest(X,Y,J,1) :-
+	gagneLigneTest(X,Y,J).
+gagneTest(X,Y,J,1) :-
+	gagneDiag1Test(X,Y,J).
+gagneTest(X,Y,J,1) :-
+	gagneDiag2Test(X,Y,J).
 	
-testFinal(R,P,1):-
-	R > 2.
-%testFinal(R,P,0):-
-%	R==2,
-%	P==2.
 	
 
-gagneColonneTest(X,Y,J,1) :-
+%%%%% gagne %%%%%
+
+
+%%% En colonne %%%
+
+gagneColonneTest(X,Y,J) :-
+	case(X,Y,J),
 	decr(Y,Y1),
-	caseTest(X,Y1,J),
+	case(X,Y1,J),
 	decr(Y1,Y2),
-	caseTest(X,Y2,J),
+	case(X,Y2,J),
 	decr(Y2,Y3),
-	caseTest(X,Y3,J). %ligne en bas
+	case(X,Y3,J). %ligne en bas
 
-gagneLigneTest(X,Y,J,V) :-
+%%% En ligne %%%
+
+gagneLigneTest(X,Y,J) :-
 	decr(X,X1),
-	gaucheVerifTest(X1,Y,J,R1,P1),
+	gaucheTestVerif(X1,Y,J,Rg),
 	incr(X,X2),
-	droiteVerifTest(X2,Y,J,R2,P2),
+	droiteTestVerif(X2,Y,J,Rd),
 	!,
-	Rfin is R1+R2, 
-	Pfin is P1+P2, 
-	testFinal(Rfin,Pfin,V).
+	Rf is Rg+Rd, Rf>2.
 
-
-gaucheVerifTest(X,Y,J,Rg,Pg):- %Rg cases r�elles accumul�es, Pg cases libres sur les c�t�s (2 max)
-	gaucheTest(X,Y,J,0,Rg,0,Pg).
-	
-% gaucheTest(X,Y,J,R,R,P,1) :-
-	% nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	% caseVideTest(X,Y), %Case vide � gauche
-	% decr(Y,Y1),
-	% caseTest(X,Y1,_).  %Et on peut la remplir
-% gaucheTest(X,Y,J,R,R,P,1) :-
-	% nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	% caseVideTest(X,Y), %Case vide � gauche
-	% Y==1.   			%Et on peut la remplir
-gaucheTest(X,Y,J,R,R,P,P) :-
-	not(caseTest(X,Y,J)). %Case de l'autre couleur � gauche ou fin du tableau
-gaucheTest(X,Y,J,R,Rg,P,Pg) :-
+gaucheTestVerif(X,Y,J,Rg):-
+	gaucheTest(X,Y,J,0,Rg).
+gaucheTest(X,Y,J,R,R) :-
+	not(case(X,Y,J)). %Jusqu'à la case non J
+gaucheTest(X,Y,J,R,Rg) :-
 	decr(X,X1),
 	incr(R,R1),
-	gaucheTest(X1,Y,J,R1,Rg,P,Pg).
+	gaucheTest(X1,Y,J,R1,Rg).
 
-droiteVerifTest(X,Y,J,Rg,Pg):-
-	droiteTest(X,Y,J,0,Rg,0,Pg).
-	
-% droiteTest(X,Y,J,R,R,P,1) :-
-	% nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	% caseVideTest(X,Y), %Case vide � droite
-	% decr(Y,Y1),
-	% caseTest(X,Y1,_).	%Et on peut la remplir
-% droiteTest(X,Y,J,R,R,P,1) :-
-	% nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	% caseVideTest(X,Y), %Case vide � droite
-	% Y==1.				%Et on peut la remplir
-droiteTest(X,Y,J,R,R,P,P) :-
-	not(caseTest(X,Y,J)). %Case de l'autre couleur � droite 
-droiteTest(X,Y,J,R,Rg,P,Pg) :-
+droiteTestVerif(X,Y,J,Rg):-
+	droiteTest(X,Y,J,0,Rg).
+droiteTest(X,Y,J,R,R) :-
+	not(case(X,Y,J)). %Jusqu'à la case non J
+droiteTest(X,Y,J,R,Rg) :-
 	incr(X,X1),
 	incr(R,R1),
-	droiteTest(X1,Y,J,R1,Rg,P,Pg).
+	droiteTest(X1,Y,J,R1,Rg).
 
-gagneDiag1Test(X,Y,J,V) :-
-	incr(Y,Y1),
+%%% En diagonale \ %%%
+
+gagneDiag1Test(X,Y,J) :-
 	decr(X,X1),
-	gaucheHautVerifTest(X1,Y1,J,R1,P1),
+	incr(Y,Y1),
+	gaucheTestHautVerif(X1,Y1,J,Rg),
+	incr(X,X2),
 	decr(Y,Y2),
-	incr(X,X2),
-	droiteBasVerifTest(X2,Y2,J,R2,P2),
+	droiteTestBasVerif(X2,Y2,J,Rd),
 	!,
-	Rfin is R1+R2, Pfin is P1+P2,
-	testFinal(Rfin,Pfin,V).
+	Rf is Rg+Rd,
+	Rf>2.
 
-gaucheHautVerifTest(X,Y,J,Rg,Pg):-
-	gaucheHautTest(X,Y,J,0,Rg,0,Pg).
-% gaucheHautTest(X,Y,J,R,R,P,1) :-
-	% nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	% caseVideTest(X,Y), %Case vide en bas � gauche
-	% decr(Y,Y1),
-	% caseTest(X,Y1,_).  %Et on peut la remplir
-% gaucheHautTest(X,Y,J,R,R,P,1) :-
-	% nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	% caseVideTest(X,Y), %Case vide en bas � gauche
-	% Y==1.   			%Et on peut la remplir
-gaucheHautTest(X,Y,J,R,R,P,P) :-
-	not(caseTest(X,Y,J)). %Case de l'autre couleur en bas � gauche
-gaucheHautTest(X,Y,J,R,Rg,P,Pg) :-
+gaucheTestHautVerif(X,Y,J,Rg):-
+	gaucheTestHaut(X,Y,J,0,Rg).
+gaucheTestHaut(X,Y,J,R,R) :-
+	not(case(X,Y,J)). %Jusqu'à la case non J
+gaucheTestHaut(X,Y,J,R,Rg) :-
 	incr(Y,Y1),
 	decr(X,X1),
 	incr(R,R1),
-	gaucheHautTest(X1,Y1,J,R1,Rg,P,Pg).
+	gaucheTestHaut(X1,Y1,J,R1,Rg).
 
-
-droiteBasVerifTest(X,Y,J,Rg,Pg):-
-	droiteBasTest(X,Y,J,0,Rg,0,Pg).
-% droiteBasTest(X,Y,J,R,R,P,1) :-
-	% nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	% caseVideTest(X,Y), %Case vide en bas � droite
-	% decr(Y,Y1),
-	% caseTest(X,Y1,_).	%Et on peut la remplir
-% droiteBasTest(X,Y,J,R,R,P,1) :-
-	% nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	% caseVideTest(X,Y), %Case vide en bas � droite
-	% Y==1.				%Et on peut la remplir
-droiteBasTest(X,Y,J,R,R,P,P) :-
-	not(caseTest(X,Y,J)). %Case de l'autre couleur en bas � droite 
-droiteBasTest(X,Y,J,R,Rg,P,Pg) :-
+droiteTestBasVerif(X,Y,J,Rg):-
+	droiteTestBas(X,Y,J,0,Rg).
+droiteTestBas(X,Y,J,R,R) :-
+	not(case(X,Y,J)). %Jusqu'à la case non J
+droiteTestBas(X,Y,J,R,Rg) :-
 	decr(Y,Y1),
 	incr(X,X1),
 	incr(R,R1),
-	droiteBasTest(X1,Y1,J,R1,Rg,P,Pg).
+	droiteTestBas(X1,Y1,J,R1,Rg).
 
-gagneDiag2Test(X,Y,J,V) :-
-	decr(Y,Y1),
+%%% En diagonale / %%%
+
+gagneDiag2Test(X,Y,J) :-
 	decr(X,X1),
-	gaucheBasVerifTest(X1,Y1,J,R1,P1),
+	decr(Y,Y1),
+	gaucheTestBasVerif(X1,Y1,J,Rg),
+	incr(X,X2),
 	incr(Y,Y2),
-	incr(X,X2),
-	droiteHautVerifTest(X2,Y2,J,R2,P2),
+	droiteTestHautVerif(X2,Y2,J,Rd),
 	!,
-	Rfin is R1+R2, Pfin is P1+P2,
-	testFinal(Rfin,Pfin,V).
+	Rf is Rg+Rd,
+	Rf>2.
 
-gaucheBasVerifTest(X,Y,J,Rg,Pg) :-
-	gaucheBasTest(X,Y,J,0,Rg,0,Pg).
-% gaucheBasTest(X,Y,J,R,R,P,1) :-
-	% nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	% caseVideTest(X,Y), %Case vide en bas � gauche
-	% decr(Y,Y1),
-	% caseTest(X,Y1,_).  %Et on peut la remplir
-% gaucheBasTest(X,Y,J,R,R,P,1) :-
-	% nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	% caseVideTest(X,Y), %Case vide en bas � gauche
-	% Y==1.   			%Et on peut la remplir
-gaucheBasTest(X,Y,J,R,R,P,P) :-
-	not(caseTest(X,Y,J)). %Case de l'autre couleur en bas � gauche
-gaucheBasTest(X,Y,J,R,Rg,P,Pg) :-
+gaucheTestBasVerif(X,Y,J,Rg) :-
+	gaucheTestBas(X,Y,J,0,Rg).
+gaucheTestBas(X,Y,J,R,R) :-
+	not(case(X,Y,J)). %Jusqu'à la case non J
+gaucheTestBas(X,Y,J,R,Rg) :-
 	decr(Y,Y1),
 	decr(X,X1),
 	incr(R,R1),
-	gaucheBasTest(X1,Y1,J,R1,Rg,P,Pg).
+	gaucheTestBas(X1,Y1,J,R1,Rg).
 
-
-droiteHautVerifTest(X,Y,J,Rg,Pg) :-
-	droiteHautTest(X,Y,J,0,Rg,0,Pg).
-% droiteHautTest(X,Y,J,R,R,P,1) :-
-	% nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	% caseVideTest(X,Y), %Case vide en haut � droite
-	% decr(Y,Y1),
-	% caseTest(X,Y1,_).	%Et on peut la remplir
-% droiteHautTest(X,Y,J,R,R,P,1) :-
-	% nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
-	% caseVideTest(X,Y), %Case vide en haut � droite
-	% Y==1.				%Et on peut la remplir
-droiteHautTest(X,Y,J,R,R,P,P) :-
-	not(caseTest(X,Y,J)). %Case de l'autre couleur en haut � droite 
-droiteHautTest(X,Y,J,R,Rg,P,Pg) :-
+droiteTestHautVerif(X,Y,J,Rg) :-
+	droiteTestHaut(X,Y,J,0,Rg).
+droiteTestHaut(X,Y,J,R,R) :-
+	not(case(X,Y,J)). %Jusqu'à la case non J
+droiteTestHaut(X,Y,J,R,Rg) :-
 	incr(Y,Y1),
 	incr(X,X1),
 	incr(R,R1),
-	droiteHautTest(X1,Y1,J,R1,Rg,P,Pg).
+	droiteTestHaut(X1,Y1,J,R1,Rg).
