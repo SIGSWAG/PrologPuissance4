@@ -11,7 +11,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- dynamic caseTest/3.
-:- dynamic cestMort/1.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
@@ -203,13 +203,13 @@ gagneTest(X,Y,J,1) :-
 %%% En colonne %%%
 
 gagneColonneTest(X,Y,J) :-
-	case(X,Y,J),
+	caseTest(X,Y,J),
 	decr(Y,Y1),
-	case(X,Y1,J),
+	caseTest(X,Y1,J),
 	decr(Y1,Y2),
-	case(X,Y2,J),
+	caseTest(X,Y2,J),
 	decr(Y2,Y3),
-	case(X,Y3,J). %ligne en bas
+	caseTest(X,Y3,J). %ligne en bas
 
 %%% En ligne %%%
 
@@ -224,7 +224,7 @@ gagneLigneTest(X,Y,J) :-
 gaucheTestVerif(X,Y,J,Rg):-
 	gaucheTest(X,Y,J,0,Rg).
 gaucheTest(X,Y,J,R,R) :-
-	not(case(X,Y,J)). %Jusqu'à la case non J
+	not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
 gaucheTest(X,Y,J,R,Rg) :-
 	decr(X,X1),
 	incr(R,R1),
@@ -233,7 +233,7 @@ gaucheTest(X,Y,J,R,Rg) :-
 droiteTestVerif(X,Y,J,Rg):-
 	droiteTest(X,Y,J,0,Rg).
 droiteTest(X,Y,J,R,R) :-
-	not(case(X,Y,J)). %Jusqu'à la case non J
+	not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
 droiteTest(X,Y,J,R,Rg) :-
 	incr(X,X1),
 	incr(R,R1),
@@ -255,7 +255,7 @@ gagneDiag1Test(X,Y,J) :-
 gaucheTestHautVerif(X,Y,J,Rg):-
 	gaucheTestHaut(X,Y,J,0,Rg).
 gaucheTestHaut(X,Y,J,R,R) :-
-	not(case(X,Y,J)). %Jusqu'à la case non J
+	not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
 gaucheTestHaut(X,Y,J,R,Rg) :-
 	incr(Y,Y1),
 	decr(X,X1),
@@ -265,7 +265,7 @@ gaucheTestHaut(X,Y,J,R,Rg) :-
 droiteTestBasVerif(X,Y,J,Rg):-
 	droiteTestBas(X,Y,J,0,Rg).
 droiteTestBas(X,Y,J,R,R) :-
-	not(case(X,Y,J)). %Jusqu'à la case non J
+	not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
 droiteTestBas(X,Y,J,R,Rg) :-
 	decr(Y,Y1),
 	incr(X,X1),
@@ -288,7 +288,7 @@ gagneDiag2Test(X,Y,J) :-
 gaucheTestBasVerif(X,Y,J,Rg) :-
 	gaucheTestBas(X,Y,J,0,Rg).
 gaucheTestBas(X,Y,J,R,R) :-
-	not(case(X,Y,J)). %Jusqu'à la case non J
+	not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
 gaucheTestBas(X,Y,J,R,Rg) :-
 	decr(Y,Y1),
 	decr(X,X1),
@@ -298,7 +298,7 @@ gaucheTestBas(X,Y,J,R,Rg) :-
 droiteTestHautVerif(X,Y,J,Rg) :-
 	droiteTestHaut(X,Y,J,0,Rg).
 droiteTestHaut(X,Y,J,R,R) :-
-	not(case(X,Y,J)). %Jusqu'à la case non J
+	not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
 droiteTestHaut(X,Y,J,R,Rg) :-
 	incr(Y,Y1),
 	incr(X,X1),
