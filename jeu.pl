@@ -8,7 +8,8 @@
 	case/3,
 	coupValide/1,
 	typeJoueur/2,
-	changerJoueur/0
+	changerJoueur/0,
+	insererJeton/3
 ]).
 
 :- use_module(util).
