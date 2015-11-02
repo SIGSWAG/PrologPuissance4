@@ -18,4 +18,4 @@ iaAleatoire(Coup) :-
 	iaAleatoire(Coup).
 
 iaMinimax(JoueurCourant,Coup) :-
-	parcoursArbre(JoueurCourant,3,Coup,_).
+	parcoursArbre(JoueurCourant,4,Coup,_).

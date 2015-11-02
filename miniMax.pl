@@ -93,6 +93,13 @@ parcours(X, P, Pmax, L, Beta, Alpha) :- incr(P, P1),joueurCourant(Joue), placerJ
 	setJoueur(P1), %on change de joueur
 	assert(feuille(L,Valeur)),joueurCourant(_). %on met notre feuille calculée
 
+
+	
+evaluate(X,Y,Joueur,Score) :-
+	evaluation(test1),
+	ennemi(Joueur,AutreJoueur),
+	evalTest1(X,Score).
+		
 evaluate(X,Y,Joueur,Score) :-
 	ennemi(Joueur,AutreJoueur),
 	evalJeu(Joueur,AutreJoueur,X,Y,Score).
