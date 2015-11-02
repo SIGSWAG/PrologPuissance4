@@ -35,10 +35,12 @@ evalJeu(JoueurCourant,_,X,Y,Score):-
 donneScore(J,V,S):-
 	infiniteNeg(V,S).
 	
-evalJeu(JoueurCourant,_,_,_,Score) :-
-	evalPosition(JoueurCourant,Score).
-	%evalPuissances3(JoueurCourant,AutreJoueur,Score).
-	%evalAdjacence(JoueurCourant,Score).
+evalJeu(JoueurCourant,AutreJoueur,_,_,Score) :-
+	evalPosition(JoueurCourant,Score1),
+	%% evalPuissances3(JoueurCourant,AutreJoueur,Score2),
+	evalAdjacence(JoueurCourant,Score3),
+	Score2=0,
+	Score is Score1+Score2+Score3*15.
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
@@ -70,7 +72,7 @@ evalCase(X,Y,Courant,ScoreCase) :-
 ponderationJ(X, Y, Courant, 1) :-
 	caseTest(X,Y,Courant), !.
 ponderationJ(X, Y, _, 0) :-
-	caseVide(X,Y), !.
+	caseVideTest(X,Y), !.
 ponderationJ(_, _, _, -1).
 
 %%%%%%%%%%%%%%%%%%%%
@@ -86,9 +88,9 @@ evalPuissances3(JoueurCourant,AutreJoueur,ScoreFinal) :-
 evalCasesVides(Joueur,ScoreCase) :-
 	nbColonnes(NBCOLONNES), nbLignes(NBLIGNES),
 	between(1,NBCOLONNES,X), between(1,NBLIGNES,Y),
-	caseVide(X,Y),
+	caseVideTest(X,Y),
 	assert(caseTest(X,Y,Joueur)),
-	(gagneTest(X,Y,Joueur) -> ScoreCase = 1 ; ScoreCase = 0),
+	(gagneTest(X,Y,Joueur,1) -> ScoreCase = 20 ; ScoreCase = 0),
 	retract(caseTest(X,Y,Joueur)).
 
 % --------- DEPRECATED ------------
