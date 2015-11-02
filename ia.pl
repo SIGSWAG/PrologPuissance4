@@ -1,5 +1,5 @@
 %%%%%%%%%%%% ia.pl %%%%%%%%%%%%
-:- module(ia, [iaAleatoire/1, iaMinimax/2]).
+:- module(ia, [iaAleatoire/1, iaMinimax3/2, iaMinimax4/2, iaMinimax5/2]).
 
 :- use_module(jeu).
 :- use_module(util).
@@ -17,5 +17,11 @@ iaAleatoire(Coup) :-
 iaAleatoire(Coup) :-
 	iaAleatoire(Coup).
 
-iaMinimax(JoueurCourant,Coup) :-
+iaMinimax3(JoueurCourant,Coup) :-
 	parcoursArbre(JoueurCourant,3,Coup,_).
+
+iaMinimax4(JoueurCourant,Coup) :-
+	parcoursArbre(JoueurCourant,4,Coup,_).
+
+iaMinimax5(JoueurCourant,Coup) :-
+	parcoursArbre(JoueurCourant,5,Coup,_).
