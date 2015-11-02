@@ -15,8 +15,6 @@
 :- use_module(util).
 
 :- dynamic case/3.
-:- dynamic joueurCourant/2.
-:- dynamic autreJoueur/2.
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%

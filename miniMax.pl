@@ -99,10 +99,10 @@ parcours(X, P, Pmax, L, Beta, Alpha) :- incr(P, P1),joueurCourant(Joue), placerJ
 
 
 	
-evaluate(X,Y,Joueur,Score) :-
-	evaluation(test1),
-	ennemi(Joueur,AutreJoueur),
-	evalTest1(X,Score).
+%evaluate(X,Y,Joueur,Score) :-
+	%evaluation(test1),
+%	ennemi(Joueur,AutreJoueur),
+%	evalTest1(X,Score).
 		
 evaluate(X,Y,Joueur,Score) :-
 	ennemi(Joueur,AutreJoueur),
