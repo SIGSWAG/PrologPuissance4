@@ -14,6 +14,8 @@
 :- use_module(util).
 
 :- dynamic case/3.
+:- dynamic joueurCourant/2.
+:- dynamic autreJoueur/2.
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
@@ -52,8 +54,8 @@ initJeu :-
 	initClear.
 
 % coupPossible/0
-% verifie si l on peut encore joueur
-% vrai si il reste des coups valides, faux sinon
+% Vérifie si l'on peut encore joueur.
+% Vrai s'il reste des coups valides, faux sinon
 coupPossible :-
 	nbColonnes(NBCOLLONNES),
 	between(1,NBCOLLONNES,X),
@@ -62,8 +64,8 @@ coupPossible :-
 %%% Vérification de la victoire 
 
 % gagne/3(+colonne, +ligne, +joueur)
-% vérifie si le coup est gagnant pour joueur
-% retourne yes si gagnant ou no sinon
+% Vérifie si le coup est gagnant pour joueur.
+% Vrai si gagnant.
 gagne(X,Y,J) :-
 	gagneColonne(X,Y,J).
 gagne(X,Y,J) :-
