@@ -4,17 +4,25 @@
 %% Inclusions %%
 %%%%%%%%%%%%%%%%
 
-:- module(eval, [evalJeu/5]).
+:- module(eval, [evalJeu/5,evalTest1/2]).
 
 :- use_module(util).
 :- use_module(jeu).
 :- use_module(miniMax). % pour caseTest, peut-être à changer
-
 :- use_module(library(random)).
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
+
+evalTest1(1,-3).
+evalTest1(2,-4).
+evalTest1(3,5).
+evalTest1(4,10).
+evalTest1(5,9).
+evalTest1(6,-5).
+evalTest1(7,8).
+
 
 % evalJeu/5(+JoueurCourant, +AutreJoueur, +X, +Y, -Score)
 % Evalue la situation courante pour le joueur JoueurCourant étant donné que le dernier coup joué fut joué en (X,Y).
