@@ -54,13 +54,17 @@ t_changer_joueur1 :-
 	assert(joueurCourant(rouge, 1)),
 	assert(autreJoueur(jaune, 2)),
 	changerJoueur,
-	joueurCourant(jaune, 2).
+	joueurCourant(jaune, 2),
+	retractall(joueurCourant(_,_)),
+	retractall(autreJoueur(_,_)).
 
 t_changer_joueur2 :-
 	assert(joueurCourant(jaune, 3)),
 	assert(autreJoueur(rouge, 1)),
 	changerJoueur,
-	joueurCourant(rouge, 1).
+	joueurCourant(rouge, 1),
+	retractall(joueurCourant(_,_)),
+	retractall(autreJoueur(_,_)).
 
 %%%%% Tests coup valide (coupValide) %%%%%
 	
@@ -116,8 +120,3 @@ t_inserer_jeton2 :-
 	case(1,2, rouge),
 	case(2,1, jaune),
 	retractall(case(_,_,_)).	
-	
-	
-
-	
->>>>>>> 5a79dfe66487833590c17ab4fa20597d8d180a43
