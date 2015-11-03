@@ -139,7 +139,13 @@ parcours(X, P, Pmax, L, Beta, Alpha) :- incr(P, P1),joueurCourant(Joue), placerJ
 
 evaluate(X,Y,Joueur,Score) :-
 	ennemi(Joueur,AutreJoueur),
-	evalJeu(Joueur,AutreJoueur,X,Y,Score).
+	evalJeu(Joueur,AutreJoueur,X,Y,Score1),
+	minOuMax(Joueur,Score1,Score).
+	
+minOuMax(Joueur,Score,-Score):- %minimizer
+	not(maximizer(Joueur)).
+minOuMax(Joueur,Score,Score). %maximizer
+	
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% élagage alpha beta% %%
