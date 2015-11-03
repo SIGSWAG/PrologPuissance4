@@ -8,6 +8,7 @@
 
 :- use_module(util).
 :- use_module(jeu).
+:- use_module(ia).
 :- use_module(miniMax). % pour caseTest, peut-être à changer
 :- use_module(library(random)).
 
@@ -31,17 +32,19 @@ evalTest1(7,8).
 evalJeu(JoueurCourant,AutreJoueur,X,Y,Score) :-
 	assert(caseTest(X,Y,JoueurCourant)),
 	assert(ennemiTest(AutreJoueur)),
-	%%evalPosition(JoueurCourant,Score1),
-	evalPuissances3(JoueurCourant,AutreJoueur,Score2),
-	%% densite(JoueurCourant,Score3),
-	%% evalAdjacence(X,Y,Joueur,Score4),
+	poidsPuissance3(PoidsPuissance3), poidsPosition(PoidsPosition), poidsDensite(PoidsDensite), poidsAdjacence(PoidsAdjacence),
+	evalPosition(JoueurCourant,Score1,PoidsPosition),
+	evalPuissances3(JoueurCourant,AutreJoueur,Score2,PoidsPuissance3),
+	densite(JoueurCourant,Score3,PoidsDensite),    %% non testé
+	evalAdjacence(X,Y,Joueur,Score4, PoidsAdjacence), %% non testé
 	retract(caseTest(X,Y,JoueurCourant)),
 	retract(ennemiTest(AutreJoueur)),
-	Score1=0,
-	Score3=0,
-	Score4=0,
 	random_between(-2,2,Perturbation),
-	Score is Score1+Score2+Score3+Score4+Perturbation.
+	Score is Score1*PoidsPosition 
+			+Score2*PoidsPuissance3
+			+Score3
+			+Score4
+			+Perturbation.
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
@@ -51,13 +54,15 @@ evalJeu(JoueurCourant,AutreJoueur,X,Y,Score) :-
 % Evalue en privilégiant les positions centrales.
 % renvoie un score entre -400 et 400
 % Toujours vrai.
-evalPosition(Courant,Score) :-
+evalPosition(Courant,Score,PoidsPosition) :-
+	PoidsPosition>0,
 	assert(nbCasesPleines(0)),
 	findall(S, evalCases(Courant,S), Scores),
 	sum(Scores, ScoreTot),
 	nbCasesPleines(NbCasesPleinesFinal),
 	retract(nbCasesPleines(NbCasesPleinesFinal)),
 	Score is ScoreTot / NbCasesPleinesFinal.
+evalPosition(_,0,_).
 
 evalCases(Courant,ScoreCase) :-
 	caseTest(X,Y,_),
@@ -92,10 +97,12 @@ ponderationJ(_,_,_,0).
 % evalPuissances3/3(+JoueurCourant,+AutreJoueur,-Score)
 % Évalue en cherchant les positions faisant gagner.
 % ScoreFinal s unifie au score de la position.
-evalPuissances3(JoueurCourant,AutreJoueur,ScoreFinal) :-
+evalPuissances3(JoueurCourant,AutreJoueur,ScoreFinal,PoidsPuissance3) :-
+	PoidsPuissance3>0,
 	findall(S,evalCasesVides(JoueurCourant,S),ScoresCourant), sum(ScoresCourant,ScoreCourant),
 	findall(S,evalCasesVides(AutreJoueur,S),ScoresAutre), sum(ScoresAutre,ScoreAutre),
 	ScoreFinal is ScoreCourant - ScoreAutre.
+evalPuissances3(_,_,0,_).
 
 evalCasesVides(Joueur,ScoreCase) :-
 	nbColonnes(NBCOLONNES), nbLignes(NBLIGNES),
@@ -127,7 +134,8 @@ aDesVoisins(X,Y,Joueur) :- decr(X,X1),incr(Y,Y1),caseTest(X1,Y1,Joueur).
 %est entoure de pions amis
 % Toujours vrai
 
-evalAdjacence(X,Y,Joueur,Note) :- aggregate_all(count,caseAdjacente(X,Y,Joueur,_,_),N), pow(N,2,Note).
+evalAdjacence(X,Y,Joueur,Note,PoidsAdjacence) :- PoidsAdjacence>0, aggregate_all(count,caseAdjacente(X,Y,Joueur,_,_),N), pow(N,2,Note).
+evalAdjacence(_,_,_,0,_).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %			HEURISTIQUE PAR DENSITE DE PION ~
@@ -138,7 +146,8 @@ evalAdjacence(X,Y,Joueur,Note) :- aggregate_all(count,caseAdjacente(X,Y,Joueur,_
 % densite (+Joueur,-Note)
 % Donne une note d autant plus elevee que les pions sont groupes
 % Toujours vrai
-densite(J,Note) :- Z is 1, calculNbPoints(J,Z,Note).
+densite(J,Note,PoidsDensite) :- PoidsDensite>0, Z is 1, calculNbPoints(J,Z,Note).
+densite(_,0,_).
 calculNbPoints(J,Z,Note) :- Z>6, Note is 0.
 calculNbPoints(J,Z,Note) :- nbPointsZone(J,Z,N), incr(Z,ZP), calculNbPoints(J,ZP,NP), Note is N+NP.
 nbPointsZone(J,Z,NbPoints) :- nbPionsZone(J,Z,N), pow(N,2,NbPoints).
@@ -157,120 +166,6 @@ zone(4,X,Y) :- X > 4, Y > 3.
 zone(5,X,Y) :- X = 4, Y > 3.
 zone(6,X,Y) :- X =<3, Y > 3.
 
-<<<<<<< HEAD
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%			DETERMINATION COUP GAGNANT (BIS)
-%		  RECHERCHE D EXTREMITES DE SEQUENCES
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% coupGagnant (+X,+Y,+joueur)
-% Determine si le coup joue immediatement avant est gagnant ou non en fonction du pion (X,Y) joue
-% Vrai pour un coup gagnant, faux sinon
-
-coupGagnant(X,Y,Joueur)	:- rechercheExtremite(X,Y,Xextr,Yextr,1,Joueur), pionsSuccessifs(Xextr,Yextr,Joueur,5, Npions), Npions > 3.
-coupGagnant(X,Y,Joueur) :- rechercheExtremite(X,Y,Xextr,Yextr,2,Joueur), pionsSuccessifs(Xextr,Yextr,Joueur,6, Npions), Npions > 3.
-coupGagnant(X,Y,Joueur)	:- rechercheExtremite(X,Y,Xextr,Yextr,3,Joueur), pionsSuccessifs(Xextr,Yextr,Joueur,7, Npions), Npions > 3.
-coupGagnant(X,Y,Joueur) :- rechercheExtremite(X,Y,Xextr,Yextr,4,Joueur), pionsSuccessifs(Xextr,Yextr,Joueur,8, Npions), Npions > 3.
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% pionsSuccessifs (+X,+Y,+joueur,+direction,?nbPionsSuccessifs).
-% Donne le nombre de pions successifs trouves dans une direction donnee (de 1 a 8)
-% Toujours vrai
-
-pionsSuccessifs(X,Y,Joueur,Direction,1) :- nwCoord(X,Y,Direction,Xn,Yn),not(caseTest(Xn,Yn,Joueur)).
-pionsSuccessifs(X,Y,Joueur,Direction,NbPionsTrouves) :- nwCoord(X,Y,Direction,Xn,Yn),caseTest(Xn,Yn,Joueur),
-														pionsSuccessifs(Xn,Yn,Joueur,Direction,NbP),
-														incr(NbP,NbPionsTrouves).
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% rechercheExtremite(+Xcourant,+Ycourant,-Xextremite,-Yextremite,+Direction,+Joueur)
-% Donne en fonction d un point de depart Xc,Yc, la position du dernier pion de la couleur du joueur dans une direction
-% Toujours vrai
-
-rechercheExtremite(Xextr,Yextr,Xextr,Yextr,Dir,Joueur) :- nwCoord(Xextr,Yextr,Dir,Xh,Yh),not(caseTest(Xh,Yh,Joueur)).
-rechercheExtremite(Xcurr,Ycurr,Xextr,Yextr,Dir,Joueur) :- nwCoord(Xcurr,Ycurr,Dir,Xn,Yn),caseTest(Xn,Yn,Joueur),rechercheExtremite(Xn,Yn,Xextr,Yextr,Dir,Joueur).
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% nwCoord (+Xold,+Yold,+Direction,-Xnew,-Ynew)
-% Donne les nouvelles coordonnees en fonction de la Direction
-% Direction (avec l ancien au milieu)
-%	- - - - -
-%	- 4 3 2 -
-% 	- 5 X 1 -
-%	- 6 7 8 -
-%	- - - - -
-
-nwCoord(X,Y,1,Xn,Yn) :- Yn is Y, incr(X,Xn).
-nwCoord(X,Y,2,Xn,Yn) :- incr(X,Xn), incr(Y,Yn).
-nwCoord(X,Y,3,Xn,Yn) :- Xn is X, incr(Y,Yn).
-nwCoord(X,Y,4,Xn,Yn) :- decr(X,Xn), incr(Y,Yn).
-nwCoord(X,Y,5,Xn,Yn) :- Yn is Y, decr(X,Xn).
-nwCoord(X,Y,6,Xn,Yn) :- decr(X,Xn), decr(Y,Yn).
-nwCoord(X,Y,7,Xn,Yn) :- Xn is X, decr(Y,Yn).
-nwCoord(X,Y,8,Xn,Yn) :- incr(X,Xn), decr(Y,Yn).
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% invertDirection(+oldDir,-newDir)
-% Inverse la direction en chargeant dans newDir la nouvelle direction
-% Toujours vrai
-%invertDirection(Od,Nd) :- Nd is Od+(4^(-Od/5)).
-
-invertDirection(Od,Nd) :- Od < 5, Nd is Od+4.
-invertDirection(Od,Nd) :- Od >=5, Nd is Od-4.
-
-%# caseTest(1,1,jaune).
-%#  caseTest(1,2,rouge).
-%#  caseTest(1,3,rouge).
-%#  caseTest(1,4,rouge).
-
-%#  caseTest(2,1,rouge).
-%#  caseTest(2,2,jaune).
-%#  caseTest(2,3,rouge).
-%#  caseTest(2,4,jaune).
-%#
-%#  caseTest(3,1,jaune).
-%#  caseTest(3,2,rouge).
-%#  caseTest(3,3,jaune).
-%#  caseTest(3,4,rouge).
-
-%#  caseTest(4,1,rouge).
-%#  caseTest(4,2,rouge).
-%#  caseTest(4,3,jaune).
-%#  caseTest(4,4,jaune).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% caseAdjacente(+XcaseActuelle,+YcaseActuelle,
-%				?CouleurCaseAdjacente,
-%				-XcaseAdjacente,-YcaseAdjacente)
-% Donne toutes les cases adjacentes a la case envoyee en coordonnees
-% Vrai si il existe des cases adjacentes
-
-caseAdjacente(X,Y,J,Xn,Yn) :- nwCoord(X,Y,_,Xn,Yn),caseTest(Xn,Yn,J).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% caseAmie(+X,+Y,-Xn,-Yn)
-% Cases amies autour de la case envoyee en param
-% Vrai si il existe des cases amies
-
-caseAmie(X,Y,Xn,Yn) :- caseTest(X,Y,J), caseAdjacente(X,Y,J,Xn,Yn).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% caseEnnemie(+X,+Y,-Xn,-Yn)
-% Cases amies autour de la case envoyee en param
-% Vrai si il existe des cases ennemies
-
-caseEnnemie(X,Y,Xn,Yn) :- caseTest(X,Y,J), ennemi(J,E), caseAdjacente(X,Y,E,Xn,Yn).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 gagneTest(X,Y,J,V) :- %V=1 si victoire direct, 0 si indirect
@@ -425,8 +320,6 @@ droiteHautTest(X,Y,J,P,A) :-
 %%%%% gagneTestDirect %%%%%
 
 
-
-
 gagneTestDirect(X,Y,J) :-
 	gagneTestDirectLigne(X,Y,J).
 gagneTestDirect(X,Y,J) :-
@@ -528,10 +421,7 @@ droiteHaut(X,Y,J,R,Rg) :-
 	incr(X,X1),
 	incr(R,R1),
 	droiteHaut(X1,Y1,J,R1,Rg).
-	
-	
-=======
->>>>>>> bfff2e64142b40b32a4e20dcd63610fd0621aed4
+
 %%%%%%% caseVideTest %%%%%
 % caseVideTest(+X,+Y)
 % vrai si la case X,Y est vide

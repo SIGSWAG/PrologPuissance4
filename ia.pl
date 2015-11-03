@@ -1,9 +1,20 @@
 %%%%%%%%%%%% ia.pl %%%%%%%%%%%%
-:- module(ia, [iaAleatoire/1, iaMinimax3/2, iaMinimax4/2, iaMinimax5/2]).
+:- module(ia, [iaAleatoire/1
+				,iaMinimax/7
+				,poidsPuissance3/1
+				,poidsPosition/1
+				,poidsDensite/1
+				,poidsAdjacence/1]
+	).
 
 :- use_module(jeu).
 :- use_module(util).
 :- use_module(miniMax).
+
+:- dynamic poidsPuissance3/1.
+:- dynamic poidsPosition/1.
+:- dynamic poidsDensite/1.
+:- dynamic poidsAdjacence/1.
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
@@ -17,11 +28,9 @@ iaAleatoire(Coup) :-
 iaAleatoire(Coup) :-
 	iaAleatoire(Coup).
 
-iaMinimax3(JoueurCourant,Coup) :-
-	parcoursArbre(JoueurCourant,3,Coup,_).
-
-iaMinimax4(JoueurCourant,Coup) :-
-	parcoursArbre(JoueurCourant,4,Coup,_).
-
-iaMinimax5(JoueurCourant,Coup) :-
-	parcoursArbre(JoueurCourant,5,Coup,_).
+iaMinimax(JoueurCourant,Coup,Profondeur,PoidsPosition,PoidsPuissance3,PoidsDensite,PoidsAdjacence) :-
+	assert(poidsPosition(PoidsPosition)),
+	assert(poidsPuissance3(PoidsPuissance3)),
+	assert(poidsDensite(PoidsDensite)),
+	assert(poidsAdjacence(PoidsAdjacence)),
+	parcoursArbre(JoueurCourant,Profondeur,Coup,_).
