@@ -26,8 +26,8 @@
 nbLignes(6).
 nbColonnes(7).
 
-infinitePos(10000).
-infiniteNeg(-10000).
+infinitePos(10005).
+infiniteNeg(-10005).
 
 infinitePos(X,Rep):- Rep is X+10000.
 infiniteNeg(X,Rep):- Rep is -10000-X.
