@@ -93,13 +93,13 @@ testDefaiteProchaine(J):-
 	calculPositionJeton(7,1,Y7), not(gagneTestDirect(7,Y7,J)).
 	
 testDefaiteAnticipeeProchaine(J):- 
-	calculPositionJeton(1,1,Y1), not(gagneTest(1,Y1,J,V1), V1>=0),
-	calculPositionJeton(2,1,Y2), not(gagneTest(2,Y2,J,V2), V2>=0),
-	calculPositionJeton(3,1,Y3), not(gagneTest(3,Y3,J,V3), V3>=0),
-	calculPositionJeton(4,1,Y4), not(gagneTest(4,Y4,J,V4), V4>=0),
-	calculPositionJeton(5,1,Y5), not(gagneTest(5,Y5,J,V5), V5>=0),
-	calculPositionJeton(6,1,Y6), not(gagneTest(6,Y6,J,V6), V6>=0),
-	calculPositionJeton(7,1,Y7), not(gagneTest(7,Y7,J,V7), V7>=0).
+	calculPositionJeton(1,1,Y1), not((gagneTest(1,Y1,J,V1), V1>=0)),
+	calculPositionJeton(2,1,Y2), not((gagneTest(2,Y2,J,V2), V2>=0)),
+	calculPositionJeton(3,1,Y3), not((gagneTest(3,Y3,J,V3), V3>=0)),
+	calculPositionJeton(4,1,Y4), not((gagneTest(4,Y4,J,V4), V4>=0)),
+	calculPositionJeton(5,1,Y5), not((gagneTest(5,Y5,J,V5), V5>=0)),
+	calculPositionJeton(6,1,Y6), not((gagneTest(6,Y6,J,V6), V6>=0)),
+	calculPositionJeton(7,1,Y7), not((gagneTest(7,Y7,J,V7), V7>=0)).
 	
 
 
@@ -239,14 +239,18 @@ caseVideTest(X,Y) :- nonvar(X),nonvar(Y),not(caseTest(X,Y,_)).
 
 %%%%% CODE DUPLIQUÉ EN ATTENDANT UNE MEILLEURE SOLUTION %%%%%
 
-gagneTest(X,Y,J,1) :- %V=1 si victoire direct, 0 si indirect
-	gagneColonneTest(X,Y,J).
-gagneTest(X,Y,J,V) :-
-	gagneLigneTest(X,Y,J,V).
-gagneTest(X,Y,J,V) :-
-	gagneDiag1Test(X,Y,J,V).
-gagneTest(X,Y,J,V) :-
-	gagneDiag2Test(X,Y,J,V).
+gagneTest(X,Y,J,V) :- %V=1 si victoire direct, 0 si indirect
+	assert(caseTest(X,Y,J)),
+	gagneColonneTest(X,Y,J,R1,A1),
+	gagneLigneTest(X,Y,J,R2,P2,A2),
+	gagneDiag1Test(X,Y,J,R3,P3,A3),
+	gagneDiag2Test(X,Y,J,R4,P4,A4),
+	Pf is P2+P3+P4,
+	Af is A1+A2+A3+A4,
+	testFinal(R1,R2,R3,R4,Pf,Af,V),
+	retract(caseTest(X,Y,J)).
+	
+gagneTest(X,Y,J,0):-retract(caseTest(X,Y,J)), false. %ménage
 	
 testPotentielAccumulation(X,Y,J,P,A):-
 	testPotentiel(X,Y,J,P), %Peut on la remplir au prochain coup?
@@ -258,49 +262,66 @@ testPotentiel(X,Y,J,1):-
 	caseTest(X,Y1,_).  %On peut la remplir
 testPotentiel(X,Y,J,0). %On ne peut pas la remplir
 
-testAccumulation(X,Y,J,A) :- gagneTestDirect(X,Y,J), sousTestAccumulation(X,Y,J,A).%On gagne si on pose dessus
-sousTestAccumulation(X,Y,J,1) :- incr(Y,Y1), caseVideTest(X,Y1), gagneTestDirect(X,Y1,J). %Case au dessus gagnante aussi
-sousTestAccumulation(X,Y,J,1) :- decr(Y,Y1), caseVideTest(X,Y1), gagneTestDirect(X,Y1,J). %Case en dessous gagnante aussi
+
+testAccumulation(X,Y,J,1) :- incr(Y,Y1), caseTestValideVide(X,Y1), gagneTestDirect(X,Y1,J). %Case au dessus gagnante aussi
+testAccumulation(X,Y,J,1) :- decr(Y,Y1), caseTestValideVide(X,Y1), gagneTestDirect(X,Y1,J). %Case en dessous gagnante aussi
 testAccumulation(X,Y,J,0). %Pas d'accumulation.
 
-caseTestValideVide(X,Y,J):-
+caseTestValideVide(X,Y):-
 	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
 	caseVideTest(X,Y). %Case vide
 	
-testFinal(R,P,A,1):-
-	R > 2.
-testFinal(2,2,A,0).
-testFinal(_,_,A,-1):-
-	A >1.
+testFinal(R1,R2,R3,R4,P,A,1):-
+	R1 > 2.
+testFinal(R1,R2,R3,R4,P,A,1):-
+	R2 > 2.
+testFinal(R1,R2,R3,R4,P,A,1):-
+	R3 > 2.
+testFinal(R1,R2,R3,R4,P,A,1):-
+	R4 > 2.
+testFinal(R1,R2,R3,R4,P,A,0):-
+	P>1.
+testFinal(_,_,_,_,_,A,-1):-
+	A >0.
 
 %%%%% gagne %%%%%
 
 
 %%% En colonne %%%
 
-gagneColonneTest(X,Y,J) :-
+gagneColonneTest(X,Y,J,3,0) :-
 	decr(Y,Y1),
 	caseTest(X,Y1,J),
 	decr(Y1,Y2),
 	caseTest(X,Y2,J),
 	decr(Y2,Y3),
 	caseTest(X,Y3,J). %ligne en bas
+gagneColonneTest(X,Y,J,0,1) :-
+	decr(Y,Y1),
+	caseTest(X,Y1,J),
+	decr(Y1,Y2),
+	caseTest(X,Y2,J),
+	incr(Y,Ytemp),
+	incr(Ytemp,Ydessus),
+	gagneTestDirect(X,Ydessus,J).
+gagneColonneTest(X,Y,J,0,0).
 
 %%% En ligne %%%
 
-gagneLigneTest(X,Y,J,V) :-
+gagneLigneTest(X,Y,J,Rf,Pf,Af) :-
 	decr(X,X1),
 	gaucheTestVerif(X1,Y,J,Rg,Pg,Ag),
 	incr(X,X2),
 	droiteTestVerif(X2,Y,J,Rd,Pd,Ad),
 	!,
-	Rf is Rg+Rd, Pf is Pg+Pd, Af is Ag+Ad, testFinal(Rf,Pf,Af,V).
+	Rf is Rg+Rd, Pf is Pg+Pd, Af is Ag+Ad.
 
 gaucheTestVerif(X,Y,J,Rg,Pg,Ag):-
 	gaucheTest(X,Y,J,0,Rg,Pg,Ag).
 gaucheTest(X,Y,J,R,R,Pg,Ag):-
-	caseTestValideVide(X,Y,J),
-	testPotentielAccumulation(X,Y,J,Pg,Ag).
+	caseTestValideVide(X,Y),	%case dans le tableau et vide
+	gagneTestDirectLigne(X,Y,J),	%gagnante
+	testPotentielAccumulation(X,Y,J,Pg,Ag).		%Peut on la placer et a-t-on accumulation?
 gaucheTest(X,Y,J,R,R,0,0) :-
 	not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
 gaucheTest(X,Y,J,R,Rg,Pg,Ag) :-
@@ -311,8 +332,9 @@ gaucheTest(X,Y,J,R,Rg,Pg,Ag) :-
 droiteTestVerif(X,Y,J,Rg,Pg,Ag):-
 	droiteTest(X,Y,J,0,Rg,Pg,Ag).
 droiteTest(X,Y,J,R,R,Pg,Ag):-
-	caseTestValideVide(X,Y,J),
-	testPotentielAccumulation(X,Y,J,Pg,Ag).
+	caseTestValideVide(X,Y),	%case dans le tableau et vide
+	gagneTestDirectLigne(X,Y,J),	%gagnante
+	testPotentielAccumulation(X,Y,J,Pg,Ag).		%Peut on la placer et a-t-on accumulation?
 droiteTest(X,Y,J,R,R,0,0) :-
 	not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
 droiteTest(X,Y,J,R,Rg,Pg,Ag) :-
@@ -322,7 +344,7 @@ droiteTest(X,Y,J,R,Rg,Pg,Ag) :-
 
 %%% En diagonale \ %%%
 
-gagneDiag1Test(X,Y,J,V) :-
+gagneDiag1Test(X,Y,J,Rf,Pf,Af) :-
 	decr(X,X1),
 	incr(Y,Y1),
 	gaucheTestHautVerif(X1,Y1,J,Rg,Pg,Ag),
@@ -330,14 +352,14 @@ gagneDiag1Test(X,Y,J,V) :-
 	decr(Y,Y2),
 	droiteTestBasVerif(X2,Y2,J,Rd,Pd,Ad),
 	!,
-	Rf is Rg+Rd, Pf is Pg+Pd, Af is Ag+Ad,
-	testFinal(Rf,Pf,Af,V).
+	Rf is Rg+Rd, Pf is Pg+Pd, Af is Ag+Ad.
 
 gaucheTestHautVerif(X,Y,J,Rg,Pg,Ag):-
 	gaucheTestHaut(X,Y,J,0,Rg,Pg,Ag).
 gaucheTestHaut(X,Y,J,R,R,Pg,Ag):-
-	caseTestValideVide(X,Y,J),
-	testPotentielAccumulation(X,Y,J,Pg,Ag).
+	caseTestValideVide(X,Y),	%case dans le tableau et vide
+	gagneTestDirectDiag1(X,Y,J),	%gagnante
+	testPotentielAccumulation(X,Y,J,Pg,Ag).		%Peut on la placer et a-t-on accumulation?
 gaucheTestHaut(X,Y,J,R,R,0,0) :-
 	not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
 gaucheTestHaut(X,Y,J,R,Rg,Pg,Ag) :-
@@ -349,8 +371,9 @@ gaucheTestHaut(X,Y,J,R,Rg,Pg,Ag) :-
 droiteTestBasVerif(X,Y,J,Rg,Pg,Ag):-
 	droiteTestBas(X,Y,J,0,Rg,Pg,Ag).
 droiteTestBas(X,Y,J,R,R,Pg,Ag):-
-	caseTestValideVide(X,Y,J),
-	testPotentielAccumulation(X,Y,J,Pg,Ag).
+	caseTestValideVide(X,Y),	%case dans le tableau et vide
+	gagneTestDirectDiag1(X,Y,J),	%gagnante
+	testPotentielAccumulation(X,Y,J,Pg,Ag).		%Peut on la placer et a-t-on accumulation?
 droiteTestBas(X,Y,J,R,R,0,0) :-
 	not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
 droiteTestBas(X,Y,J,R,Rg,Pg,Ag) :-
@@ -361,7 +384,7 @@ droiteTestBas(X,Y,J,R,Rg,Pg,Ag) :-
 
 %%% En diagonale / %%%
 
-gagneDiag2Test(X,Y,J,V) :-
+gagneDiag2Test(X,Y,J,Rf,Pf,Af) :-
 	decr(X,X1),
 	decr(Y,Y1),
 	gaucheTestBasVerif(X1,Y1,J,Rg,Pg,Ag),
@@ -369,14 +392,14 @@ gagneDiag2Test(X,Y,J,V) :-
 	incr(Y,Y2),
 	droiteTestHautVerif(X2,Y2,J,Rd,Pd,Ad),
 	!,
-	Rf is Rg+Rd, Pf is Pg+Pd, Af is Ag+Ad,
-	testFinal(Rf,Pf,Af,V).
+	Rf is Rg+Rd, Pf is Pg+Pd, Af is Ag+Ad.
 
 gaucheTestBasVerif(X,Y,J,Rg,Pg,Ag) :-
 	gaucheTestBas(X,Y,J,0,Rg,Pg,Ag).
 gaucheTestBas(X,Y,J,R,R,Pg,Ag):-
-	caseTestValideVide(X,Y,J),
-	testPotentielAccumulation(X,Y,J,Pg,Ag).
+	caseTestValideVide(X,Y),	%case dans le tableau et vide
+	gagneTestDirectDiag2(X,Y,J),	%gagnante
+	testPotentielAccumulation(X,Y,J,Pg,Ag).		%Peut on la placer et a-t-on accumulation?
 gaucheTestBas(X,Y,J,R,R,0,0) :-
 	not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
 gaucheTestBas(X,Y,J,R,Rg,Pg,Ag) :-
@@ -388,8 +411,9 @@ gaucheTestBas(X,Y,J,R,Rg,Pg,Ag) :-
 droiteTestHautVerif(X,Y,J,Rg,Pg,Ag) :-
 	droiteTestHaut(X,Y,J,0,Rg,Pg,Ag).
 droiteTestHaut(X,Y,J,R,R,Pg,Ag):-
-	caseTestValideVide(X,Y,J),
-	testPotentielAccumulation(X,Y,J,Pg,Ag).
+	caseTestValideVide(X,Y),	%case dans le tableau et vide
+	gagneTestDirectDiag2(X,Y,J),	%gagnante
+	testPotentielAccumulation(X,Y,J,Pg,Ag).		%Peut on la placer et a-t-on accumulation?
 droiteTestHaut(X,Y,J,R,R,0,0) :-
 	not(caseTest(X,Y,J)). %Jusqu'à la caseTest non J
 droiteTestHaut(X,Y,J,R,Rg,Pg,Ag) :-
