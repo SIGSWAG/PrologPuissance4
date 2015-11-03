@@ -8,6 +8,7 @@
 :- use_module(ia).
 :- use_module(eval).
 :- use_module(miniMax).
+:- ['webserver.pl'].
 
 :- dynamic joueurCourant/2.
 :- dynamic autreJoueur/2.
@@ -75,18 +76,3 @@ init :-
 	initJeu,
 	retractall(joueurCourant(_,_)),
 	retractall(autreJoueur(_,_)).
-
-% permet d'appeler l'ihm ou les IAs pour récupérer le coup suivant
-% 2==IA aleatoire
-obtenirCoup(_,2,Coup) :-
-    iaAleatoire(Coup),!.
-% 3==minimax
-obtenirCoup(JoueurCourant,3,Coup) :-
-    iaMinimax(JoueurCourant,Coup),!.
-obtenirCoup(_,_,_) :-
-	write('Soit une IA n\'a pas renvoyé son coup, soit vous avez choisi un mauvais ID d\'IA'),
-	nl,
-	write('Veuillez choisir entre 2=iaAleatoire et 3=iaMinimax'),
-	nl,
-	fail,
-	!.

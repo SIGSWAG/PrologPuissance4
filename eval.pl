@@ -61,7 +61,7 @@ evalPosition(Courant,Score,PoidsPosition) :-
 	sum(Scores, ScoreTot),
 	nbCasesPleines(NbCasesPleinesFinal),
 	retract(nbCasesPleines(NbCasesPleinesFinal)),
-	Score is ScoreTot / NbCasesPleinesFinal.
+	Score is ScoreTot / (NbCasesPleinesFinal+1).
 evalPosition(_,0,_).
 
 evalCases(Courant,ScoreCase) :-
@@ -107,21 +107,19 @@ evalPuissances3(_,_,0,_).
 evalCasesVides(Joueur,ScoreCase) :-
 	nbColonnes(NBCOLONNES), nbLignes(NBLIGNES),
 	between(1,NBCOLONNES,X), between(1,NBLIGNES,Y),
-	caseVideTest(X,Y),
-	aDesVoisins(X,Y,Joueur),
-	assert(caseTest(X,Y,Joueur)),
-	(gagneTestDirect(X,Y,Joueur) -> ScoreCase = 100 ; ScoreCase = 0),
-	retract(caseTest(X,Y,Joueur)).
+	caseTest(X,Y,Joueur),
+	incr(X,X1),
+	decr(X,X2),
+	incr(Y,Y1),
+	decr(Y,Y2),
+	caseVideTest(X1,Y1),
+	caseVideTest(X2,Y1),
+	caseTest(X2,Y2,_),
+	caseTest(X1,Y2,_),
+	(gagneTestDirect(X1,Y1,Joueur) -> ScoreCase1=100 ; ScoreCase1=0),
+	(gagneTestDirect(X2,Y1,Joueur) -> ScoreCase2=100 ; ScoreCase2=0),
+	ScoreCase is ScoreCase1+ScoreCase2.
 
-% vrai si la case X,Y a des voisins rempli (non vides)
-aDesVoisins(X,Y,Joueur) :- incr(X,X1),caseTest(X1,Y,Joueur).
-aDesVoisins(X,Y,Joueur) :- incr(Y,Y1),caseTest(X,Y1,Joueur).
-aDesVoisins(X,Y,Joueur) :- decr(X,X1),caseTest(X1,Y,Joueur).
-aDesVoisins(X,Y,Joueur) :- decr(Y,Y1),caseTest(X,Y1,Joueur).
-aDesVoisins(X,Y,Joueur) :- incr(X,X1),incr(Y,Y1),caseTest(X1,Y1,Joueur).
-aDesVoisins(X,Y,Joueur) :- decr(X,X1),decr(Y,Y1),caseTest(X1,Y1,Joueur).
-aDesVoisins(X,Y,Joueur) :- incr(X,X1),decr(Y,Y1),caseTest(X1,Y1,Joueur).
-aDesVoisins(X,Y,Joueur) :- decr(X,X1),incr(Y,Y1),caseTest(X1,Y1,Joueur).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %			HEURISTIQUE PAR ADJACENCE
