@@ -38,7 +38,7 @@ donneScore(J,V,S):-
 evalJeu(JoueurCourant,AutreJoueur,_,_,Score) :-
 	evalPosition(JoueurCourant,Score1),
 	%% evalPuissances3(JoueurCourant,AutreJoueur,Score2),
-	evalAdjacence(JoueurCourant,Score3),
+	densite(JoueurCourant,Score3),
 	Score2=0,
 	Score is Score1+Score2+Score3*15.
 
