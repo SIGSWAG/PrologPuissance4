@@ -27,20 +27,18 @@ evalTest1(7,8).
 % evalJeu/5(+JoueurCourant, +AutreJoueur, +X, +Y, -Score)
 % Evalue la situation courante pour le joueur JoueurCourant étant donné que le dernier coup joué fut joué en (X,Y).
 % Score s unifie avec le score évalué pour la position courante.
-
-evalJeu(JoueurCourant,_,X,Y,Score):-
-	gagneTest(X,Y,JoueurCourant,V),
-	donneScore(JoueurCourant,V,Score).
-	
-donneScore(J,V,S):-
-	infiniteNeg(V,S).
 	
 evalJeu(JoueurCourant,AutreJoueur,X,Y,Score) :-
+	assert(caseTest(X,Y,JoueurCourant)),
+	assert(ennemiTest(AutreJoueur)),
 	evalPosition(JoueurCourant,Score1),
 	%% evalPuissances3(JoueurCourant,AutreJoueur,Score2),
-	densite(JoueurCourant,Score3),
+	%% densite(JoueurCourant,Score3),
 	evalAdjacence(X,Y,Joueur,Score4),
+	retract(caseTest(X,Y,JoueurCourant)),
+	retract(ennemiTest(AutreJoueur)),
 	Score2=0,
+	Score3=0,
 	Score is Score1*10+Score2+Score3*15+Score4.
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -49,16 +47,26 @@ evalJeu(JoueurCourant,AutreJoueur,X,Y,Score) :-
 
 % evalPosition/2 (+Courant,-Score)
 % Evalue en privilégiant les positions centrales.
+% renvoie un score entre 0 et 200
 % Toujours vrai.
 evalPosition(Courant,Score) :-
+	assert(nbCasesPleines(0)),
 	findall(S, evalCases(Courant,S), Scores),
-	sum(Scores, Score).
+	sum(Scores, ScoreTot),
+	nbCasesPleines(NbCasesPleinesFinal),
+	retract(nbCasesPleines(NbCasesPleinesFinal)),
+	Score is ScoreTot / NbCasesPleinesFinal.
 
 evalCases(Courant,ScoreCase) :-
 	caseTest(X,Y,_),
+	nbCasesPleines(NbCasesPleines),
+	retract(nbCasesPleines(NbCasesPleines)),
+	incr(NbCasesPleines,NbCasesPleinesF),
+	assert(nbCasesPleines(NbCasesPleinesF)),
 	evalCase(X,Y,Courant,ScoreCase).
 
-evalCase(X,Y,Courant,ScoreCase) :- 
+% renvoie un score entre 0 et 200
+evalCase(X,Y,Courant,ScoreCase) :-
 	nbColonnes(NBCOLONNES),
 	nbLignes(NBLIGNES),
 	ponderationJ(X, Y, Courant, PonderationJoueur),
@@ -70,11 +78,12 @@ evalCase(X,Y,Courant,ScoreCase) :-
 	abs(Dy,AbsY),
 	ScoreCase is ( 100/(AbsX+1) + 100/(AbsY+1) )*PonderationJoueur.
 
-ponderationJ(X, Y, Courant, 1) :-
+ponderationJ(X,Y, Courant,1) :-
 	caseTest(X,Y,Courant), !.
-ponderationJ(X, Y, _, 0) :-
-	caseVideTest(X,Y), !.
-ponderationJ(_, _, _, -1).
+ponderationJ(X,Y,Courant,-1) :-
+	ennemiTest(J),
+	caseTest(X,Y,J), !.
+ponderationJ(_,_,_,0).
 
 %%%%%%%%%%%%%%%%%%%%
 
@@ -135,6 +144,7 @@ zone(4,X,Y) :- X > 4, Y > 3.
 zone(5,X,Y) :- X = 4, Y > 3.
 zone(6,X,Y) :- X =<3, Y > 3.
 
+<<<<<<< HEAD
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %			DETERMINATION COUP GAGNANT (BIS)
 %		  RECHERCHE D EXTREMITES DE SEQUENCES
@@ -507,7 +517,10 @@ droiteHaut(X,Y,J,R,Rg) :-
 	droiteHaut(X1,Y1,J,R1,Rg).
 	
 	
+=======
+>>>>>>> bfff2e64142b40b32a4e20dcd63610fd0621aed4
 %%%%%%% caseVideTest %%%%%
-
+% caseVideTest(+X,+Y)
+% vrai si la case X,Y est vide
 caseVideTest(X,Y) :- nonvar(X),nonvar(Y),not(caseTest(X,Y,_)).
 	

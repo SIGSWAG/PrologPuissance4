@@ -74,10 +74,10 @@ victoireDirecte(X,Y,J,_,0):- retract(caseTest(X,Y,J)), false. %ménage si on per
 
 victoireDirecte(X,Y,J,_,-1):- assert(caseTest(X,Y,J)), false.
 
-victoireDirecte(X,Y,J,L,-1):- maximizer(J), infinitePos(0,Value), 
+victoireDirecte(X,Y,J,L,-1):- maximizer(J), infinitePos(-1,Value), 
 	autreJoueur(J2), testDefaiteAnticipeeProchaine(J2),
 	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du max
-victoireDirecte(X,Y,J,L,-1):- not(maximizer(J)), infiniteNeg(0,Value), 
+victoireDirecte(X,Y,J,L,-1):- not(maximizer(J)), infiniteNeg(-1,Value), 
 	autreJoueur(J2), testDefaiteAnticipeeProchaine(J2),
 	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du min
 
