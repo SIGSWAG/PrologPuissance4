@@ -35,12 +35,13 @@ evalJeu(JoueurCourant,_,X,Y,Score):-
 donneScore(J,V,S):-
 	infiniteNeg(V,S).
 	
-evalJeu(JoueurCourant,AutreJoueur,_,_,Score) :-
+evalJeu(JoueurCourant,AutreJoueur,X,Y,Score) :-
 	evalPosition(JoueurCourant,Score1),
 	%% evalPuissances3(JoueurCourant,AutreJoueur,Score2),
 	densite(JoueurCourant,Score3),
+	evalAdjacence(X,Y,Joueur,Score4),
 	Score2=0,
-	Score is Score1+Score2+Score3*15.
+	Score is Score1*10+Score2+Score3*15+Score4.
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
@@ -92,6 +93,19 @@ evalCasesVides(Joueur,ScoreCase) :-
 	assert(caseTest(X,Y,Joueur)),
 	(gagneTest(X,Y,Joueur,1) -> ScoreCase = 20 ; ScoreCase = 0),
 	retract(caseTest(X,Y,Joueur)).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			HEURISTIQUE PAR ADJACENCE
+%		  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% evalAdjacence (+X,+Y,+Joueur,-Note)
+% Donne une note plus forte si le pion courant
+%est entoure de pions amis
+% Toujours vrai
+
+evalAdjacence(X,Y,Joueur,Note) :- aggregate_all(count,caseAdjacente(X,Y,Joueur,_,_),N), pow(N,2,Note).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %			HEURISTIQUE PAR DENSITE DE PION ~
@@ -191,24 +205,24 @@ invertDirection(Od,Nd) :- Od < 5, Nd is Od+4.
 invertDirection(Od,Nd) :- Od >=5, Nd is Od-4.
 
 %# caseTest(1,1,jaune).
-%# caseTest(1,2,rouge).
-%# caseTest(1,3,rouge).
-%# caseTest(1,4,rouge).
+%#  caseTest(1,2,rouge).
+%#  caseTest(1,3,rouge).
+%#  caseTest(1,4,rouge).
 
-%# caseTest(2,1,rouge).
-%# caseTest(2,2,jaune).
-%# caseTest(2,3,rouge).
-%# caseTest(2,4,jaune).
+%#  caseTest(2,1,rouge).
+%#  caseTest(2,2,jaune).
+%#  caseTest(2,3,rouge).
+%#  caseTest(2,4,jaune).
+%#
+%#  caseTest(3,1,jaune).
+%#  caseTest(3,2,rouge).
+%#  caseTest(3,3,jaune).
+%#  caseTest(3,4,rouge).
 
-%# caseTest(3,1,jaune).
-%# caseTest(3,2,rouge).
-%# caseTest(3,3,jaune).
-%# caseTest(3,4,rouge).
-
-%# caseTest(4,1,rouge).
-%# caseTest(4,2,rouge).
-%# caseTest(4,3,jaune).
-%# caseTest(4,4,jaune).
+%#  caseTest(4,1,rouge).
+%#  caseTest(4,2,rouge).
+%#  caseTest(4,3,jaune).
+%#  caseTest(4,4,jaune).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % caseAdjacente(+XcaseActuelle,+YcaseActuelle,
