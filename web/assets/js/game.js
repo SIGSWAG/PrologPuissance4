@@ -28,17 +28,17 @@ function ajaxGETjson(path, params){
 function addMsg(msg, type, hoverInOut){
 	type = typeof type !== 'undefined' ? type : 'info';
 	var $msgbox = $("#msg-box");
+	var $playsbox = $("#plays-box");
 	var $lastMsgBox = $("#last-msg-box");
 	var $msg = $("<li></li>").addClass("list-group-item list-group-item-"+type).text(msg);
 	var $msgClone = $msg.clone();
 	if(	(type === "jaune" || type === "rouge")
 		&& typeof hoverInOut !== 'undefined'){
+		var $msgPlaysClone = $msg.clone();
 		$msg.hover(hoverInOut);
 		$msgClone.hover(hoverInOut);
-		/*
-		$eye = $('<span class="glyphicon glyphicon-eye-open" aria-hidden="true"> ').hover(hoverInOut);
-		$msg.prepend($eye);
-		*/
+		$msgPlaysClone.hover(hoverInOut);
+		$playsbox.prepend($msgPlaysClone);
 	}
 	$msgbox.prepend($msg);
 	$lastMsgBox.html($msgClone);
