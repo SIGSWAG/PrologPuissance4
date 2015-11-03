@@ -31,14 +31,15 @@ evalTest1(7,8).
 evalJeu(JoueurCourant,AutreJoueur,X,Y,Score) :-
 	assert(caseTest(X,Y,JoueurCourant)),
 	assert(ennemiTest(AutreJoueur)),
-	evalPosition(JoueurCourant,Score1),
-	%% evalPuissances3(JoueurCourant,AutreJoueur,Score2),
+	%%evalPosition(JoueurCourant,Score1),
+	evalPuissances3(JoueurCourant,AutreJoueur,Score2),
 	%% densite(JoueurCourant,Score3),
 	retract(caseTest(X,Y,JoueurCourant)),
 	retract(ennemiTest(AutreJoueur)),
-	Score2=0,
+	Score1=0,
 	Score3=0,
-	Score is Score1+Score2+Score3.
+	random_between(-2,2,Perturbation),
+	Score is Score1+Score2+Score3+Perturbation.
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
@@ -46,7 +47,7 @@ evalJeu(JoueurCourant,AutreJoueur,X,Y,Score) :-
 
 % evalPosition/2 (+Courant,-Score)
 % Evalue en privilégiant les positions centrales.
-% renvoie un score entre 0 et 200
+% renvoie un score entre -400 et 400
 % Toujours vrai.
 evalPosition(Courant,Score) :-
 	assert(nbCasesPleines(0)),
@@ -64,7 +65,7 @@ evalCases(Courant,ScoreCase) :-
 	assert(nbCasesPleines(NbCasesPleinesF)),
 	evalCase(X,Y,Courant,ScoreCase).
 
-% renvoie un score entre 0 et 200
+% renvoie un score entre -400 et 400
 evalCase(X,Y,Courant,ScoreCase) :-
 	nbColonnes(NBCOLONNES),
 	nbLignes(NBLIGNES),
@@ -75,7 +76,7 @@ evalCase(X,Y,Courant,ScoreCase) :-
 	Dy is Y - CentreY,
 	abs(Dx,AbsX),
 	abs(Dy,AbsY),
-	ScoreCase is ( 100/(AbsX+1) + 100/(AbsY+1) )*PonderationJoueur.
+	ScoreCase is ( 200/(AbsX+1) + 200/(AbsY+1) )*PonderationJoueur.
 
 ponderationJ(X,Y, Courant,1) :-
 	caseTest(X,Y,Courant), !.
@@ -98,9 +99,20 @@ evalCasesVides(Joueur,ScoreCase) :-
 	nbColonnes(NBCOLONNES), nbLignes(NBLIGNES),
 	between(1,NBCOLONNES,X), between(1,NBLIGNES,Y),
 	caseVideTest(X,Y),
+	aDesVoisins(X,Y,Joueur),
 	assert(caseTest(X,Y,Joueur)),
-	(gagneTest(X,Y,Joueur,1) -> ScoreCase = 20 ; ScoreCase = 0),
+	(gagneTest(X,Y,Joueur,1) -> ScoreCase = 100 ; ScoreCase = 0),
 	retract(caseTest(X,Y,Joueur)).
+
+% vrai si la case X,Y a des voisins rempli (non vides)
+aDesVoisins(X,Y,Joueur) :- incr(X,X1),caseTest(X1,Y,Joueur).
+aDesVoisins(X,Y,Joueur) :- incr(Y,Y1),caseTest(X,Y1,Joueur).
+aDesVoisins(X,Y,Joueur) :- decr(X,X1),caseTest(X1,Y,Joueur).
+aDesVoisins(X,Y,Joueur) :- decr(Y,Y1),caseTest(X,Y1,Joueur).
+aDesVoisins(X,Y,Joueur) :- incr(X,X1),incr(Y,Y1),caseTest(X1,Y1,Joueur).
+aDesVoisins(X,Y,Joueur) :- decr(X,X1),decr(Y,Y1),caseTest(X1,Y1,Joueur).
+aDesVoisins(X,Y,Joueur) :- incr(X,X1),decr(Y,Y1),caseTest(X1,Y1,Joueur).
+aDesVoisins(X,Y,Joueur) :- decr(X,X1),incr(Y,Y1),caseTest(X1,Y1,Joueur).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %			HEURISTIQUE PAR DENSITE DE PION ~
