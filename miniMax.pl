@@ -56,32 +56,32 @@ parcours(X, _, _, L, _, _):- nbLignes(MaxLignes),jeu:case(X,MaxLignes,_), joueur
 parcours(X, _, _, L, _, _):- nbLignes(MaxLignes),jeu:case(X,MaxLignes,_), joueurCourant(Joue), not(maximizer(Joue)), infinitePos(2,Value), assert(feuille(L, Value)). % on ne peut PAS jouer, on met +infini
 parcours(X, _, _, L, _, _):- nbLignes(MaxLignes),caseTest(X,MaxLignes,_), joueurCourant(Joue), evaluate(X,MaxLignes,Joue,Value), assert(feuille(L, Value)) .% on ne peut plus jouer, on met une feuille (on évalue)
 
-parcours(X, _, _, L, _, _):-  joueurCourant(Joue), calculPositionJeton(X, 1, Y), gagneTest(X,Y,Joue,Direct), victoireDirecte(X,Y,Joue,L,Direct).
+parcours(X, P, _, L, _, _):-  joueurCourant(Joue), calculPositionJeton(X, 1, Y), gagneTest(X,Y,Joue,Direct), victoireDirecte(X,Y,Joue,L,P,Direct).
 
-victoireDirecte(X,Y,J,L,1):- maximizer(J), infinitePos(1,Value), assert(feuille(L, Value)). %Victoire du max
-victoireDirecte(X,Y,J,L,1):- not(maximizer(J)), infiniteNeg(1,Value), assert(feuille(L, Value)). %Victoire du min
+victoireDirecte(X,Y,J,L,P,1):- maximizer(J), Pp is 1-P, infinitePos(Pp,Value), assert(feuille(L, Value)). %Victoire du max
+victoireDirecte(X,Y,J,L,P,1):- not(maximizer(J)), Pp is 1-P, infiniteNeg(Pp,Value), assert(feuille(L, Value)). %Victoire du min
 
-victoireDirecte(X,Y,J,_,0):- assert(caseTest(X,Y,J)), false.
+victoireDirecte(X,Y,J,_,P,0):- assert(caseTest(X,Y,J)), false.
 
-victoireDirecte(X,Y,J,L,0):- maximizer(J), infinitePos(0,Value), 
+victoireDirecte(X,Y,J,L,P,0):- maximizer(J), Pp is -P, infinitePos(Pp,Value),
 	autreJoueur(J2), testDefaiteProchaine(J2),
 	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du max
-victoireDirecte(X,Y,J,L,0):- not(maximizer(J)), infiniteNeg(0,Value), 
+victoireDirecte(X,Y,J,L,P,0):- not(maximizer(J)), Pp is -P, infiniteNeg(Pp,Value), 
 	autreJoueur(J2), testDefaiteProchaine(J2),
 	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du min
 
-victoireDirecte(X,Y,J,_,0):- retract(caseTest(X,Y,J)), false. %ménage si on perde derrière
+victoireDirecte(X,Y,J,_,P,0):- retract(caseTest(X,Y,J)), false. %ménage si on perde derrière
 
-victoireDirecte(X,Y,J,_,-1):- assert(caseTest(X,Y,J)), false.
+victoireDirecte(X,Y,J,_,P,-5):- assert(caseTest(X,Y,J)), false.
 
-victoireDirecte(X,Y,J,L,-1):- maximizer(J), infinitePos(-1,Value), 
+victoireDirecte(X,Y,J,L,P,-5):- maximizer(J), Pp is -5-P, infinitePos(Pp,Value), 
 	autreJoueur(J2), testDefaiteAnticipeeProchaine(J2),
 	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du max
-victoireDirecte(X,Y,J,L,-1):- not(maximizer(J)), infiniteNeg(-1,Value), 
+victoireDirecte(X,Y,J,L,P,-5):- not(maximizer(J)), Pp is -5-P, infiniteNeg(Pp,Value), 
 	autreJoueur(J2), testDefaiteAnticipeeProchaine(J2),
 	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du min
 
-victoireDirecte(X,Y,J,_,-1):- retract(caseTest(X,Y,J)), false. %ménage si on perde derrière
+victoireDirecte(X,Y,J,_,P,-5):- retract(caseTest(X,Y,J)), false. %ménage si on perde derrière
 
 testDefaiteProchaine(J):- 
 	calculPositionJeton(1,1,Y1), not(gagneTestDirect(1,Y1,J)),
@@ -281,7 +281,7 @@ testFinal(R1,R2,R3,R4,P,A,1):-
 	R4 > 2.
 testFinal(R1,R2,R3,R4,P,A,0):-
 	P>1.
-testFinal(_,_,_,_,_,A,-1):-
+testFinal(_,_,_,_,_,A,-5):-
 	A >0.
 
 %%%%% gagne %%%%%

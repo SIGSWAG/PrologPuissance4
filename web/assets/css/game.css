@@ -83,6 +83,10 @@ body{
 	height : 300px;
 	overflow: auto;
 }
+#plays-box{
+	height : 300px;
+	overflow: auto;
+}
 
 .msg{
 	margin : 0;
