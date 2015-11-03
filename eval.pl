@@ -27,7 +27,6 @@ evalTest1(7,8).
 % evalJeu/5(+JoueurCourant, +AutreJoueur, +X, +Y, -Score)
 % Evalue la situation courante pour le joueur JoueurCourant étant donné que le dernier coup joué fut joué en (X,Y).
 % Score s unifie avec le score évalué pour la position courante.
-
 	
 evalJeu(JoueurCourant,AutreJoueur,X,Y,Score) :-
 	assert(caseTest(X,Y,JoueurCourant)),
