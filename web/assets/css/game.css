@@ -42,19 +42,28 @@ body{
 	width : 100%;
 	height : 100%;
 	border-radius: 100%;
+	background-size: 100%;
 }
 
 .board-token.rouge{
+	border : solid 1px red;
+	background-image: url(../img/marcus.jpg);
 	background-color: red;
 }
 .board-token.rouge.active{
+	background-image: url(../img/marcus.jpg);
+	border : solid 1px #800;
 	background-color: #800;
 }
 
 .board-token.jaune{
+	border : solid 1px yellow;
+	background-image: url(../img/matrice.jpg);
 	background-color: yellow;
 }
 .board-token.jaune.active{
+	border : solid 1px #880;
+	background-image: url(../img/matrice.jpg);
 	background-color: #880;
 }
 
