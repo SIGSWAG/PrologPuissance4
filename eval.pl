@@ -1,59 +1,49 @@
 %%%%%%%%%%%% eval.pl %%%%%%%%%%%%
 
+:- module(eval, [evalJeu/5, evalTest1/2]).
+
 %%%%%%%%%%%%%%%%
 %% Inclusions %%
 %%%%%%%%%%%%%%%%
 
-:- module(eval, [evalJeu/5,evalTest1/2]).
-
 :- use_module(util).
 :- use_module(jeu).
 :- use_module(ia).
-:- use_module(miniMax). % pour caseTest, peut-être à changer
+:- use_module(miniMax).
+
 :- use_module(library(random)).
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
 
-evalTest1(1,-3).
-evalTest1(2,-4).
-evalTest1(3,5).
-evalTest1(4,10).
-evalTest1(5,9).
-evalTest1(6,-5).
-evalTest1(7,8).
-
-
 % evalJeu/5(+JoueurCourant, +AutreJoueur, +X, +Y, -Score)
-% Evalue la situation courante pour le joueur JoueurCourant étant donné que le dernier coup joué fut joué en (X,Y).
-% Score s unifie avec le score évalué pour la position courante.
-	
+% Évalue la situation courante pour le joueur JoueurCourant étant donné que le dernier coup joué fut joué en (X,Y). Le score est pondéré par les différentes pondérations données en entrée (par assert) à evalJeu. Le score est ensuite perturbé par une valeur aléatoire, permettant de casser le caractère déterministe de l'IA.
+% Score s'unifie avec le score évalué pour la position courante.
 evalJeu(JoueurCourant,AutreJoueur,X,Y,Score) :-
 	assert(caseTest(X,Y,JoueurCourant)),
 	assert(ennemiTest(AutreJoueur)),
 	poidsPuissance3(PoidsPuissance3), poidsPosition(PoidsPosition), poidsDensite(PoidsDensite), poidsAdjacence(PoidsAdjacence),
 	evalPosition(JoueurCourant,Score1,PoidsPosition),
 	evalPuissances3(JoueurCourant,AutreJoueur,Score2,PoidsPuissance3),
-	densite(JoueurCourant,Score3,PoidsDensite),    %% non testé
-	evalAdjacence(X,Y,Joueur,Score4, PoidsAdjacence), %% non testé
+	densite(JoueurCourant,Score3,PoidsDensite),
+	evalAdjacence(X,Y,Joueur,Score4, PoidsAdjacence),
 	retract(caseTest(X,Y,JoueurCourant)),
 	retract(ennemiTest(AutreJoueur)),
 	random_between(-2,2,Perturbation),
-	Score is Score1*PoidsPosition 
-			+Score2*PoidsPuissance3
-			+Score3
-			+Score4
-			+Perturbation.
+	Score is Score1 * PoidsPosition
+			+ Score2 * PoidsPuissance3
+			+ Score3
+			+ Score4
+			+ Perturbation.
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%
 %%%%%%%%%%%%%%%%%%%%%%
 
-% evalPosition/2 (+Courant,-Score)
-% Evalue en privilégiant les positions centrales.
-% renvoie un score entre -400 et 400
-% Toujours vrai.
+% evalPosition/3(+Courant,-Score,+PoidsPosition)
+% Évalue en privilégiant les positions centrales en fonction de la pondération.
+% Score s'unifie à une valeur entre -400 et 400.
 evalPosition(Courant,Score,PoidsPosition) :-
 	PoidsPosition>0,
 	assert(nbCasesPleines(0)),
@@ -96,7 +86,7 @@ ponderationJ(_,_,_,0).
 
 % evalPuissances3/3(+JoueurCourant,+AutreJoueur,-Score)
 % Évalue en cherchant les positions faisant gagner.
-% ScoreFinal s unifie au score de la position.
+% ScoreFinal s'unifie au score de la position.
 evalPuissances3(JoueurCourant,AutreJoueur,ScoreFinal,PoidsPuissance3) :-
 	PoidsPuissance3>0,
 	findall(S,evalCasesVides(JoueurCourant,S),ScoresCourant), sum(ScoresCourant,ScoreCourant),
@@ -123,27 +113,27 @@ evalCasesVides(Joueur,ScoreCase) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %			HEURISTIQUE PAR ADJACENCE
-%		  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% evalAdjacence (+X,+Y,+Joueur,-Note)
-% Donne une note plus forte si le pion courant
-%est entoure de pions amis
-% Toujours vrai
+% evalAdjacence/5(+X,+Y,+Joueur,-Note,+PoidsAdjacence)
+% Donne une note d'autant plus forte qu'un pion est entouré de pions amis.
+% Note s'unifie au score de la position.
 
-evalAdjacence(X,Y,Joueur,Note,PoidsAdjacence) :- PoidsAdjacence>0, aggregate_all(count,caseAdjacente(X,Y,Joueur,_,_),N), pow(N,2,Note).
+evalAdjacence(X,Y,Joueur,Note,PoidsAdjacence) :-
+	PoidsAdjacence>0,
+	aggregate_all(count,caseAdjacente(X,Y,Joueur,_,_),N),
+	pow(N,2,Note).
 evalAdjacence(_,_,_,0,_).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%			HEURISTIQUE PAR DENSITE DE PION ~
-%		  
+%			HEURISTIQUE PAR DENSITE DE PION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% densite (+Joueur,-Note)
-% Donne une note d autant plus elevee que les pions sont groupes
-% Toujours vrai
+% densite/3(+Joueur,-Note,+PoidsDensite)
+% Donne une note d'autant plus élevée que les pions sont groupés.
+% Note s'unifie au score de la position.
 densite(J,Note,PoidsDensite) :- PoidsDensite>0, Z is 1, calculNbPoints(J,Z,Note).
 densite(_,0,_).
 calculNbPoints(J,Z,Note) :- Z>6, Note is 0.
@@ -151,10 +141,11 @@ calculNbPoints(J,Z,Note) :- nbPointsZone(J,Z,N), incr(Z,ZP), calculNbPoints(J,ZP
 nbPointsZone(J,Z,NbPoints) :- nbPionsZone(J,Z,N), pow(N,2,NbPoints).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% nbPionsZone (+joueur,+zone,-nbPions)
-% Donne le nombre de pions contenu dans une zone
-% Toujours vrai
-nbPionsZone(J,Z,NbPions) :- aggregate_all(count,caseTestZone(Z,J,X,Y),NbPions).
+% nbPionsZone/3(+Joueur,+Zone,-NbPions)
+% Donne le nombre de pions contenu dans une zone.
+% NbPions s'unifie au nombre de pions contenu dans une zone.
+nbPionsZone(J,Z,NbPions) :-
+	aggregate_all(count,caseTestZone(Z,J,X,Y),NbPions).
 
 caseTestZone(Zone,Joueur,X,Y) :- caseTest(X,Y,Joueur), zone(Zone,X,Y).
 zone(1,X,Y) :- X =<3, Y =< 3.
@@ -166,9 +157,6 @@ zone(6,X,Y) :- X =<3, Y > 3.
 
 
 
-
-	
-	
 %%%%% gagneTestDirect %%%%%
 
 
@@ -178,7 +166,7 @@ gagneTestDirect(X,Y,J) :-
 	gagneTestDirectDiag1(X,Y,J).
 gagneTestDirect(X,Y,J) :-
 	gagneTestDirectDiag2(X,Y,J).
-	
+
 
 %%% En ligne %%%
 
@@ -278,4 +266,14 @@ droiteHaut(X,Y,J,R,Rg) :-
 % caseVideTest(+X,+Y)
 % vrai si la case X,Y est vide
 caseVideTest(X,Y) :- nonvar(X),nonvar(Y),not(caseTest(X,Y,_)).
-	
+
+
+%%%% Utilisé pour les tests unitaires
+
+evalTest1(1,-3).
+evalTest1(2,-4).
+evalTest1(3,5).
+evalTest1(4,10).
+evalTest1(5,9).
+evalTest1(6,-5).
+evalTest1(7,8).

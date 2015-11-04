@@ -17,14 +17,14 @@
 :- dynamic poidsAdjacence/1.
 
 %%%%%%%%%%%%%%%%%%%%%%%
-%% Pr�dicats publics %%
+%% Prédicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
 
 iaAleatoire(Coup) :-
 	nbColonnes(NBCOLONNES),
 	Coup is random(NBCOLONNES)+1,
 	coupValide(Coup).
-% ia aleatoire a choisi une colonne pleine, donc on la fait recommencer
+% AI Aléatoire a choisi une colonne pleine, donc on la fait recommencer.
 iaAleatoire(Coup) :-
 	iaAleatoire(Coup).
 

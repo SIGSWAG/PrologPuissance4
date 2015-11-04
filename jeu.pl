@@ -17,13 +17,14 @@
 :- dynamic case/3.
 
 %%%%%%%%%%%%%%%%%%%%%%%
-%% Prédicats publics %%
+%% PrÃ©dicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Gestion des joueurs %%%
 
+% DÃ©finition des diffÃ©rentes IA.
 typeJoueur(1,'Humain').
-typeJoueur(2,'IA Aleatoire').
+typeJoueur(2,'IA AlÃ©atoire').
 typeJoueur(3,'IA Minimax 3 - eval Position').
 typeJoueur(4,'IA Minimax 3 - eval Position+Puissance3').
 typeJoueur(5,'IA Minimax 4 - eval Position').
@@ -32,7 +33,7 @@ typeJoueur(7,'IA Minimax 5 - eval Position').
 typeJoueur(8,'IA Minimax 5 - eval Position+Puissance3').
 
 changerJoueur :-
-	joueurCourant(rouge,TypeJoueurR), 
+	joueurCourant(rouge,TypeJoueurR),
 	autreJoueur(jaune,TypeJoueurJ),
 	retractall(joueurCourant(_,_)),
 	retractall(autreJoueur(_,_)),
@@ -47,7 +48,7 @@ changerJoueur :-
 	assert(autreJoueur(jaune,TypeJoueurJ)),!.
 
 
-%%% Prédicats utiles
+%%% PrÃ©dicats utiles
 
 %%% Initialisation du plateau
 
@@ -58,17 +59,17 @@ initJeu :-
 	initClear.
 
 % coupPossible/0
-% Vérifie si l'on peut encore joueur.
+% VÃ©rifie si l'on peut encore joueur.
 % Vrai s'il reste des coups valides, faux sinon
 coupPossible :-
 	nbColonnes(NBCOLLONNES),
 	between(1,NBCOLLONNES,X),
 	coupValide(X).
 
-%%% Vérification de la victoire 
+%%% VÃ©rification de la victoire
 
-% gagne/3(+colonne, +ligne, +joueur)
-% Vérifie si le coup est gagnant pour joueur.
+% gagne/3(+Colonne, +Ligne, +Joueur)
+% VÃ©rifie si le coup est gagnant pour joueur.
 % Vrai si gagnant.
 gagne(X,Y,J) :-
 	gagneColonne(X,Y,J).
@@ -82,15 +83,15 @@ gagne(X,Y,J) :-
 
 %%% Place un jeton
 
-% placerJeton/3(-Colonne, +Ligne, -Couleur) 
-% insère si possible un jeton dans la colonne donnée
+% placerJeton/3(-Colonne, +Ligne, -Couleur)
+% insï¿½re si possible un jeton dans la colonne donnï¿½e
 % retourne la ligne d'insertion, ou no
 placerJeton(X,Y,C) :-
 	coupValide(X),
 	insererJeton(X, Y, C).
 
 %%%%%%%%%%%%%%%%%%%%%%
-%% Prédicats privés %%
+%% PrÃ©dicats privÃ©s %%
 %%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -98,7 +99,7 @@ placerJeton(X,Y,C) :-
 
 
 initClear :-
-	retractall(case(_,_,_)). % pourrait fonctionner avec :- dynamic, à investiguer
+	retractall(case(_,_,_)). % pourrait fonctionner avec :- dynamic, ï¿½ investiguer
 
 initTest :-
 	assert(case(4,1,rouge)),
@@ -132,7 +133,7 @@ gagneLigne(X,Y,J) :-
 gaucheVerif(X,Y,J,Rg):-
 	gauche(X,Y,J,0,Rg).
 gauche(X,Y,J,R,R) :-
-	not(case(X,Y,J)). %Jusqu'à la case non J
+	not(case(X,Y,J)). %Jusqu'ï¿½ la case non J
 gauche(X,Y,J,R,Rg) :-
 	decr(X,X1),
 	incr(R,R1),
@@ -141,7 +142,7 @@ gauche(X,Y,J,R,Rg) :-
 droiteVerif(X,Y,J,Rg):-
 	droite(X,Y,J,0,Rg).
 droite(X,Y,J,R,R) :-
-	not(case(X,Y,J)). %Jusqu'à la case non J
+	not(case(X,Y,J)). %Jusqu'ï¿½ la case non J
 droite(X,Y,J,R,Rg) :-
 	incr(X,X1),
 	incr(R,R1),
@@ -159,7 +160,7 @@ gagneDiag1(X,Y,J) :-
 gaucheHautVerif(X,Y,J,Rg):-
 	gaucheHaut(X,Y,J,0,Rg).
 gaucheHaut(X,Y,J,R,R) :-
-	not(case(X,Y,J)). %Jusqu'à la case non J
+	not(case(X,Y,J)). %Jusqu'ï¿½ la case non J
 gaucheHaut(X,Y,J,R,Rg) :-
 	incr(Y,Y1),
 	decr(X,X1),
@@ -169,7 +170,7 @@ gaucheHaut(X,Y,J,R,Rg) :-
 droiteBasVerif(X,Y,J,Rg):-
 	droiteBas(X,Y,J,0,Rg).
 droiteBas(X,Y,J,R,R) :-
-	not(case(X,Y,J)). %Jusqu'à la case non J
+	not(case(X,Y,J)). %Jusqu'ï¿½ la case non J
 droiteBas(X,Y,J,R,Rg) :-
 	decr(Y,Y1),
 	incr(X,X1),
@@ -188,7 +189,7 @@ gagneDiag2(X,Y,J) :-
 gaucheBasVerif(X,Y,J,Rg) :-
 	gaucheBas(X,Y,J,0,Rg).
 gaucheBas(X,Y,J,R,R) :-
-	not(case(X,Y,J)). %Jusqu'à la case non J
+	not(case(X,Y,J)). %Jusqu'ï¿½ la case non J
 gaucheBas(X,Y,J,R,Rg) :-
 	decr(Y,Y1),
 	decr(X,X1),
@@ -198,7 +199,7 @@ gaucheBas(X,Y,J,R,Rg) :-
 droiteHautVerif(X,Y,J,Rg) :-
 	droiteHaut(X,Y,J,0,Rg).
 droiteHaut(X,Y,J,R,R) :-
-	not(case(X,Y,J)). %Jusqu'à la case non J
+	not(case(X,Y,J)). %Jusqu'Ã  la case non J
 droiteHaut(X,Y,J,R,Rg) :-
 	incr(Y,Y1),
 	incr(X,X1),
@@ -210,7 +211,7 @@ droiteHaut(X,Y,J,R,Rg) :-
 
 
 % coupValide/1(-Colonne)
-% Vérifie si un jeton est jouable dans cette colonne
+% VÃ©rifie si un jeton est jouable dans cette colonne
 % retourne yes ou no
 coupValide(X) :-
 	nbColonnes(NBCOLONNES),
@@ -220,19 +221,18 @@ coupValide(X) :-
 	caseVide(X,NBLIGNES).
 
 % insererJeton/3(-Colonne, +Ligne, -Couleur)
-% Insere, sans vérification, un jeton de la couleur donnée, dans la colonne donnée
-% retourne la ligne d'insertion, 
+% InsÃ¨re, sans vÃ©rification, un jeton de la couleur donnÃ©e, dans la colonne donnÃ©e.
+% Y s'unifie Ã  la ligne jouÃ©e.
 insererJeton(X,Y,C) :-
 	calculPositionJeton(X, 1, Y),
 	assert(case(X,Y,C)).
 
 % calculPositionJeton/3(+Colonne,+LigneToCheck,-Ligne)
-% calcule la premiere ligne vide d'une colonne
-% retourne l'indice de cette ligne vide
+% Calcule la premiÃ¨re ligne vide d'une colonne.
+% Retourne l'indice de cette ligne vide.
 calculPositionJeton(X,YCheck,YCheck) :-
 	caseVide(X,YCheck),
 	!.
 calculPositionJeton(X,YCheck,Y) :-
 	incr(YCheck, YCheck1),
 	calculPositionJeton(X,YCheck1,Y).
-
