@@ -12,7 +12,15 @@
 	insererJeton/3
 ]).
 
+%%%%%%%%%%%%%%%%
+%% Inclusions %%
+%%%%%%%%%%%%%%%%
+
 :- use_module(util).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Prédicats dynamiques %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- dynamic case/3.
 

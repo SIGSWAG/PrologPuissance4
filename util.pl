@@ -1,4 +1,5 @@
 %%%%%%%%%%%% util.pl %%%%%%%%%%%%
+% Différents prédicats d'utilité publique.
 
 :- module(util, [
 	nbLignes/1,

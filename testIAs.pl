@@ -1,4 +1,5 @@
-﻿%%%%%%%%%%%% run.pl %%%%%%%%%%%%
+﻿%%%%%%%%%%%% testIAs.pl %%%%%%%%%%%%
+% Permet de tester comment performent différentes IAs lorsqu'elles jouent l'une contre l'autre.
 
 %%%%%%%%%%%%%%%%
 %% Inclusions %%

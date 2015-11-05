@@ -1,9 +1,18 @@
 %%%%%%%%%%%% miniMax.pl %%%%%%%%%%%%
+% Implémentation de minimax avec diverses optimisations propres au Puissance 4.
 
 :- module(miniMax, [parcoursArbre/4, caseTest/3, gagneTest/4]).
 
+%%%%%%%%%%%%%%%%
+%% Inclusions %%
+%%%%%%%%%%%%%%%%
+
 :- use_module(util).
 :- use_module(eval).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Prédicats dynamiques %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- dynamic caseTest/3.
 

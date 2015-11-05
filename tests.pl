@@ -1,4 +1,5 @@
 %%%%%%%%%%%% tests.pl %%%%%%%%%%%%
+% Quelques tests unitaires.
 
 :- use_module(jeu).
 :- use_module(util).
@@ -36,13 +37,13 @@ t_gagne_diagonale2 :-
 
 %%%%% Tests Minimax %%%%%
 
-t_minimax_prof1:-
-assert(evaluation(test1)),
-parcoursArbre(rouge,1,R,Value),retract(evaluation(X)),R==4,Value==10.
+t_minimax_prof1 :-
+	assert(evaluation(test1)),
+	parcoursArbre(rouge,1,R,Value),retract(evaluation(X)),R==4,Value==10.
 
-t_minimax_prof2:-
-assert(evaluation(test1)),
-parcoursArbre(rouge,2,R,Value),retract(evaluation(X)),R==1,Value==(-5).
+t_minimax_prof2 :-
+	assert(evaluation(test1)),
+	parcoursArbre(rouge,2,R,Value),retract(evaluation(X)),R==1,Value==(-5).
 
 
 

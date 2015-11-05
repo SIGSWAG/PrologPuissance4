@@ -1,5 +1,5 @@
 %%%%%%%%%%%% webserver.pl %%%%%%%%%%%%
-
+% Serveur web permettant d'interfacer Prolog avec notre IHM web.
 
 %%%%%%%%%%%%%%%%
 %% Inclusions %%
@@ -12,7 +12,7 @@
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/http_files)).
 :- use_module(library(http/http_json)).
-:- use_module(library(http/json_convert)).      
+:- use_module(library(http/json_convert)).
 :- use_module(jeu).
 :- use_module(ia).
 :- use_module(eval).
@@ -66,7 +66,7 @@ http:location(files, '/f', []).
 indexAction(Request) :-
     http_reply_from_files('web/pages', [], Request).
 indexAction(Request) :-
-    http_404([], Request).    
+    http_404([], Request).
 
 % helloAction/1(+Request)
 % Affiche le message "Hello world".
@@ -95,7 +95,7 @@ fichierAction(Request) :-
 
 % selectionnerJoueurAction/1(+Request)
 % Récupère des parametres GET les joueurs sélectionnés les unifie les unifie à leur couleurs
-% Le joueur rouge étant le joueurCourant, c'est lui qui commencera à jouer. 
+% Le joueur rouge étant le joueurCourant, c'est lui qui commencera à jouer.
 % Répond les couleurs et le code de chaqun des joueurs
 selectionnerJoueurAction(Request) :-
     http_parameters(Request,
