@@ -55,49 +55,6 @@ parcours(X, _, _, L, _, _):-
 parcours(X, P, _, L, _, _):-
 	joueurCourant(Joue), calculPositionJeton(X, 1, Y), gagneTest(X,Y,Joue,Direct), victoireDirecte(X,Y,Joue,L,P,Direct).
 
-victoireDirecte(X,Y,J,L,P,1):- maximizer(J), Pp is 1-P, infinitePos(Pp,Value), assert(feuille(L, Value)). %Victoire du max
-victoireDirecte(X,Y,J,L,P,1):- not(maximizer(J)), Pp is 1-P, infiniteNeg(Pp,Value), assert(feuille(L, Value)). %Victoire du min
-
-victoireDirecte(X,Y,J,_,P,0):- assert(caseTest(X,Y,J)), false.
-
-victoireDirecte(X,Y,J,L,P,0):- maximizer(J), Pp is -P, infinitePos(Pp,Value),
-	autreJoueur(J2), testDefaiteProchaine(J2),
-	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du max
-victoireDirecte(X,Y,J,L,P,0):- not(maximizer(J)), Pp is -P, infiniteNeg(Pp,Value),
-	autreJoueur(J2), testDefaiteProchaine(J2),
-	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du min
-
-victoireDirecte(X,Y,J,_,P,0):- retract(caseTest(X,Y,J)), false. %ménage si on perde derrière
-
-victoireDirecte(X,Y,J,_,P,-5):- assert(caseTest(X,Y,J)), false.
-
-victoireDirecte(X,Y,J,L,P,-5):- maximizer(J), Pp is -5-P, infinitePos(Pp,Value),
-	autreJoueur(J2), testDefaiteAnticipeeProchaine(J2),
-	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du max
-victoireDirecte(X,Y,J,L,P,-5):- not(maximizer(J)), Pp is -5-P, infiniteNeg(Pp,Value),
-	autreJoueur(J2), testDefaiteAnticipeeProchaine(J2),
-	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du min
-
-victoireDirecte(X,Y,J,_,P,-5):- retract(caseTest(X,Y,J)), false. %ménage si on perde derrière
-
-testDefaiteProchaine(J):-
-	calculPositionJeton(1,1,Y1), not(gagneTestDirect(1,Y1,J)),
-	calculPositionJeton(2,1,Y2), not(gagneTestDirect(2,Y2,J)),
-	calculPositionJeton(3,1,Y3), not(gagneTestDirect(3,Y3,J)),
-	calculPositionJeton(4,1,Y4), not(gagneTestDirect(4,Y4,J)),
-	calculPositionJeton(5,1,Y5), not(gagneTestDirect(5,Y5,J)),
-	calculPositionJeton(6,1,Y6), not(gagneTestDirect(6,Y6,J)),
-	calculPositionJeton(7,1,Y7), not(gagneTestDirect(7,Y7,J)).
-
-testDefaiteAnticipeeProchaine(J):-
-	calculPositionJeton(1,1,Y1), not((gagneTest(1,Y1,J,V1), V1>=0)),
-	calculPositionJeton(2,1,Y2), not((gagneTest(2,Y2,J,V2), V2>=0)),
-	calculPositionJeton(3,1,Y3), not((gagneTest(3,Y3,J,V3), V3>=0)),
-	calculPositionJeton(4,1,Y4), not((gagneTest(4,Y4,J,V4), V4>=0)),
-	calculPositionJeton(5,1,Y5), not((gagneTest(5,Y5,J,V5), V5>=0)),
-	calculPositionJeton(6,1,Y6), not((gagneTest(6,Y6,J,V6), V6>=0)),
-	calculPositionJeton(7,1,Y7), not((gagneTest(7,Y7,J,V7), V7>=0)).
-
 parcours(X, P, Pmax, L, _, _):- P==Pmax,joueurCourant(Joue), placerJeton(X,Y,Joue), evaluate(X, Y, Joue, Value),assert(feuille(L, Value)),retract(caseTest(X,Y,Joue)). % on est à la prof max, on evalue et on met une feuille
 parcours(X, P, Pmax, L, Beta, Alpha) :- incr(P, P1),joueurCourant(Joue), placerJeton(X,Y,Joue), %on incremente la profondeur, puis on joue un coup(qui réussit a tous les coups)
 	setJoueur(P1), %on set le joueur
@@ -131,6 +88,50 @@ parcours(X, P, Pmax, L, Beta, Alpha) :- incr(P, P1),joueurCourant(Joue), placerJ
 	setJoueur(P1), %on change de joueur
 	assert(feuille(L,Valeur)),joueurCourant(_). %on met notre feuille calculée
 
+
+victoireDirecte(_,_,J,L,P,1):- maximizer(J), Pp is 1-P, infinitePos(Pp,Value), assert(feuille(L, Value)). %Victoire du max
+victoireDirecte(_,_,J,L,P,1):- not(maximizer(J)), Pp is 1-P, infiniteNeg(Pp,Value), assert(feuille(L, Value)). %Victoire du min
+
+victoireDirecte(X,Y,J,_,_,0):- assert(caseTest(X,Y,J)), false.
+
+victoireDirecte(X,Y,J,L,P,0):- maximizer(J), Pp is -P, infinitePos(Pp,Value),
+	autreJoueur(J2), testDefaiteProchaine(J2),
+	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du max
+victoireDirecte(X,Y,J,L,P,0):- not(maximizer(J)), Pp is -P, infiniteNeg(Pp,Value),
+	autreJoueur(J2), testDefaiteProchaine(J2),
+	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du min
+
+victoireDirecte(X,Y,J,_,_,0):- retract(caseTest(X,Y,J)), false. %ménage si on perde derrière
+
+victoireDirecte(X,Y,J,_,_,-5):- assert(caseTest(X,Y,J)), false.
+
+victoireDirecte(X,Y,J,L,P,-5):- maximizer(J), Pp is -5-P, infinitePos(Pp,Value),
+	autreJoueur(J2), testDefaiteAnticipeeProchaine(J2),
+	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du max
+victoireDirecte(X,Y,J,L,P,-5):- not(maximizer(J)), Pp is -5-P, infiniteNeg(Pp,Value),
+	autreJoueur(J2), testDefaiteAnticipeeProchaine(J2),
+	assert(feuille(L, Value)), retract(caseTest(X,Y,J)). %Victoire anticipée du min
+
+victoireDirecte(X,Y,J,_,_,-5):- retract(caseTest(X,Y,J)), false. %ménage si on perde derrière
+
+testDefaiteProchaine(J):-
+	calculPositionJeton(1,1,Y1), not(gagneTestDirect(1,Y1,J)),
+	calculPositionJeton(2,1,Y2), not(gagneTestDirect(2,Y2,J)),
+	calculPositionJeton(3,1,Y3), not(gagneTestDirect(3,Y3,J)),
+	calculPositionJeton(4,1,Y4), not(gagneTestDirect(4,Y4,J)),
+	calculPositionJeton(5,1,Y5), not(gagneTestDirect(5,Y5,J)),
+	calculPositionJeton(6,1,Y6), not(gagneTestDirect(6,Y6,J)),
+	calculPositionJeton(7,1,Y7), not(gagneTestDirect(7,Y7,J)).
+
+testDefaiteAnticipeeProchaine(J):-
+	calculPositionJeton(1,1,Y1), not((gagneTest(1,Y1,J,V1), V1>=0)),
+	calculPositionJeton(2,1,Y2), not((gagneTest(2,Y2,J,V2), V2>=0)),
+	calculPositionJeton(3,1,Y3), not((gagneTest(3,Y3,J,V3), V3>=0)),
+	calculPositionJeton(4,1,Y4), not((gagneTest(4,Y4,J,V4), V4>=0)),
+	calculPositionJeton(5,1,Y5), not((gagneTest(5,Y5,J,V5), V5>=0)),
+	calculPositionJeton(6,1,Y6), not((gagneTest(6,Y6,J,V6), V6>=0)),
+	calculPositionJeton(7,1,Y7), not((gagneTest(7,Y7,J,V7), V7>=0)).
+
 % evaluate/4(+X, +Y, +Joueur, -Score)
 % Évalue la position en fonction des pondérations passées en prédicat à l'IA.
 % Score s'unifie au score de la position.
@@ -141,7 +142,7 @@ evaluate(X,Y,Joueur,Score) :-
 
 minOuMax(Joueur,Score,-Score):- %minimizer
 	not(maximizer(Joueur)).
-minOuMax(Joueur,Score,Score). %maximizer
+minOuMax(_,Score,Score). %maximizer
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -232,8 +233,6 @@ insererJeton(X,Y,C) :- calculPositionJeton(X, 1, Y), assert(caseTest(X,Y,C)).
 calculPositionJeton(X,YCheck,YCheck) :- caseVideTest(X,YCheck), !.
 calculPositionJeton(X,YCheck,Y) :- incr(YCheck, YCheck1), calculPositionJeton(X,YCheck1,Y).
 
-caseVideTest(X,Y) :- nonvar(X),nonvar(Y),not(caseTest(X,Y,_)).
-
 %%% Détection de la victoire des cases de test.
 
 gagneTest(X,Y,J,V) :- %V=1 si victoire direct, 0 si indirect
@@ -253,30 +252,30 @@ testPotentielAccumulation(X,Y,J,P,A):-
 	testPotentiel(X,Y,J,P), %Peut on la remplir au prochain coup?
 	testAccumulation(X,Y,J,A). %As-t-on accumulation?
 
-testPotentiel(X,1,J,1).	%case au niveau 1
-testPotentiel(X,Y,J,1):-
+testPotentiel(_,1,_,1).	%case au niveau 1
+testPotentiel(X,Y,_,1):-
 	decr(Y,Y1),
 	caseTest(X,Y1,_).  %On peut la remplir
-testPotentiel(X,Y,J,0). %On ne peut pas la remplir
+testPotentiel(_,_,_,0). %On ne peut pas la remplir
 
 
 testAccumulation(X,Y,J,1) :- incr(Y,Y1), caseTestValideVide(X,Y1), gagneTestDirect(X,Y1,J). %Case au dessus gagnante aussi
 testAccumulation(X,Y,J,1) :- decr(Y,Y1), caseTestValideVide(X,Y1), gagneTestDirect(X,Y1,J). %Case en dessous gagnante aussi
-testAccumulation(X,Y,J,0). %Pas d'accumulation.
+testAccumulation(_,_,_,0). %Pas d'accumulation.
 
 caseTestValideVide(X,Y):-
 	nbColonnes(NBCOLONNES), X=<NBCOLONNES, X>=1,
 	caseVideTest(X,Y). %Case vide
 
-testFinal(R1,R2,R3,R4,P,A,1):-
+testFinal(R1,_,_,_,_,_,1):-
 	R1 > 2.
-testFinal(R1,R2,R3,R4,P,A,1):-
+testFinal(_,R2,_,_,_,_,1):-
 	R2 > 2.
-testFinal(R1,R2,R3,R4,P,A,1):-
+testFinal(_,_,R3,_,_,_,1):-
 	R3 > 2.
-testFinal(R1,R2,R3,R4,P,A,1):-
+testFinal(_,_,_,R4,_,_,1):-
 	R4 > 2.
-testFinal(R1,R2,R3,R4,P,A,0):-
+testFinal(_,_,_,_,P,_,0):-
 	P>1.
 testFinal(_,_,_,_,_,A,-5):-
 	A >0.
@@ -301,7 +300,7 @@ gagneColonneTest(X,Y,J,0,1) :-
 	incr(Y,Ytemp),
 	incr(Ytemp,Ydessus),
 	gagneTestDirect(X,Ydessus,J).
-gagneColonneTest(X,Y,J,0,0).
+gagneColonneTest(_,_,_,0,0).
 
 %%% En ligne %%%
 

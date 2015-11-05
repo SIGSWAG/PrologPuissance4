@@ -28,7 +28,7 @@ evalJeu(JoueurCourant,AutreJoueur,X,Y,Score) :-
 	evalPosition(JoueurCourant,Score1,PoidsPosition),
 	evalPuissances3(JoueurCourant,AutreJoueur,Score2,PoidsPuissance3),
 	densite(JoueurCourant,Score3,PoidsDensite),
-	evalAdjacence(X,Y,Joueur,Score4, PoidsAdjacence),
+	evalAdjacence(X,Y,_,Score4, PoidsAdjacence),
 	retract(caseTest(X,Y,JoueurCourant)),
 	retract(ennemiTest(AutreJoueur)),
 	random_between(-2,2,Perturbation),
@@ -78,7 +78,7 @@ evalCase(X,Y,Courant,ScoreCase) :-
 
 ponderationJ(X,Y, Courant,1) :-
 	caseTest(X,Y,Courant), !.
-ponderationJ(X,Y,Courant,-1) :-
+ponderationJ(X,Y,_,-1) :-
 	ennemiTest(J),
 	caseTest(X,Y,J), !.
 ponderationJ(_,_,_,0).
@@ -137,7 +137,7 @@ evalAdjacence(_,_,_,0,_).
 % Note s'unifie au score de la position.
 densite(J,Note,PoidsDensite) :- PoidsDensite>0, Z is 1, calculNbPoints(J,Z,Note).
 densite(_,0,_).
-calculNbPoints(J,Z,Note) :- Z>6, Note is 0.
+calculNbPoints(_,Z,Note) :- Z>6, Note is 0.
 calculNbPoints(J,Z,Note) :- nbPointsZone(J,Z,N), incr(Z,ZP), calculNbPoints(J,ZP,NP), Note is N+NP.
 nbPointsZone(J,Z,NbPoints) :- nbPionsZone(J,Z,N), pow(N,2,NbPoints).
 
@@ -146,7 +146,7 @@ nbPointsZone(J,Z,NbPoints) :- nbPionsZone(J,Z,N), pow(N,2,NbPoints).
 % Donne le nombre de pions contenu dans une zone.
 % NbPions s'unifie au nombre de pions contenu dans une zone.
 nbPionsZone(J,Z,NbPions) :-
-	aggregate_all(count,caseTestZone(Z,J,X,Y),NbPions).
+	aggregate_all(count,caseTestZone(Z,J,_,_),NbPions).
 
 caseTestZone(Zone,Joueur,X,Y) :- caseTest(X,Y,Joueur), zone(Zone,X,Y).
 zone(1,X,Y) :- X =<3, Y =< 3.
@@ -174,8 +174,8 @@ gagneTestDirect(X,Y,J) :-
 gagneTestDirectLigne(X,Y,J) :-
 	decr(X,X1),
 	gaucheVerif(X1,Y,J,Rg),
-	incr(X,X2),
-	droiteVerif(X,Y2,J,Rd),
+	incr(X,_),
+	droiteVerif(X,_,J,Rd),
 	!,
 	Rf is Rg+Rd, Rf>2.
 
