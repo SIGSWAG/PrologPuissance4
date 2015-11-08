@@ -425,14 +425,14 @@ droiteTestHaut(X,Y,J,R,Rg,Pg,Ag) :-
 %%%%% gagneTestDirect %%%%%
 
 
-
-
 gagneTestDirect(X,Y,J) :-
 	gagneTestDirectLigne(X,Y,J).
 gagneTestDirect(X,Y,J) :-
 	gagneTestDirectDiag1(X,Y,J).
 gagneTestDirect(X,Y,J) :-
 	gagneTestDirectDiag2(X,Y,J).
+gagneTestDirect(X,Y,J) :-
+    gagneTestDirectColonne(X,Y,J).
 	
 
 %%% En ligne %%%
@@ -528,7 +528,16 @@ droiteHaut(X,Y,J,R,Rg) :-
 	incr(X,X1),
 	incr(R,R1),
 	droiteHaut(X1,Y1,J,R1,Rg).
-	
+
+%%% En colonne %%%
+
+gagneTestDirectColonne(X,Y,J) :-
+    decr(Y,Y1),
+    caseTest(X,Y1,J),
+    decr(Y1,Y2),
+    caseTest(X,Y2,J),
+    decr(Y2,Y3),
+    caseTest(X,Y3,J).
 	
 %%%%%%% caseVideTest %%%%%
 
