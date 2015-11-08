@@ -1,4 +1,5 @@
-﻿%%%%%%%%%%%% run.pl %%%%%%%%%%%%
+﻿%%%%%%%%%%%% testIAs.pl %%%%%%%%%%%%
+% Permet de tester comment performent différentes IAs lorsqu'elles jouent l'une contre l'autre.
 
 %%%%%%%%%%%%%%%%
 %% Inclusions %%
@@ -16,6 +17,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats publics %%
 %%%%%%%%%%%%%%%%%%%%%%%
+
 % runTest/3
 % NbIterations: le nombre de parties à jouer,
 % IA1 et IA2 : les identifiants des 2 IA à confronter
@@ -53,10 +55,10 @@ incrementerGagnant(false,rouge,NbIA1GagneIni,NbIA1GagneFin,NbIA2GagneIni,NbIA2Ga
 incrementerGagnant(false,jaune,NbIA1GagneIni,NbIA1GagneIni,NbIA2GagneIni,NbIA2GagneFin) :-
 	NbIA2GagneFin is NbIA2GagneIni+1.
 
-jeu(PartieNulle) :- 	
+jeu(PartieNulle) :-
 	tour(PartieNulle).
 
-tour(PartieNulle) :- 
+tour(PartieNulle) :-
 	joueurCourant(CouleurJCourant,TypeJoueur),
 	obtenirCoup(CouleurJCourant,TypeJoueur,Coup),
 	placerJeton(Coup,Y,CouleurJCourant),

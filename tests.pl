@@ -1,4 +1,5 @@
-%%%%%%%%%%%% tests.pl %%%%%%%%%%%%
+﻿%%%%%%%%%%%% tests.pl %%%%%%%%%%%%
+% Quelques tests unitaires.
 
 :- use_module(jeu).
 :- use_module(util).
@@ -33,23 +34,21 @@ t_gagne_diagonale2 :-
 	assert(case(2,2,rouge)),
 	assert(case(1,1,rouge)),
 	gagne(1,1,rouge).
-	
-%%%%% Tests Minimax %%%%%
-	
-t_minimax_prof1:- 
-assert(evaluation(test1)),	
-parcoursArbre(rouge,1,R,Value),retract(evaluation(X)),R==4,Value==10.
 
-t_minimax_prof2:- 
-assert(evaluation(test1)),	
-parcoursArbre(rouge,2,R,Value),retract(evaluation(X)),R==1,Value==(-5).
+%%%%% Tests Minimax %%%%%
+
+t_minimax_prof1 :-
+	assert(evaluation(test1)),
+	parcoursArbre(rouge,1,R,Value),retract(evaluation(X)),R==4,Value==10.
+
+t_minimax_prof2 :-
+	assert(evaluation(test1)),
+	parcoursArbre(rouge,2,R,Value),retract(evaluation(X)),R==1,Value==(-5).
 
 
 
 %%%%% Tests changer de joueur (changerJoueur) %%%%%
 
-% A vérifier
-	
 t_changer_joueur1 :-
 	assert(joueurCourant(rouge, 1)),
 	assert(autreJoueur(jaune, 2)),
@@ -67,7 +66,7 @@ t_changer_joueur2 :-
 	retractall(autreJoueur(_,_)).
 
 %%%%% Tests coup valide (coupValide) %%%%%
-	
+
 t_coup_valide1 :-
 	coupValide(1),
 	coupValide(2),
@@ -76,16 +75,16 @@ t_coup_valide1 :-
 	coupValide(5),
 	coupValide(6),
 	coupValide(7).
-	
+
 t_coup_invalide1 :-
 	not(coupValide(0)).
-	
+
 t_coup_invalide2 :-
 	not(coupValide(8)).
-	
+
 t_coup_invalide3 :-
 	not(coupValide(-1)).
-	
+
 t_coup_valide2 :-
 	assert(case(1,1,rouge)),
 	assert(case(1,2,rouge)),
@@ -93,7 +92,7 @@ t_coup_valide2 :-
 	assert(case(1,4,rouge)),
 	assert(case(1,5,rouge)),
 	coupValide(1).
-	
+
 t_coup_invalide4 :-
 	assert(case(1,1,rouge)),
 	assert(case(1,2,rouge)),
@@ -103,7 +102,7 @@ t_coup_invalide4 :-
 	assert(case(1,5,rouge)),
 	assert(case(1,6,rouge)),
 	not(coupValide(1)).
-	
+
 %%%%% Tests insérer jeton (insererJeton) %%%%%
 
 t_inserer_jeton1 :-
@@ -111,7 +110,7 @@ t_inserer_jeton1 :-
 	X == 1,
 	case(1,1, rouge),
 	retractall(case(_,_,_)).
-	
+
 t_inserer_jeton2 :-
 	insererJeton(1, _, rouge),
 	insererJeton(1, _, rouge),
@@ -119,4 +118,4 @@ t_inserer_jeton2 :-
 	case(1,1, rouge),
 	case(1,2, rouge),
 	case(2,1, jaune),
-	retractall(case(_,_,_)).	
+	retractall(case(_,_,_)).

@@ -1,4 +1,8 @@
-﻿%%%%%%%%%%%% ihm.pl %%%%%%%%%%%%
+﻿%%%%%%%%%%%%%%
+%% DÉPRÉCIÉ %%
+%%%%%%%%%%%%%%
+
+%%%%%%%%%%%% ihm.pl %%%%%%%%%%%%
 
 :- module(ihm, [afficher/0, demandeCoup/3, afficherGagnant/4, afficherPartieNulle/0, demandeTypeDeJeu/1]).
 
@@ -11,7 +15,7 @@
 % afficher/0
 % Affiche dans la console la partie actuelle.
 % Tout le temps vrai.
-afficher :- 
+afficher :-
 	findall(_, afficherColonne(_), _),
 	nl,
 	findall(_, afficherPlateau(_), _).
@@ -53,7 +57,7 @@ demandeTypeDeJeu(TypeDeJeu) :-
 	write(' ----------------------- '), nl,
     write('Saisissez votre choix :'), nl,
     read(TypeDeJeu), integer(TypeDeJeu).
-	
+
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Prédicats privés %%

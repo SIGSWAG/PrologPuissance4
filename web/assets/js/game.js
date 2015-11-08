@@ -3,7 +3,7 @@
 * path : the RELATIVE path to send the request
 * params : json object conteining GET parameters
 *
-* return the json response 
+* return the json response
 */
 function ajaxGETjson(path, params){
 	console.log("AJAX : "+path+" | "+$.param(params));
@@ -58,7 +58,7 @@ var Game = {
 	currentPlayer : null,
 
 	init : function(){
-		addMsg("Initialisation du jeu ...",'primary');
+		addMsg("Initialisation du jeu...",'primary');
 		Game.player1 = new Player();
 		Game.player2 = new Player();
 		currentPlayer = null;
@@ -98,19 +98,19 @@ var Game = {
 				if(Game.player1.code === 0){
 					Game.player1.code = $(this).attr("data-id");
 					Game.player1.name = $(this).attr("data-name");
-					addMsg(Game.player1.name+" a été séléctionné(e).","success");
+					addMsg(Game.player1.name+" a été sélectionné(e).","success");
 					addMsg("Sélectionnez le joueur 2.");
 				}
 				else if(Game.player2.code === 0){
 					Game.player2.code = $(this).attr("data-id");
 					Game.player2.name = $(this).attr("data-name");
-					addMsg(Game.player2.name+" a été séléctionné(e).","success");
+					addMsg(Game.player2.name+" a été sélectionné(e).","success");
 					$playerSelection.addClass("hide").find(".player").remove();
-					addMsg("Confirmation de la selection des joueurs ...","primary");
+					addMsg("Confirmation de la sélection des joueurs...","primary");
 					var ajax = ajaxGETjson('selectPlayers', {joueur1:Game.player1.code, joueur2:Game.player2.code});
 					ajax.success(function(json, statut){
 						if(json.correct){
-							addMsg("Selection des joueurs confirmée.","success");
+							addMsg("Sélection des joueurs confirmée.","success");
 							if(json.rouge == Game.player1.code){
 								Game.player1.color = 'rouge';
 								Game.player2.color = 'jaune';
@@ -121,7 +121,7 @@ var Game = {
 								Game.player2.color = 'rouge';
 								Game.currentPlayer = Game.player2;
 							}
-							addMsg(Game.player1.name+" est "+Game.player1.color+", "+Game.player2.name+" est "+Game.player2.color,"success");
+							addMsg(Game.player1.name+" est "+Game.player1.color+", "+Game.player2.name+" est "+Game.player2.color + ".","success");
 							Game.askReady();
 						}
 						else{
@@ -160,7 +160,7 @@ var Game = {
 		$controlNextButton.removeClass("hide");
 	},
 	askColumn : function(){
-		addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") doit choisir une colonne.");
+		addMsg(Game.currentPlayer.name+" ("+Game.currentPlayer.color+") doit choisir une colonne.");
 		var clickHandler = function(event){
 			var $this = $(this);
 			$(".board-column").removeClass("selectable")
@@ -176,7 +176,7 @@ var Game = {
 						Game.playTurn();
 					}
 					else{
-						addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") joue en [col,row] : ["+json.colPlayed+","+json.rowPlayed+"]", Game.currentPlayer.color,function(){
+						addMsg(Game.currentPlayer.name+" ("+Game.currentPlayer.color+") joue en ["+json.colPlayed+","+json.rowPlayed+"]", Game.currentPlayer.color,function(){
 							$("#cell-"+json.colPlayed+"-"+json.rowPlayed).find(".board-token").toggleClass("active");
 						});
 						Game.insertToken(json.colPlayed, json.rowPlayed);
@@ -186,17 +186,17 @@ var Game = {
 								Game.playTurn();
 								break;
 							case "win" :
-								addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") a gagné la partie !", "win");
+								addMsg(Game.currentPlayer.name+" ("+Game.currentPlayer.color+") a gagné la partie !", "win");
 								Game.reset();
 								break;
-							case "draw" : 
-								addMsg("Haa bah bravo ! Vous avez fait égalité ... C'est malin ...", "win");
+							case "draw" :
+								addMsg("Haa bah bravo ! Vous avez fait égalité... C'est malin...", "win");
 								Game.reset();
 								break;
 							default :
 								Game.error("Erreur lors de la récupération du coup de "+Game.currentPlayer.name+". gameStatus : '"+json.gameStatus+"' est inconnu.", 7);
 						}
-					}					
+					}
 				}
 				else{
 					Game.error("Erreur lors de la récupération du coup de "+Game.currentPlayer.name+".", 6);
@@ -216,7 +216,7 @@ var Game = {
 			.on("mouseleave",hoverOutHandler);
 	},
 	playTurn : function(){
-		addMsg("C'est le tour de "+Game.currentPlayer.name+"("+Game.currentPlayer.color+")");
+		addMsg("C'est le tour de "+Game.currentPlayer.name+" ("+Game.currentPlayer.color+") !");
 		// is it human or IA ?
 		if(Game.currentPlayer.code == 1){
 			// Human
@@ -227,7 +227,7 @@ var Game = {
 			var ajax = ajaxGETjson('playFromIA', {});
 			ajax.success(function(json, statut){
 				if(json.correct){
-					addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") joue en [col,row] : ["+json.colPlayed+","+json.rowPlayed+"]", Game.currentPlayer.color,function(){
+					addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") joue en ["+json.colPlayed+","+json.rowPlayed+"]", Game.currentPlayer.color,function(){
 						$("#cell-"+json.colPlayed+"-"+json.rowPlayed).find(".board-token").toggleClass("active");
 					});
 					Game.insertToken(json.colPlayed, json.rowPlayed);
@@ -242,11 +242,11 @@ var Game = {
 							}
 							break;
 						case "win" :
-							addMsg(Game.currentPlayer.name+"("+Game.currentPlayer.color+") a gagné la partie !", "win");
+							addMsg(Game.currentPlayer.name+" ("+Game.currentPlayer.color+") a gagné la partie !", "win");
 							Game.reset();
 							break;
-						case "draw" : 
-							addMsg("Haa bah bravo ! Vous avez fait égalité ... C'est malin ...", "win");
+						case "draw" :
+							addMsg("Haa bah bravo ! Vous avez fait égalité... C'est malin...", "win");
 							Game.reset();
 							break;
 						default :
@@ -287,7 +287,6 @@ $(function(){
 		else{
 			$this.removeClass("glyphicon-plus").addClass("glyphicon-minus");
 		}
-	});	
+	});
 	Game.init()
 });
-
